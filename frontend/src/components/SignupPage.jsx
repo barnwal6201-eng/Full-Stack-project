@@ -350,7 +350,8 @@ const SignupPage = () => {
 
             <div className={signUpStyles.submitContainer}>
                 <button
-                type='button'
+                type='submit'
+                onClick={handleSubmit}
                 disabled={isLoading}
                 className={`${signUpStyles.submitButton.base} ${
                     isLoading ? signUpStyles.submitButton.loading : ""

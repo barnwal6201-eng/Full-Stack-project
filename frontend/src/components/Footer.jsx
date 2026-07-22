@@ -164,7 +164,7 @@ const Footer = () => {
                             <div className={footerStyles.contactIconContainer}>
                                 <Phone className={footerStyles.contactIcon} />
                             </div>
-                            <span className={footerStyles.contactText}>+91 8299431275</span>
+                            <span className={footerStyles.contactText}>+91 {`${import.meta.env.VITE_WHATSAPP_NUMBER}`}</span>
                         </li>
                         <li className={footerStyles.contactItem}>
                             <div className={footerStyles.contactIconContainer}>
