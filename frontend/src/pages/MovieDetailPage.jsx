@@ -1,6 +1,9 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {movieDetailStyles} from '../assets/dummyStyles'
 import movies from '../assets/dummymdata';
+import {toast} from 'react-toastify'
+import { ArrowLeft, Calendar, Play, Star, X } from 'lucide-react'
 
     const ROWS = [
         {id: 'A', type: 'Standard', count: 8},
@@ -88,17 +91,362 @@ const MovieDetailPage = () => {
 
     //Trailer-related state
     const [showTrailer, setShowTrailer] = useState(false);
-    const [selectedTrailerId, setSelectedTrailer] = useState(null);
+    const [selectedTrailerId, setSelectedTrailerId] = useState(null);
     const [selectedMovie, setSelectedMovie] = useState(null);
 
     const [selectedDay, setSelectedDay] = useState(0);
     const [selectedTime, setSelectedTime] = useState(null);
 
+    useEffect(()=>{
+        if(!movie){
+            toast.error('Movies not found');
+        }
+    },[movie]);
+
+    /**
+     * Build showtimeDays by grouping only the dates present in movie.slots.
+     * 
+     * NOTE: Accepts slots in either format:
+     *   - string ISO: "2025-09-24T10:00:00+05:30"
+     *   - object : {time: "2025-09-24T10:00:00+05:30", audi: "Audi 1"}
+     *   - object with different key names : {datetime: "...", iso:"...", date: "..", audiName: "..."}
+     */
+
+    const showTimeDays = useMemo(() => {
+        if(!movie) return [];
+
+        const TZ = "Asia/Kolkata";
+        const slotsByDate = {};
+
+        (movie.slots || []).forEach((slot) => {
+            try {
+                //normalize slot -> obtain iso string and audi (optional)
+                let iso = null;
+                let audi = null;
+
+                if(!slot) return;
+
+                if(typeof slot === "string") {
+                    iso = slot;
+                }else if(typeof slot === "object"){
+                    //accept several possible property names
+                    iso = 
+                    slot.time ||
+                    slot.datetime ||
+                    slot.iso ||
+                    slot.date ||
+                    slot.datetimeISO ||
+                    null;
+                    //prefer standard keys for audi
+                    audi = 
+                    slot.audi ||
+                    slot.audiName ||
+                    slot.auditorium ||
+                    slot.auditoriumName ||
+                    null;
+                }
+
+                if(!iso) return;
+                const d = new Date(iso);
+                if(Number.isNaN(d.getTime())) return;
+
+                const dateKey = formatDateKey(d, TZ);
+                if(!slotsByDate[dateKey]) slotsByDate[dateKey] = [];
+                //store normalized slot object so downstream can access audi when present
+                slotsByDate[dateKey].push({ iso, audi });
+            } catch (error) {
+                //ignore invalid slot
+            }
+        });
+
+        const dateKeys = Object.keys(slotsByDate).sort();
+
+        const days = dateKeys.map((key) => {
+            const [yy, mm, dd] = key.split("-").map(Number);
+            const asDate = new Date(Date.UTC(yy, mm - 1, dd));
+            const dayName = new Intl.DateTimeFormat("en-US", {
+                weekday: "long",
+                timeZone: TZ,
+            }).format(asDate);
+            const shortDay = new Intl.DateTimeFormat("en-US", {
+                weekday: "short",
+                timeZone: TZ,
+            }).format(asDate);
+            const dateStr = new Intl.DateTimeFormat("en-US", {
+                month: "short",
+                day: "numeric",
+                timeZone: TZ,
+            }).format(asDate);
+
+            const rawSlots = slotsByDate[key] || [];
+
+            const showTimes = rawSlots.map(({ iso, audi}) => {
+                const d = new Date(iso);
+                if(Number.isNaN(d.getTime())) return null;
+                const timeLabel = formatTimeInTZ(iso, TZ);
+                return{
+                    time: timeLabel,
+                    datetime: iso,
+                    timestamp: d.getTime(),
+                    audi: audi ?? null,
+                };
+            })
+            .filter(Boolean)
+            .sort((a,b) => a.timestamp - b.timestamp)
+            .map(({time, datetime, audi}) => ({time, datetime, audi}));
+
+            return {
+                date: key,
+                dayName,
+                shortDay,
+                dateStr,
+                showTimes,
+            };
+        });
+     
+        return days;
+    }, [movie]);
+
+    //Ensure selectedDay is valid when showTimeDays changes
+    useEffect(() => {
+        if(showTimeDays.length === 0) {
+            setSelectedDay(0);
+            setSelectedTime(null);
+            return;
+        }
+        setSelectedDay((curr) => {
+            const newIndex = curr >= 0 && curr < showTimeDays.length ? curr : 0;
+            return newIndex;
+        });
+        setSelectedTime(null);
+    }, [showTimeDays]);
+
+    //Trailer open/close handlers
+    const openTrailer = (movieObj) => {
+        const idFormField = movieObj?.trailerId ?? null;
+        const id = idFormField || extractYouTubeId(movieObj?.trailer || "");
+        if(!id){
+            toast.info("Trailer not available for this movie");
+            return;
+        }
+        setSelectedMovie(movieObj);
+        setSelectedTrailerId(id);
+        setShowTrailer(true);
+    };
+
+    const closeTrailer = () => {
+        setSelectedMovie(null);
+        setSelectedTrailerId(null);
+        setShowTrailer(false);
+    };
+
+    if(!movie){
+        return(
+            <div className={movieDetailStyles.notFoundContainer}>
+                <div className={movieDetailStyles.notFoundContent}>
+                    <h2 className={movieDetailStyles.notFoundTitle}>Movie not found.</h2>
+                    <Link to="/movies" className={movieDetailStyles.notFoundLink}>Back to Movies</Link>
+                </div>
+            </div>
+        )
+    }
+
+    const handleTimeSelect = (datetime) => {
+        setSelectedTime(datetime);
+        const key = encodeURIComponent(datetime);
+        navigate(`/movies/${movie.id}/seat-selector/${key}`);
+    }
+
+    const handleBookNow = () => {
+        if(selectedTime) {
+            const key = encodeURIComponent(selectedTime);
+            navigate(`/movies/${movie.id}/seat-selector/${key}`);
+        } else {
+            toast.error("Please select a showtime first");
+        }
+    };
+
+    const getBookedCountFor = (datetime) => {
+        try {
+            const key = `bookings_${movie.id}_${datetime}`;
+            const raw = localStorage.getItem(key);
+            if(!raw) return 0;
+            const arr = JSON.parse(raw);
+            return Array.isArray(arr) ? arr.length : 0;
+        } catch (error) {
+            return 0;
+        }
+    };
 
   return (
    
-    <div>
-      Movies
+    <div className={movieDetailStyles.container}>
+     {showTrailer && selectedTrailerId(
+        <div className={movieDetailStyles.modalOverlay}>
+            <div className={movieDetailStyles.modalContainer}>
+                <button
+                onClick={closeTrailer}
+                className={movieDetailStyles.closeButton}
+                >
+                    <X size={36} />
+                </button>
+
+                <div className={movieDetailStyles.videoContainer}>
+                    <iframe 
+                    key={selectedTrailerId}
+                    width="100%"
+                    height="100%"
+                    src={getEmbedUrl(selectedTrailerId)} 
+                    title={`${selectedMovie?.title || "Trailer"} Trailer`}
+                    frameborder="0"
+                    allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+                    allowFullScreen
+                    className={movieDetailStyles.videoIframe}
+                    />
+                </div>
+            </div>
+        </div>
+     )}
+
+     <div className={movieDetailStyles.wrapper}>
+        <div className={movieDetailStyles.header}>
+            <Link to='/movies' className={movieDetailStyles.backButton}>
+            <ArrowLeft size={18}/>
+            <span className={movieDetailStyles.backText}>Back</span>
+            </Link>
+        </div>
+
+        <div className={movieDetailStyles.titleContainer}>
+            <h1 className={movieDetailStyles.movieTitle}
+            style={{
+                fontFamily: "'Cinzel', 'Times New Roman', serif",
+                textShadow: "0 4px 20px rgba(220, 38, 38, 0.6)",
+                letterSpacing: "0.08em",
+            }}
+            >
+                {movie.title}
+            </h1>
+
+            <div className={movieDetailStyles.movieMeta}>
+                <span className={movieDetailStyles.metaItem}>
+                    <Star className={`${movieDetailStyles.metaIcon} ${movieDetailStyles.ratingIcon}`} />
+                    {movie.rating}/10
+                </span>
+
+                <span className={movieDetailStyles.metaItem}>
+                    <Star className={`${movieDetailStyles.metaIcon} ${movieDetailStyles.durationIcon}`} />
+                    {movie.duration}
+                </span>
+
+                <span className={movieDetailStyles.genreTag}>{movie.genre}</span>
+            </div>
+        </div>
+
+        <div className={movieDetailStyles.mainLayout}>
+            <div className={movieDetailStyles.leftColumn}>
+                <div className={movieDetailStyles.posterCard}>
+                    <div className={movieDetailStyles.posterImage} style={{maxWidth: '320px'}}>
+                       <img src={movie.image} alt={movie.title}
+                       onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 
+                        "https://via.placeholder.com/320x480?text=No+Image";
+                       }}
+                       className={movieDetailStyles.posterImg}
+                       />
+                    </div>
+
+                    {/**Watch Trailer */}
+                    <button onClick={() => openTrailer(movie)} className={movieDetailStyles.trailerButton}>
+                        <Play size={18} />
+                        <span>Watch Trailer</span>
+                    </button>
+                </div>
+            </div>
+
+            <div className={movieDetailStyles.rightColumns}>
+                <div className={movieDetailStyles.showtimesCard}>
+                    <h3
+                    className={movieDetailStyles.showtimesTitle}
+                    style={{ fontFamily: "'Cinzel', serif"}}
+                    >
+                        <Calendar className={movieDetailStyles.showtimesIcon} />
+                        <span>Showtimes</span>
+                    </h3>
+
+                    <div className={movieDetailStyles.daySelection}>
+                        {showTimeDays.map((day, index) => (
+                            <button
+                            key={day.date}
+                            onClick={()=> {
+                                setSelectedDay(index);
+                                setSelectedTime(null);
+                            }}
+                            className={`${movieDetailStyles.dayButton.base} ${
+                                selectedDay === index
+                                ? movieDetailStyles.dayButton.active
+                                : movieDetailStyles.dayButton.inactive
+                            }`}
+                            >
+                             <div className={movieDetailStyles.dayName}>
+                                {day.shortDay}
+                             </div>
+                             <div className={movieDetailStyles.dayDate}>
+                                {day.dateStr}
+                             </div>
+                            </button>
+                        ))}
+                    </div>
+                     
+                     <div className={movieDetailStyles.showtimesGrid}>
+                    {showTimeDays[selectedDay]?.showTimes.map((showtime, index) => {
+                        const bookedCount = getBookedCountFor(showtime.datetime);
+                        const isSoldOut = bookedCount >= TOTAL_SEATS;
+
+                        return (
+                            <button
+                            key={index}
+                            onClick={() => handleTimeSelect(showtime.datetime)}
+                            className={`${movieDetailStyles.timeButton.base} ${
+                                selectedTime === showtime.datetime
+                                ? movieDetailStyles.timeButton.active
+                                : movieDetailStyles.timeButton.inactive
+                            }`}
+                            title={
+                                isSoldOut
+                                ? "All seats booked for this showtime"
+                                : `Seats available: ${Math.max(
+                                    0,
+                                    TOTAL_SEATS - bookedCount
+                                )}`
+                            }
+                            aria-disabled={isSoldOut}
+                            >
+                            <span>{showtime.time}</span>
+                            {isSoldOut && (
+                                <span className={movieDetailStyles.soldOutBadge}>
+                                    Sold Out
+                                </span>
+                            )}
+                            </button>
+                        )
+                    })}
+                </div>
+
+                {selectedTime && (
+                    <div className={movieDetailStyles.proceedButton}>
+                    <button 
+                    onClick={handleBookNow}
+                    className={movieDetailStyles.bookButton}
+                    >
+                        Proceed to Seat Selection 
+                    </button>
+                    </div>
+                )}
+            </div>
+            </div>
+        </div>
+     </div>
     </div>
   )
 }
