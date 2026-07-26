@@ -55,7 +55,7 @@ const MoviesPage = () => {
             {visibleMovies.map((movie)=> (
               <Link 
               key={movie.id}
-              to={`/movies/${movie.id}`}
+              to={`/movie/${movie.id}`}
               className={moviesPageStyles.movieCard}
               >
                 <div className={moviesPageStyles.movieImageContainer}>

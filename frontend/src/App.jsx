@@ -8,6 +8,8 @@ import Release from './pages/Release'
 import Booking from './pages/Booking'
 import Contact from './pages/Contact'
 import MovieDetailPage from './pages/MovieDetailPage'
+import MovieDetailPageHome from './pages/MovieDetailPageHome'
+import SeatSealector from './pages/SeatSealector'
 
 const App = () => {
   return (
@@ -21,7 +23,11 @@ const App = () => {
       <Route path='/contact' element={<Contact />} />
       <Route path='/bookings' element={<Booking />} />
 
-      <Route path='/movies/:id' element={<MovieDetailPage />} />
+      <Route path='/movie/:id' element={<MovieDetailPage />} />
+      <Route path='/movies/:id' element={<MovieDetailPageHome />} />
+
+      <Route path='/movies/:id/seat-selector/:slot' element={<SeatSealector />} />
+      <Route path='/movie/:id/seat-selector/:slot' element={<SeatSealector />} />
     </Routes>
     </>
   )

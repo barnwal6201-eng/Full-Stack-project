@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import {movieDetailStyles} from '../assets/dummyStyles'
+import {movieDetailCSS, movieDetailStyles} from '../assets/dummyStyles'
 import movies from '../assets/dummymdata';
 import {toast} from 'react-toastify'
-import { ArrowLeft, Calendar, Play, Star, X } from 'lucide-react'
+import { ArrowLeft, Calendar, Play, Star, User, X } from 'lucide-react'
 
     const ROWS = [
         {id: 'A', type: 'Standard', count: 8},
@@ -25,7 +25,7 @@ import { ArrowLeft, Calendar, Play, Star, X } from 'lucide-react'
     );
 
     /**Utility: extract a youtube td from either an id or a full url */
-    function extractYouTubeId(urlOrId) {
+    export function extractYouTubeId(urlOrId) {
         if(!urlOrId) return null;
         if(/^[A-Za-z0-9_-]{6,}$/.test(urlOrId)) return urlOrId;
 
@@ -444,8 +444,129 @@ const MovieDetailPage = () => {
                     </div>
                 )}
             </div>
+
+            {/**Cast Section */}
+            <div className={movieDetailStyles.castCard}>
+                <h3 className={movieDetailStyles.castTitle} style={{ fontFamily: "'Cinzel', serif"}}>
+                  <User className={movieDetailStyles.castIcon} />
+                  <span>Cast</span>
+                </h3>
+
+                <div className={movieDetailStyles.castGrid}>
+                    {movie.cast && movie.cast.length ? (
+                        movie.cast.map((c, idx) => (
+                            <div key={idx} className={movieDetailStyles.castItem}>
+                                <div className={movieDetailStyles.castImageContainer}>
+                                    {c.img ? (
+                                        <img src={c.img} alt={c.name} className={movieDetailStyles.castImage}
+                                         onError={(e) => {
+                                         e.currentTarget.onerror = null;
+                                         e.currentTarget.src = 
+                                         "https://via.placeholder.com/80?text=A";
+                                           }}
+                                        />
+                                    ) : (
+                                        <FallbackAvatar className='w-20 h-20 mx-auto' />
+                                    )}
+                                </div>
+                                <div className={movieDetailStyles.castName}>{c.name}</div>
+                                <div className={movieDetailStyles.castRole}>{c.role}</div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className={movieDetailStyles.noCast}>No Cast data available</div>
+                    )}
+                </div>
+            </div>
             </div>
         </div>
+
+        {/**STORY SECTION */}
+        <div className={movieDetailStyles.storyCard}>
+            <h2 className={movieDetailStyles.storyTitle} style={{fontFamily: "'Cinzel', serif"}}>
+                Story
+            </h2>
+            <p className={movieDetailStyles.storyText}>{movie.synopsis}</p>
+        </div>
+
+        {/**Director && Producer Section */}
+        <div className={movieDetailStyles.crewGrid}>
+        <div className={movieDetailStyles.crewCard}>
+            <div className={movieDetailStyles.crewHeader}>
+                <User className={movieDetailStyles.crewIcon} />
+                <h3 className={movieDetailStyles.crewTitle} style={{fontFamily: "'Cinzel', serif"}}>
+                    Director
+                </h3>
+            </div>
+            <div className={movieDetailStyles.crewContent}>
+                {(()=>{
+                    const directors = Array.isArray(movie.director)
+                    ? movie.director
+                    : movie.director
+                    ? [movie.director]
+                    : [];
+
+                    return (
+                        <div className={movieDetailStyles.crewImageGrid}>
+                            {directors.length ? (
+                                directors.slice(0, 2).map((d, i) => (
+                                    <div key={i} className='flex flex-col items-center'>
+                                        {d?.img ? (
+                                            <img src={d.img}
+                                             alt={d.name || `Director ${i + 1}`}
+                                             className={movieDetailStyles.crewImage} 
+                                              onError={(e) => {
+                                              e.currentTarget.onerror = null;
+                                              e.currentTarget.src = 
+                                              "https://via.placeholder.com/96?text=D";
+                                              }} />
+                                        ) : (
+                                            <div className={movieDetailStyles.fallbackAvatar}> ? </div>
+                                        )}
+                                        <div className={movieDetailStyles.crewName}>
+                                            {d?.name ?? "N/A"}
+                                        </div>
+                                    </div>
+                                ))
+                            ): (
+                                <div className='flex flex-col items-center'>
+                                    <div className={movieDetailStyles.fallbackAvatar}>?</div>
+                                    <div className={movieDetailStyles.crewName}>N/A</div>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })()}
+                </div>
+            </div>
+
+            <div className={movieDetailStyles.crewCard}>
+                <div className={movieDetailStyles.crewHeader}>
+                    <User className={movieDetailStyles.crewIcon} />
+                    <h3 className={movieDetailStyles.crewTitle}
+                    style={{ fontFamily: "'Cinzel', serif"}}
+                    > Producer</h3>
+                </div>
+                <div className={movieDetailStyles.crewContent}>
+                    {movie.producer?.img ? (
+                        <img src={movie.producer.img} alt={movie.producer.name}
+                        className={movieDetailStyles.crewImage}
+                         onError={(e) => {
+                         e.currentTarget.onerror = null;
+                         e.currentTarget.src = 
+                         "https://via.placeholder.com/96?text=P";
+                         }}
+                        />
+                    ) : (
+                        <FallbackAvatar className='w-20 h-20 sm:h-24 mb-3 sm:mb-4' />
+                    )}
+                    <div className={movieDetailStyles.crewName}>
+                        {movie.producer?.name ?? "N/A"}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>{movieDetailCSS}</style>
      </div>
     </div>
   )
