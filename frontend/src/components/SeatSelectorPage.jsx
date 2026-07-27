@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { seatSelectorStyles } from '../assets/dummyStyles'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, RockingChair, Rows, Sofa, Ticket } from 'lucide-react'
+import { ArrowLeft, CreditCard, RockingChair, Rows, Sofa, Ticket } from 'lucide-react'
 import movies from '../assets/dummymdata'
 import { toast } from 'react-toastify'
 
@@ -107,7 +107,7 @@ const SeatSelectorPage = () => {
             totalAmount: Math.round(
                 [...selected].reduce((sum, s) => {
                     const rowLetter = s[0];
-                    const def = Rows.find((r) => r.id === rowLetter);
+                    const def = ROWS.find((r) => r.id === rowLetter);
                     const multiplier = def?.type === "recliner" ? 1.5 : 1;
                     return sum + (movie?.price ?? 0) * multiplier;
                 }, 0)
@@ -174,6 +174,7 @@ const SeatSelectorPage = () => {
       <style>{seatSelectorStyles.customCSS}</style>
 
       <div className={seatSelectorStyles.mainContainer}>
+        <div className={seatSelectorStyles.headerContainer}>
         <button 
         onClick={()=> Navigate(-1)}
         className={seatSelectorStyles.backButton}
@@ -352,10 +353,47 @@ const SeatSelectorPage = () => {
                         <button onClick={clearSelection} disabled={selectedCount === 0} className={seatSelectorStyles.clearButton}>
                             Clear
                         </button>
+                        <button onClick={confirmBooking} disabled={selectedCount === 0} className={seatSelectorStyles.confirmButton}>
+                            Confirm Booking
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className={seatSelectorStyles.pricingContainer}>
+                <h3 className={seatSelectorStyles.pricingTitle}>
+                    <CreditCard size={18} /> Pricing info
+                </h3>
+                <div className='space-y-3'>
+                    <div className={seatSelectorStyles.pricingItem}>
+                        <div className={seatSelectorStyles.pricingRow}>
+                            <div className={seatSelectorStyles.pricingLabel}>
+                                Standard
+                            </div>
+                            <div className={seatSelectorStyles.pricingValueStandard}>
+                                ₹{basePrice}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={seatSelectorStyles.pricingItem}>
+                        <div className={seatSelectorStyles.pricingRow}>
+                            <div className={seatSelectorStyles.pricingLabel}>
+                                Recliner
+                            </div>
+                            <div className={seatSelectorStyles.pricingValueRecliner}>
+                                ₹{Math.round(basePrice * 1.5)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={seatSelectorStyles.pricingNote}>
+                        All prices include taxes. No hidden charges.
                     </div>
                 </div>
             </div>
         </div>
+      </div>
       </div>
     </div>
   )
