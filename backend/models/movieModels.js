@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { trim } from "validator";
+import  trim  from "validator";
 
 const personSchema = new mongoose.Schema({
     name: {
@@ -77,16 +77,16 @@ const latestTrailerSchema = new mongoose.Schema({
 const movieSchema = new mongoose.Schema({
     type: {
         type: String,
-        enum: ["normal", "featured", "releaseSoon", "latestTrailers"],
+        enum: ["normal", "featured", "comingSoon", "latestTrailers"],
         default: "normal",
     },
-
     movieName: {
         type: String,
         trim: true
     }, 
     categories: {
-        type: String
+        type: [String],
+        default: []
     },
     poster: {
         type: String,

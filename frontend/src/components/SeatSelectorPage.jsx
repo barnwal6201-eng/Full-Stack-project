@@ -3,7 +3,8 @@ import { seatSelectorStyles } from '../assets/dummyStyles'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CreditCard, RockingChair, Rows, Sofa, Ticket } from 'lucide-react'
 import movies from '../assets/dummymdata'
-import { toast } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
+import Tickets from './Tickets'
 
 
 const ROWS = [
@@ -17,6 +18,9 @@ const ROWS = [
 const seatId = (r, n) => `${r}${n}`;
 
 const SeatSelectorPage = () => {
+    const [showTickets, setShowTickets] = useState(false);
+    const [bgColor, setBgColor] = useState(true);
+    const [ticketCount, SetTicketCount] = useState(1);
     const {id, slot} = useParams();
     const movieId = Number(id);
     const slotKey = slot ? decodeURIComponent(slot) : "";
@@ -68,6 +72,7 @@ const SeatSelectorPage = () => {
     },[storageKey]);
 
     const toggleSeat = (id) => {
+     
         if(booked.has(id)){
             console.log(`Seat ${id} is already booked. Booking details:`,{
                 movie: movie?.title,
@@ -77,12 +82,37 @@ const SeatSelectorPage = () => {
             });
             return;
         }
+
+        if (selected.size >= ticketCount && !selected.has(id)) {
+                toast.error(`You can only select ${ticketCount} seat(s).`);
+                return;
+              }
+
+        const row = id[0];
+        const num = Number(id.slice(1));
         setSelected((prev) => {
             const next = new Set(prev);
-            if(next.has(id)) next.delete(id);
-            else next.add(id);
+
+            if (next.has(id)) {
+            next.delete(id);
+            return next;
+            }
+            
+            let added = 0;
+            let i = 0;
+            while (added < ticketCount && next.size < ticketCount) {
+            const seatId = `${row}${num + i}`;
+            i++;
+
+            if(booked.has(seatId)) continue;
+            if (next.has(seatId)) continue;
+
+            next.add(seatId);
+            added++;
+            }
             return next;
         });
+
     };
 
     const clearSelection = () => setSelected(new Set());
@@ -170,13 +200,29 @@ const SeatSelectorPage = () => {
     }, [movie, slotKey]);
 
   return (
+    <>
+    {showTickets && 
+        <div 
+          className='fixed inset-0 z-50 flex justify-center items-center cursor-pointer'
+          style={bgColor ? { backgroundColor: 'rgba(0, 0, 0, 0.5)' } : {}}
+          >
+            <Tickets
+            ticketCount={ticketCount}
+            SetTicketCount={SetTicketCount}
+            showTickets={showTickets}
+            setShowTickets={setShowTickets}
+            />
+            </div>
+    }
+
     <div className={seatSelectorStyles.pageContainer}>
+
       <style>{seatSelectorStyles.customCSS}</style>
 
       <div className={seatSelectorStyles.mainContainer}>
         <div className={seatSelectorStyles.headerContainer}>
         <button 
-        onClick={()=> Navigate(-1)}
+        onClick={()=> navigate(-1)}
         className={seatSelectorStyles.backButton}
         >
             <ArrowLeft size={18} /> Back
@@ -218,6 +264,23 @@ const SeatSelectorPage = () => {
                     >{audiForSlot}</div>
                 )
             }
+        </div>
+        <div style={{
+            background: "linear-gradient(90deg,#ef4444,#dc2626)",
+            color: "#fff",
+            padding: "6px 12px",
+            borderRadius: 12,
+            fontWeight: 700,
+            boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 14,
+        }}
+        onClick={() => setShowTickets(true)}
+        >
+            Tickets: 
+          <span>{ticketCount}</span>
         </div>
       </div>
 
@@ -395,7 +458,7 @@ const SeatSelectorPage = () => {
         </div>
       </div>
       </div>
-    </div>
+    </div></>
   )
 }
 

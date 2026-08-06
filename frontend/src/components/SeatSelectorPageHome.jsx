@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, CreditCard, Film, RockingChair, Rows, Sofa, Ticket } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useMemo } from 'react'
+import Tickets from './Tickets'
 
 
 const ROWS = [
@@ -19,7 +20,10 @@ const seatId = (r, n) => `${r}${n}`;
 
 const SeatSelectorPageHome  = () => {
 
-  const {id, slot} = useParams();
+    const [showTickets, setShowTickets] = useState(false);
+     const [bgColor, setBgColor] = useState(true);
+    const [ticketCount, SetTicketCount] = useState(1);
+    const {id, slot} = useParams();
     const movieId = Number(id);
     const slotKey = slot ? decodeURIComponent(slot) : "";
     const navigate = useNavigate();
@@ -114,10 +118,34 @@ const SeatSelectorPageHome  = () => {
             toast.error(`Seat ${id} is already booked`)
             return;
         }
+
+        if (selected.size >= ticketCount && !selected.has(id)) {
+        toast.error(`You can only select ${ticketCount} seat(s).`);
+        return;
+        }
+        
+        const row = id[0];
+        const num = Number(id.slice(1));
         setSelected((prev) => {
             const next = new Set(prev);
-            if(next.has(id)) next.delete(id);
-            else next.add(id);
+
+            if (next.has(id)) {
+            next.delete(id);
+            return next;
+            }
+            
+            let added = 0;
+            let i = 0;
+            while (added < ticketCount && next.size < ticketCount) {
+            const seatId = `${row}${num + i}`;
+            i++;
+
+            if(booked.has(seatId)) continue;
+            if (next.has(seatId)) continue;
+
+            next.add(seatId);
+            added++;
+            }
             return next;
         });
     };
@@ -189,6 +217,20 @@ const SeatSelectorPageHome  = () => {
     const selectedCount = selected.size;
 
   return (
+    <>
+    {showTickets && 
+        <div 
+          className='fixed inset-0 z-50 flex justify-center items-center'
+          style={bgColor ? { backgroundColor: 'rgba(0, 0, 0, 0.5)' } : {}}
+          >
+            <Tickets
+            ticketCount={ticketCount}
+            SetTicketCount={SetTicketCount}
+            showTickets={showTickets}
+            setShowTickets={setShowTickets}
+            />
+            </div>
+    }
      <div className={seatSelectorHStyles.pageContainer}>
           <style>{seatSelectorHStyles.customCSS}</style>
     
@@ -232,6 +274,15 @@ const SeatSelectorPageHome  = () => {
                     )
                 }
             </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm
+                         bg-black/70 border border-red-600/50 text-red-500
+                         shadow-[0_0_12px_rgba(239,68,68,0.6),0_0_2px_rgba(239,68,68,0.8)] cursor-pointer"
+                         onClick={() => setShowTickets(true)}
+                         >
+            Tickets: 
+         <span>{ticketCount}</span>
+        </div>
+
           </div>
     
           <div className={seatSelectorHStyles.screenContainer}>
@@ -290,7 +341,7 @@ const SeatSelectorPageHome  = () => {
                                          return(
                                             <button
                                             key={id}
-                                            onClick={()=>toggleSeat(id)}
+                                            onClick={()=> toggleSeat(id)}
                                             disabled={isBooked}
                                             className={cls}
                                             title={
@@ -420,7 +471,7 @@ const SeatSelectorPageHome  = () => {
             </div>
           </div>
           </div>
-        </div>
+        </div></>
   )
 }
 

@@ -11,6 +11,7 @@ import MovieDetailPage from './pages/MovieDetailPage'
 import MovieDetailPageHome from './pages/MovieDetailPageHome'
 import SeatSelectorPageHome from './components/SeatSelectorPageHome'
 import SeatSelectorPage from './components/SeatSelectorPage'
+import { ToastContainer } from 'react-toastify'
 
 /**
  * ScrollToTop component
@@ -26,10 +27,13 @@ function ScrollToTop() {
     if(typeof window !== "undefined" && "scrollRestoration" in window.history) {
       try {
         window.history.scrollRestoration = 'manual';
+        
       } catch (err) {
         //ignore
       }
+      
     }
+    console.log("lalita")
   },[]);
 
   useEffect(() => {
@@ -73,6 +77,18 @@ const App = () => {
 
   return (
     <>
+     <ToastContainer
+      position='top-right'
+      autoClose={2000}
+      hideProgressBar={false}
+      newestOnTop
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme='black'
+      />
 
     <ScrollToTop />
     <div className='min-h-screen w-full overflow-x-hidden'>
