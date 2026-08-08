@@ -13,9 +13,9 @@ const mkToken = (payload) => jwt.sign(payload, JWT_SECRET , {expiresIn: TOKEN_EX
 //REGISTER FUNCTION
 export const registerUser = async (req, res) => {
     try {
-        const { fullName, username, email, phone, birthDate, password} = req.body || {};
+        const { fullName, username, email, phone, dateOfBirth, password} = req.body || {};
 
-        if(!fullName || !username || !email || !phone || !birthDate || !password) {
+        if(!fullName || !username || !email || !phone || !dateOfBirth || !password) {
             return res.status(400).json({
                 success: false,
                 message: 'All Fields are required.'
@@ -58,7 +58,7 @@ export const registerUser = async (req, res) => {
             })
         }
 
-        const parsedBirth = new Date(birthDate);
+        const parsedBirth = new Date(dateOfBirth);
         if(Number.isNaN(parsedBirth.getTime())){
             return res.status(400).json({
                 success: false,
@@ -87,7 +87,7 @@ export const registerUser = async (req, res) => {
             username: username.trim(),
             email: email.toLowerCase().trim(),
             phone: phone,
-            birthDate: parsedBirth,
+            dateOfBirth: parsedBirth,
             password: hashedPassword
         });
 
@@ -99,7 +99,7 @@ export const registerUser = async (req, res) => {
             username: newUser.username,
             email: newUser.email,
             phone: newUser.phone,
-            birthDate: newUser.birthDate
+            dateOfBirth: newUser.dateOfBirth
         }
 
         return res.status(201).json({

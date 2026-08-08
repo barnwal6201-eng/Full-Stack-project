@@ -4,7 +4,7 @@ import axios from 'axios'
 import { Calendar, Clock, Feather, Film, Play, Play as PlayIcon, Search, Star, Ticket, X } from 'lucide-react';
 
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 function getImageUrl(maybe) {
     if(!maybe) return null;
@@ -140,7 +140,7 @@ const ListMoviePage = () => {
             {key: "all", label: "All", icon: Film },
             {key: "normal", label: "Normal", icon: Ticket },
             {key: "featured", label: "Featured", icon: Star },
-            {key: "releaseSoon", label: "Coming Soon", icon: Calendar },
+            {key: "comingSoon", label: "Coming Soon", icon: Calendar },
             {key: "latestTrailers", label: "Trailers", icon: PlayIcon },
         ],
         []
@@ -311,7 +311,7 @@ function Card({item, onOpen, onDelete}) {
         const colors = {
             featured: 'from-orange-500 to-red-600',
             normal: 'from-blue-500 to-purple-600',
-            releaseSoon: 'from-green-500 to-emrald-600',
+            comingSoon: 'from-green-500 to-emrald-600',
             latestTrailers: 'from-pink-500 to-rose-600',
         };
         return colors[type] || 'from-gray-500 to-gray-600';
@@ -352,7 +352,7 @@ function Card({item, onOpen, onDelete}) {
                 </div>
 
                 <div className={styles5.cardRatingContainer}>
-                    {item.type !== 'releaseSoon' && (
+                    {item.type !== 'comingSoon' && (
                         <>
                         {item.rating && (
                             <div className={styles5.cardRating}>
@@ -389,7 +389,7 @@ function Card({item, onOpen, onDelete}) {
                         View Details
                     </button>
 
-                    {item.trailerUrl && item.type !== 'releaseSoon' && (
+                    {item.trailerUrl && item.type !== 'comingSoon' && (
                         <a href={item.trailerUrl} target='_blank' rel='noreferrer' onClick={(e) => e.stopPropagation()}
                         className={styles5.cardTrailerButton}>
                             <PlayIcon className={styles5.cardTrailerButton} /> Trailer 
@@ -468,7 +468,7 @@ function DetailView({item, onClose}){
         const gradients = {
             featured: 'from-orange-500 to-red-600',
             normal: 'from-blue-500 to-purple-600',
-            releaseSoon: 'from-green-500 to-emerald-600',
+            comingSoon: 'from-green-500 to-emerald-600',
             latestTrailers: 'from-pink-500 to-rose-600',
         };
         return gradients[type] || 'from-gray-500 to-gray-600';
@@ -487,7 +487,7 @@ function DetailView({item, onClose}){
                         <span className={styles5.detailTypeText}>
                             {item.type === 'featured' && 'Featured Movie'}
                             {item.type === 'normal' && 'Now Showing'}
-                            {item.type === 'releaseSoon' && 'Coming Soon'}
+                            {item.type === 'comingSoon' && 'Coming Soon'}
                             {item.type === 'latestTrailers' && 'Latest Trailer'}
                         </span>
                     </div>
@@ -661,7 +661,7 @@ function DetailView({item, onClose}){
                     </>
                 )}
 
-                {item.type === 'releaseSoon' && (
+                {item.type === 'comingSoon' && (
                     <div className={styles5.releaseSoonContainer}>
                         <div className={styles5.releaseSoonImage}>
                             <img src={item.poster} alt={item.movieName} className={styles5.detailPoster} />

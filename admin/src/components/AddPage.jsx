@@ -5,7 +5,7 @@ import { addMoviePageCustomStyles, addMoviePageStyles } from '../assets/dummySty
 import { Film, X, Image as ImageIcon, Users, Clock, Star, Play, Plus } from 'lucide-react'
 
 
-const API_HOST = 'http://localhost:5000';
+const API_HOST = import.meta.env.VITE_API_BASE_URL;
 
 const AddPage = () => {
 
@@ -220,8 +220,10 @@ const AddPage = () => {
         }
 
         if (!movieName.trim()) return 'Please enter movie name.';
-        if (movieType !== 'comingSoon' && !poster)
-            return 'Please add a poster image';
+
+        // FIX: poster is now required for every movie type, including Coming Soon
+        if (!poster) return 'Please add a poster image';
+
         if (movieType !== 'comingSoon') {
             if (!categories.length) return 'Please choose at least one category.';
         }
@@ -438,38 +440,37 @@ const AddPage = () => {
                             <div className={addMoviePageStyles.section}>
                                 <div className={addMoviePageStyles.gridCols2}>
 
-                                    {!isComingSoon && (
-                                        <div className={addMoviePageStyles.inputContainer}>
-                                            <label className={addMoviePageStyles.label}>Poster Image</label>
-                                            {posterPreview ? (
-                                                <div className={addMoviePageStyles.previewContainer}>
-                                                    <img src={posterPreview} alt="poster preview" className={addMoviePageStyles.previewImage} />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => { setPoster(null); setPosterPreview(null); }}
-                                                        className={addMoviePageStyles.removeButton}
-                                                    >
-                                                        <X className={addMoviePageStyles.removeIcon} />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <label className={addMoviePageStyles.uploadContainer}>
-                                                    <div className={addMoviePageStyles.uploadContent}>
-                                                        <div className={addMoviePageStyles.uploadIconContainer}>
-                                                            <ImageIcon className={addMoviePageStyles.iconMd} />
-                                                        </div>
-                                                        <span className={addMoviePageStyles.uploadText}>Click to upload poster</span>
+                                    {/* FIX: poster upload is now shown for Coming Soon too (removed !isComingSoon guard) */}
+                                    <div className={addMoviePageStyles.inputContainer}>
+                                        <label className={addMoviePageStyles.label}>Poster Image</label>
+                                        {posterPreview ? (
+                                            <div className={addMoviePageStyles.previewContainer}>
+                                                <img src={posterPreview} alt="poster preview" className={addMoviePageStyles.previewImage} />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setPoster(null); setPosterPreview(null); }}
+                                                    className={addMoviePageStyles.removeButton}
+                                                >
+                                                    <X className={addMoviePageStyles.removeIcon} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <label className={addMoviePageStyles.uploadContainer}>
+                                                <div className={addMoviePageStyles.uploadContent}>
+                                                    <div className={addMoviePageStyles.uploadIconContainer}>
+                                                        <ImageIcon className={addMoviePageStyles.iconMd} />
                                                     </div>
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handlePosterChange}
-                                                        className={addMoviePageStyles.uploadInput}
-                                                    />
-                                                </label>
-                                            )}
-                                        </div>
-                                    )}
+                                                    <span className={addMoviePageStyles.uploadText}>Click to upload poster</span>
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handlePosterChange}
+                                                    className={addMoviePageStyles.uploadInput}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
 
                                     <div className="space-y-4">
                                         <div className={addMoviePageStyles.inputContainer}>

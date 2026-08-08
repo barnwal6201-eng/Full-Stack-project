@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { loginStyles } from '../assets/dummyStyles';
-import {toast, ToastContainer} from 'react-toastify'
+import {toast } from 'react-toastify'
 import { ArrowLeft, Clapperboard, Eye, EyeOff, Film, Popcorn } from 'lucide-react';
+import axios from 'axios';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const LoginPage = () => {
 
@@ -21,58 +24,81 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     if(!formData.password || formData.password.length < 6){
         setIsLoading(false);
         toast.error("Password must be atleast 6 characters long");
-        console.log("Login Blocked");
         return;
     }
+   
+    try {
+        const payload = {
+            email: formData.email.trim(),
+            password: formData.password,
+        };
+        const res = await axios.post(`${API_BASE}/login`, payload, {
+            headers: {'Content-Type': 'application/json'}
+        });
 
-    console.log("Login Data :", formData);
+        const data = res.data;
+        if(data && data.success) {
+            toast.success(data.message || 'Login successfully! Redirecting...');
 
-    setTimeout(() => {
-        setIsLoading(false);
+            if(data.token) {
+                localStorage.setItem('token', data.token);
+            }
 
-        try {
-            const authObj = {isLoggedIn: true, email: formData.email};
-            localStorage.setItem('cine_auth', JSON.stringify(authObj));
-            localStorage.setItem('isLoggedIn', true);
-            localStorage.setItem('userEmail', formData.email || '');
-            localStorage.setItem('cine_user_email', formData.email || '');
-            console.log('Auth saved to localStorage:', authObj);
-        } catch (error) {
-            console.error("Failed to Login:", error);
+            try {
+                const userToStore = data.user || {email: formData.email};
+
+                localStorage.setItem(
+                    "cine_auth",
+                    JSON.stringify({
+                        isLoogedIn: true,
+                        email: userToStore.email || formData.email,
+                    })
+                );
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("UserEmail", userToStore.email || formData.email || "");
+                localStorage.setItem("cine_user_email", userToStore.email || formData.email || "");
+                localStorage.setItem("user", JSON.stringify(userToStore));
+            } catch (err) {
+                console.warn("Failed to persist full user obj");
+            }
+
+            setTimeout(() => {
+               window.location.href = '/'; 
+            }, 1200);
+        }else {
+            toast.error(data?.message || 'Login Failed');
         }
-        toast.success("Login Successful! Redirecting to your cinema...");
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 2000);
-    }, 1500);
+    } catch (err) {
+        console.error('Login error:', err);
+        const serverMsg = err?.response?.data?.message || err?.message || "Server error";
+
+        const msgLower = String(serverMsg).toLowerCase();
+        if(msgLower.includes("password") || msgLower.includes("invalid")) {
+            toast.error(serverMsg);
+        }else if(msgLower.includes('email')) {
+            toast.error(serverMsg);
+        }else{
+            toast.error(serverMsg);
+        }
+    }finally{
+        setIsLoading(false);
+    }
   };
 
   const goBack = () => {
-    window.history.back()
+    window.location.href = '/';
   };
   
 
   return (
     <div className={loginStyles.pageContainer}>
-      <ToastContainer
-      position= "top-right"
-      autoClose={2000}
-      hideProgressBar={false}
-      newestOnTop
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme='dark'
-      />
 
       <div className='relative w-full max-w-md z-10'>
       <div className={loginStyles.backButtonContainer}>

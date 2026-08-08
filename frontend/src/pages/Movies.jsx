@@ -1,11 +1,41 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { moviesStyles } from '../assets/dummyStyles'
 import movies from '../assets/dummymoviedata'
 import { Link } from 'react-router-dom';
 import { Tickets } from 'lucide-react';
+import React from 'react';
+
+const PLACEHOLDER_IMG = import.meta.env.VITE_PLACEHOLDER_IMG;
+const API_BASE = import.meta.env.VITE_API_BASE;
+
+const getUploadUrl = (maybe) => {
+  if(!maybe) return null;
+  if(typeof maybe !== 'string') return null;
+  if(maybe.startsWith("http://") || maybe.startsWith("https://")) return maybe;
+  return `${API_BASE}/uploads/${String(maybe).replace(/^uploads\//, "")}`;
+}
 
 const Movies = () => {
-    const visibleMovies = movies.slice(0, 6);
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    async function loadFeaturedMovies() {
+        try {
+            const url = `${API_BASE}/api/movies?featured=true&limit=6`;
+        } catch (err) {
+            
+        }
+    }
+  })
+
+  const visibleMovies = movies.slice(0, 6);
+
   return (
     <section className={moviesStyles.container}>
         <style>

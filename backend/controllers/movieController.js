@@ -29,7 +29,7 @@ const extractFilenameFromUrl = (u) => {
 const tryUnlinkUploadUrl = (urlOrFilename) => {
     const fn = extractFilenameFromUrl(urlOrFilename);
     if(!fn) return;
-    const filepath = Path.join(process.cwd(), "uploads", fn);
+    const filepath = path.join(process.cwd(), "uploads", fn);
     fs.unlink(filepath, (err) => {
         if(err) console.warn("Failed to unlink file", filepath, err?.message || err);
     }) ;

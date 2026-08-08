@@ -1,8 +1,75 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { releasesStyles } from '../assets/dummyStyles'
 import movies from '../assets/dummyrdata'
 
+
+const PLACEHOLDER_IMG = import.meta.env.VITE_PLACEHOLDER_IMG;
+const API_BASE = import.meta.env.VITE_API_BASE;
+
+const getUploadUrl = (maybeFilmnameOrUrl) => {
+  if(!maybeFilmnameOrUrl) return null;
+  if(typeof maybeFilmnameOrUrl !== 'string') return null;
+  if(maybeFilmnameOrUrl.startsWith("http://") ||
+     maybeFilmnameOrUrl.startsWith("https://"))
+     return maybeFilmnameOrUrl;
+
+     //assume it's a filename saved by multer
+     return `${API_BASE}/uploads/${maybeFilmnameOrUrl.replace(/^uploads\//, "")}`;
+};
+
+const mapBackendMovieToUi = (m) => {
+  const poster = m.poster || (m.latestTrailer && m.latestTrailer.thumbnail) || null;
+  const image = getUploadUrl(poster) || PLACEHOLDER_IMG;
+
+  const category = (Array.isArray(m.categories) && m.categories.join(", ")) ||
+     (m.latestTrailer && Array.isArray(m.latestTrailer.genres) && m.latestTrailer.genres.join(", ")) || "";
+
+     return {
+      id: m._id || m.id,
+      title: m.movieName || m.title || (m.latestTrailer && m.latestTrailer.title) || "Untitled",
+      image,
+      category,
+      raw: m,
+     };
+    };
+
 const ReleasePage = () => {
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const url = `${API_BASE}/api/movies?type=comingSoon&limit=100`;
+        const res = await fetch(url);
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+
+        const items = Array.isArray(json.items)
+           ? json.items : Array.isArray(json.data) ? json.data : [];
+
+        const mapped = (items || []).map(mapBackendMovieToUi);
+
+        if(!cancelled) setMovies(mapped);
+      } catch (err) {
+        console.error('Failed to Load', err);
+        if(!cancelled) setError('Fail to load releases');
+      }finally{
+        if(!cancelled) setLoading(false);
+      }
+    }
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className={releasesStyles.pageContainer}>
       <div className={releasesStyles.headerContainer}>

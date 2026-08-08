@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {styles3, fontStyles2} from '../assets/dummyStyles'
 import axios from 'axios'
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const fmtINR = (num) => 
     typeof num === 'number'
@@ -97,14 +97,190 @@ const DashboardPage = () => {
                     name: u.name || u.fullName || u.username || "",
                 }));
 
-            } catch (error) {
-                
+                if(!cancelled) {
+                    setMovies(normMovies);
+                    setBookings(normBookings);
+                    setUsers(normUsers);
+                }
+
+            } catch (err) {
+                console.error('dashboard fetch error:', err);
             }
         }
-    })
+        fetchAll();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const summary = useMemo(() => {
+        const totalBookings = bookings.length;
+
+        let totalRevenue = 0;
+        for(let i = 0; i < totalBookings; i++)
+            totalRevenue += bookings[i].totalPaid || 0;
+
+        const usersFromApi = new Set(users.map((u) => u.id).filter(Boolean));
+
+        const usersFromBookings = new Set();
+        for(let i = 0; i < totalBookings; i++){
+            const b = bookings[i];
+            if(b.userId) usersFromBookings.add(String(b.userId));
+            else if (b.customer) usersFromBookings.add(String(b.customer));
+            else if (b.raw && b.raw.email) usersFromBookings.add(String(b.raw.email));
+            else if (b.raw && b.raw.customerEmail)
+                usersFromBookings.add(String(b.raw.customerEmail));
+        }
+
+        const totalUsers = usersFromApi.size > 0 ? usersFromApi.size : usersFromBookings.size;
+
+        //per-movie aggregation - only include movies that actually have bookings
+        const map = {};
+
+        const movieTitleMap = {};
+        for(let i = 0; i < movies.length; i++){
+            const m = movies[i];
+            if(m.id) movieTitleMap[m.id] = m.title;
+        }
+
+        for(let i = 0; i < totalBookings; i++){
+            const bk = bookings[i];
+            const key = bk.movieId || bk.movieTitle || `unknown-${i}`;
+            const title = movieTitleMap[bk.movieId] || bk.movieTitle || 'Unknown';
+            if(!map[key]) map[key] = { id: key, title, bookings: 0, earnings: 0};
+            map[key].bookings += 1;
+            map[key].earnings += bk.totalPaid || 0;
+        }
+
+        const movieStats = Object.values(map).sort(
+            (a, b) => b.bookings - a.bookings
+        );
+
+        return {totalBookings, totalRevenue,totalUsers, movieStats};
+    }, [movies, bookings, users]);
+
+
   return (
-    <div>
-      
+    <div style={fontStyles2.cinzelFont} className={styles3.dashboardPageContainer}>
+      <div className={styles3.maxWidthContainer}>
+        <header className={styles3.dashboardHeaderContainer}>
+            <div>
+                <h1 className={styles3.dashboardTitle}>Dashboard</h1>
+                <p className={styles3.dashboardSubtitle}>
+                    Overview of paid bookings , revenue and users
+                </p>
+            </div>
+        </header>
+
+        <section className={styles3.summaryGrid}>
+            <div className={styles3.summaryCard}>
+                <div className={styles3.summaryCardInner}>
+                    <div>
+                        <div className={styles3.summaryLabel}>Total Bookings</div>
+                        <div className={styles3.summaryValue}>{summary.totalBookings}</div>
+                    </div>
+                    <div className={styles3.summaryBadge}>Bookings</div>
+                </div>
+                 <div className={styles3.summaryNote}>Paid orders only</div>
+            </div>
+
+            <div className={styles3.summaryCard}>
+                <div className={styles3.summaryCardInner}>
+                    <div>
+                        <div className={styles3.summaryLabel}>Total Revenue</div>
+                        <div className={styles3.summaryValue}>{fmtINR(summary.totalRevenue)}</div>
+                    </div>
+                    <div className={styles3.summaryBadge}>Revenue</div>
+                </div>
+                 <div className={styles3.summaryNote}>Paid bookings summed</div>
+            </div>
+
+            <div className={styles3.summaryCard}>
+                <div className={styles3.summaryCardInner}>
+                    <div>
+                        <div className={styles3.summaryLabel}>Total Users</div>
+                        <div className={styles3.summaryValue}>{summary.totalUsers}</div>
+                    </div>
+                    <div className={styles3.summaryBadge}>Users</div>
+                </div>
+                 <div className={styles3.summaryNote}>Regestered or booking users</div>
+            </div>
+        </section>
+
+        <section className={styles3.moviesSection}>
+            <div className={styles3.moviesHeader}>
+                <h2 className={styles3.movieTitle}>Movies - Bookins & Earnings</h2>
+                <div className={styles3.moviesCount}>
+                    {summary.movieStats.length}
+                </div>
+            </div>
+
+            <div className={styles3.tableContainer}>
+                <table className={styles3.table}>
+                    <thead>
+                        <tr className={styles3.tableHeader}>
+                            <th className={styles3.tableHeaderCell}>Movie</th>
+                            <th className={styles3.tableHeaderCell}>Total Bookings</th>
+                            <th className={styles3.tableHeaderCell}>Total Earnings</th>
+                            <th className={styles3.tableHeaderCell}>Avg per Booking</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {summary.movieStats.map((m) => {
+                            const avg = m.bookings ? Math.round(m.earnings / m.bookings) : 0;
+                            return (
+                                <tr key={m.id} className={styles3.tableRow}>
+                                    <td className={styles3.tableCell}>
+                                        <div className={styles3.tableMovieTitle}>{m.title}</div>
+                                    </td>
+                                    <td className={styles3.tableCell}>{m.bookings}</td>
+                                    <td className={styles3.tableEarnings}>{fmtINR(m.earnings)}</td>
+                                    <td className={styles3.tableAvg}>{fmtINR(avg)}</td>
+                                </tr>
+                            );
+                        })}
+                        {summary.movieStats.length === 0 && (
+                            <tr className={styles3.tableEmpty} colSpan={4}>No Movie Data Yet</tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div className={styles3.mobileList}>
+                {summary.movieStats.map((m) => {
+                    const avg = m.bookings ? Math.round(m.earnings / m.bookings) : 0;
+                    return (
+                        <div key={m.id} className={styles3.mobileCard}>
+                            <div className={styles3.mobileCardInner}>
+                                <div>
+                                    <div className={styles3.mobileMovieTitle}>{m.title}</div>
+                                    <div className={styles3.mobileLabel}>Bookings:{" "}
+                                       <span className={styles3.mobileValue}>{m.bookings}</span>
+                                    </div>
+                                </div>
+
+                                <div className='text-right'>
+                                    <div className={styles3.mobileEarnings}>{fmtINR(m.earnings)}</div>
+                                    <div className={styles3.mobileAvgLabel}>
+                                        Avg:{" "}
+                                        <span className={styles3.mobileAvgValue}>{fmtINR(avg)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {summary.movieStats.length === 0 && (
+                    <div className={styles3.mobileEmpty}>
+                        No movie data yet.
+                    </div>
+                )}
+            </div>
+        </section>
+      </div>
     </div>
   )
 }
