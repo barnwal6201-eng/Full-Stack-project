@@ -309,7 +309,7 @@ const AddPage = () => {
             };
 
             form.append('movieName', movieName);
-            form.append('latestTrailer', JSON.stringify(latestTrailerObj));
+            form.append('latestTrailers', JSON.stringify(latestTrailerObj));
 
             if (ltThumbnail) form.append('ltThumbnail', ltThumbnail);
 

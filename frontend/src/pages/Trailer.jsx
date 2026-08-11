@@ -3,13 +3,150 @@ import { trailersCSS, trailersStyles } from '../assets/dummyStyles'
 import { Calendar, ChevronLeft, ChevronRight, Clapperboard, Clock, Play, X } from 'lucide-react'
 import { trailersData } from '../assets/trailerdata'
 
+const API_BASE = import.meta.env.VITE_API_BASE;
+const PLACEHOLDER_THUMB = import.meta.env.VITE_PLACEHOLDER_THUMB;
+
+const getUploadUrl = (input) => {
+  if(!input) return null;
+  if(typeof input === 'string') {
+    if(input.startsWith("http://") || input.startsWith("https://"))
+      return input;
+    
+    return `${API_BASE}/uploads/${input}`;
+  }
+
+  if(typeof input === 'object'){
+    const possible = input.url || input.path || input.filename || input.file || input.image || "";
+
+    if(possible) return getUploadUrl(possible);
+  }
+  return null;
+};
+
+const formatDuration = (dur) => {
+  if(!dur) return "";
+  if(typeof dur === "string") return dur;
+  if(typeof dur === "number") return `${dur}m`;
+
+  const h = dur.hours ?? 0;
+  const m = dur.minutes ?? 0;
+  if(h && m) return `${h}h ${m}m`;
+  if (h) return `${h}h`;
+  if (m) return `${m}m`;
+  return "";
+};
+
+const mapMovieToTrailerItem = (movie) => {
+  const lt = movie.latestTrailers || {};
+  const title = lt.title || movie.movieName || movie.title || "Untitled";
+  const thumbnail = getUploadUrl(lt.thumbnail) || getUploadUrl(movie.poster) || PLACEHOLDER_THUMB;
+
+  //const videoUrl = lt.videoId || lt.videoUrl || movie.trailerUrl || movie.videoUrl || "";
+  const videoUrl =
+  lt.videoUrl ||
+  movie.trailerUrl ||
+  movie.videoUrl ||
+  (lt.videoId ? `https://www.youtube.com/watch?v=${lt.videoId}` : "") ||
+  "";
+  const duration = lt.duration ? formatDuration(lt.duration) : movie.duration ? formatDuration(movie.duration) : "";
+  const year = lt.year || movie.year || "";
+  const genre = lt.genres && lt.genres.length ?
+     lt.genres.join(", ")
+     : movie.categories && movie.categories.length 
+     ? movie.categories.join(", ")
+     : "";
+  const description = lt.description || movie.story || "";
+
+  const credits = {};
+  const firstDirector = (lt.directors || movie.directors || []).find(Boolean);
+  const firstProducer = (lt.producers || movie.producers || []).find(Boolean);
+  const firstSinger = (lt.singers || movie.singers || []).find(Boolean);
+
+  if(firstDirector) {
+    credits["Director"] = {
+      name: firstDirector.name || "Unknown",
+      image: getUploadUrl(firstDirector.file) ||
+             getUploadUrl(firstDirector.image) ||
+             getUploadUrl(firstDirector.photo) ||
+             PLACEHOLDER_THUMB,
+    };
+  }
+  if(firstProducer) {
+    credits["Producer"] = {
+      name: firstProducer.name || "Unknown",
+      image: getUploadUrl(firstProducer.file) ||
+             getUploadUrl(firstProducer.image) ||
+             getUploadUrl(firstProducer.photo) ||
+             PLACEHOLDER_THUMB,
+    };
+  }
+  if(firstSinger) {
+    credits["Singer"] = {
+      name: firstSinger.name || "Unknown",
+      image: getUploadUrl(firstSinger.file) ||
+             getUploadUrl(firstSinger.image) ||
+             getUploadUrl(firstSinger.photo) ||
+             PLACEHOLDER_THUMB,
+    };
+  }
+
+  return {
+    id: movie._id || movie.id,
+    title,
+    thumbnail,
+    videoUrl,
+    duration,
+    year,
+    genre,
+    description,
+    credits,
+  };
+};
+
 const Trailer = () => {
 
-const [featuredTrailer, setFeaturedTrailer] = useState(trailersData[0]);
+const [featuredTrailer, setFeaturedTrailer] = useState(null);
 const [isPlaying, setIsPlaying] = useState(false);
 const [isMuted, setIsMuted] = useState(false);
 const videoRef = useRef(null);
 const carouselRef = useRef(null);
+const [trailers, setTrailers] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
+
+
+useEffect(() => {
+  const ac = new AbortController();
+  setLoading(true);
+  setError(null);
+
+  async function load() {
+    try {
+      const url = `${API_BASE}/api/movies?type=latestTrailers&limit=50`;
+      const res = await fetch(url, {signal: ac.signal});
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const json = await res.json();
+        const items = Array.isArray(json.items) ? json.items : [];
+        console.log("RAW item from API:", items[0]);
+
+        const mapped = items.map(mapMovieToTrailerItem);
+        console.log(mapped);
+        setTrailers(mapped);
+        setFeaturedTrailer(mapped[0] || null);
+        setLoading(false);
+
+    } catch (err) {
+      if(err.name === "AbortError") return;
+      console.error("Failed to load trailers:", err);
+      setError("Failed to load from server");
+      setLoading(false);
+    }
+  }
+
+  load();
+  return () => ac.abort();
+}, []);
 
 useEffect(()=> {
   //no-op kept for parity
@@ -104,11 +241,40 @@ const getEmbedBaseUrl = (videoUrl) => {
 //build final iframe src with autoplay/mute parameters
 const buildFrameSrc = (videoUrl) => {
   const base = getEmbedBaseUrl(videoUrl);
-  if(!base) return "";
+  if(!base) return null;
   const sep = base.includes("?") ? "&" : "?";
   //add autoplay / mute / rel
   return `${base}${sep}autoplay=1&mute=${isMuted ? 1 : 0}&rel=0`;
 };//it helps in playing the video or for muting
+
+
+if(loading) {
+  return (
+    <div className={trailersStyles.container}>
+      <div className='py-12 text-center text-gray-300'>Loading Trailers...</div>
+    </div>
+  );
+}
+
+if(error) {
+  return (
+    <div className={trailersStyles.container}>
+      <div className='py-12 text-center text-red-400'>{error}</div>
+    </div>
+  );
+}
+
+if (!featuredTrailer) {
+  return (
+    <div className={trailersStyles.container}>
+      <div className="py-12 text-center text-gray-300">
+        No trailers available.
+      </div>
+    </div>
+  );
+}
+
+const dataToRender = trailers || [];
 
   return (
     <div className={trailersStyles.container}>
@@ -131,11 +297,11 @@ const buildFrameSrc = (videoUrl) => {
                     <ChevronRight size={18} />
                   </button>
                 </div>
-                <span className={trailersStyles.trailerCount}>{trailersData.length} trailers</span>
+                <span className={trailersStyles.trailerCount}>{dataToRender.length} trailers</span>
               </div>
 
               <div ref={carouselRef} className={trailersStyles.carousel} style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                {trailersData.map((trailer) => (
+                {dataToRender.map((trailer) => (
                   <div
                   key={trailer.id}
                   data-id={trailer.id}
@@ -147,11 +313,11 @@ const buildFrameSrc = (videoUrl) => {
                   role='button'
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if(e.key === "Enter" || e.key === " ") selectTrailer(Trailer);
+                    if(e.key === "Enter" || e.key === " ") selectTrailer(trailer);
                   }}
                   aria-pressed={featuredTrailer.id === trailer.id}
                   >
-                   <img src={trailer.thumbnail} alt={trailer.title} className={trailersStyles.carouselImage} loading='lazy' />
+                   <img src={trailer.thumbnail || PLACEHOLDER_THUMB} alt={trailer.title} className={trailersStyles.carouselImage} loading='lazy' />
                    <div className={trailersStyles.carouselOverlay}>
                     <h3 className={trailersStyles.carouselTitle}>{trailer.title}</h3>
                     <p className={trailersStyles.carouselGenre}>{trailer.genre}</p>
@@ -162,19 +328,19 @@ const buildFrameSrc = (videoUrl) => {
 
               <div className={trailersStyles.trendingSection}>
                 <h3 className={trailersStyles.trendingTitle}>
-                  {trailersData.slice(0, 3).map((trailer) => (
+                  {dataToRender.slice(0, 3).map((trailer) => (
                     <div
                     onClick={()=> selectTrailer(trailer)}
                     role='button'
                     tabIndex={0}
                     onKeyDown={(e) => {
-                    if(e.key === "Enter" || e.key === " ") selectTrailer(Trailer);
+                    if(e.key === "Enter" || e.key === " ") selectTrailer(trailer);
                     }}
                     key={trailer.id}
                     className={trailersStyles.trendingItem}
                     >
                       <div className={trailersStyles.trendingImage}>
-                        <img src={trailer.thumbnail} alt={trailer.title} className={trailersStyles.trendingImageSrc} loading='lazy' />
+                        <img src={trailer.thumbnail || PLACEHOLDER_THUMB} alt={trailer.title} className={trailersStyles.trendingImageSrc} loading='lazy' />
                       </div>
                       <div className={trailersStyles.trendingContent}>
                         <h4 className={trailersStyles.trendingItemTitle}>{trailer.title}</h4>

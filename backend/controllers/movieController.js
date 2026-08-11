@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Movie from "../models/movieModels.js";
 import path from 'path';
 import fs from 'fs';
-import { type } from "os";
 
 const API_BASE = 'http://localhost:5000';
 
@@ -87,13 +86,21 @@ const enrichLatestTrailerForOutput = (lt = {}) => {
     return copy;
 };
 
+const videoIdToUrl = (id) => {
+    if(!id) return null;
+    // if it's already a full URL, don't double-wrap it
+    if(/^(https?:\/\/)/.test(String(id))) return id;
+    return `https://www.youtube.com/watch?v=${id}`;
+};
+
 const normalizeItemForOutput = (it = {}) => {
     const obj = { ...it };
-    obj.thumbnail = it.latestTrailer?.thumbnail ? getUploadUrl(it.latestTrailer.thumbnail) : (it.poster ? getUploadUrl(it.poster) : null);
-    obj.trailerUrl = it.trailerUrl || (it.latestTrailer?.url || it.latestTrailer?.videoId) || null;
+    const lt = it.latestTrailers; 
 
-    if(it.type === "latestTrailers" && it.latestTrailer) {
-        const lt = it.latestTrailer;
+    obj.thumbnail = lt?.thumbnail ? getUploadUrl(lt.thumbnail) : (it.poster ? getUploadUrl(it.poster) : null);
+    obj.trailerUrl = it.trailerUrl || lt?.url || videoIdToUrl(lt?.videoId) || null;
+
+    if(it.type === "latestTrailers" && lt) {
         obj.genres = obj.genres || lt.genres || [];
         obj.year = obj.year || lt.year || null;
         obj.rating = obj.rating || lt.rating || null;
@@ -105,7 +112,7 @@ const normalizeItemForOutput = (it = {}) => {
     obj.directors = (it.directors || []).map(personToPreview);
     obj.producers = (it.producers || []).map(personToPreview);
 
-    if(it.latestTrailer) obj.latestTrailer = enrichLatestTrailerForOutput(it.latestTrailer);
+    if(lt) obj.latestTrailers = enrichLatestTrailerForOutput(lt);
 
     //NEW: include auditorium in normalized output (keep null if not present)
     obj.auditorium = it.auditorium || null;
@@ -139,10 +146,10 @@ export async function createMovie(req, res) {
         
         attachFiles("castFiles", cast);
         attachFiles("directorFiles", directors);
-        attachFiles("producers", producers);
+        attachFiles("producersFiles", producers);
 
         //latest trailer
-        const latestTrailerBody = safeParseJSON(body.latestTrailer) || {};
+        const latestTrailerBody = safeParseJSON(body.latestTrailers) || {};
         if(req.files?.ltThumbnail?.[0]?.filename) latestTrailerBody.thumbnail = req.files.ltThumbnail[0].filename;
         else if(body.ltThumbnail){
             const fn = extractFilenameFromUrl(body.ltThumbnail);
@@ -190,7 +197,7 @@ export async function createMovie(req, res) {
             directors,
             producers,
             story: body.story || "",
-            latestTrailer: latestTrailerBody,
+            latestTrailers: latestTrailerBody,
             auditorium: auditoriumValue,
         });
 
@@ -222,7 +229,7 @@ export async function getMovies(req, res) {
             const q = search.trim();
             filter.$or = [
                 {movieName: {$regex: q, $options: "i"}},
-                {"latestTrailer.title": {$regex: q, $options: "i"}},
+                {"latestTrailers.title": {$regex: q, $options: "i"}},
                 {story: {$regex: q, $options: "i"}},
             ];
         }
@@ -276,8 +283,8 @@ export async function getMovieById(req, res) {
 
         const obj = normalizeItemForOutput(item);
 
-        if(item.type === 'latestTrailers' && item.latestTrailer){
-            const lt = item.latestTrailer;
+        if(item.type === 'latestTrailers' && item.latestTrailers){
+            const lt = item.latestTrailers;
             obj.genres = obj.genres || lt.genres || [];
             obj.year = obj.year || lt.year || null;
             obj.rating = obj.rating || lt.rating || null;
@@ -317,15 +324,15 @@ export async function deleteMovie(req, res) {
 
         //Unlink main assets
         if(m.poster) tryUnlinkUploadUrl(m.poster);
-        if(m.latestTrailer && m.latestTrailer.thumbnail) tryUnlinkUploadUrl(m.latestTrailer.thumbnail);
+        if(m.latestTrailers && m.latestTrailers.thumbnail) tryUnlinkUploadUrl(m.latestTrailers.thumbnail);
 
         //unlink person files
         [(m.cast || []), (m.directors || []), (m.producers || [])].forEach(arr => 
             arr.forEach(p => { if (p && p.file) tryUnlinkUploadUrl(p.file); })
         );
 
-        if(m.latestTrailer){
-            ([...(m.latestTrailer.directors || []), ...(m.latestTrailer.producers || []), ...(m.latestTrailer.singers || [])])
+        if(m.latestTrailers){
+            ([...(m.latestTrailers.directors || []), ...(m.latestTrailers.producers || []), ...(m.latestTrailers.singers || [])])
             .forEach(p => { if (p && p.file) tryUnlinkUploadUrl(p.file); });
         }
 

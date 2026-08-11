@@ -3,7 +3,7 @@ import { moviesStyles } from '../assets/dummyStyles'
 import movies from '../assets/dummymoviedata'
 import { Link } from 'react-router-dom';
 import { Tickets } from 'lucide-react';
-import React from 'react';
+
 
 const PLACEHOLDER_IMG = import.meta.env.VITE_PLACEHOLDER_IMG;
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -28,11 +28,31 @@ const Movies = () => {
     async function loadFeaturedMovies() {
         try {
             const url = `${API_BASE}/api/movies?featured=true&limit=6`;
+            const res = await fetch(url, {signal: ac.signal});
+
+            if(!res.ok) throw new Error(`Fetch error: ${res.status}`);
+            const json = await res.json();
+
+            const items = json.items ?? (Array.isArray(json) ? json : []);
+
+            const featuredOnly = items.filter(
+                (it) => it?.featured === true ||
+                        it?.isFeatured === true ||
+                        String(it?.type)?.toLowerCase() === 'featured'
+            );
+
+            setMovies(featuredOnly.slice(0, 6));
+            setLoading(false);
         } catch (err) {
-            
+            if(err.name === 'AbortError') return;
+            console.error('Movies load error:', err);
+            setError('Failed to Load Movies');
+            setLoading(false);
         }
     }
-  })
+    loadFeaturedMovies();
+    return () => ac.abort();
+  },[]);
 
   const visibleMovies = movies.slice(0, 6);
 
@@ -46,31 +66,57 @@ const Movies = () => {
             Featured Movies
         </h2>
 
-        <div className={moviesStyles.grid}>
-            {visibleMovies.map((m)=>(
-                <article key={m.id} className={moviesStyles.movieArticle}>
-                    <Link to={`/movies/${m.id}`} className={moviesStyles.movieLink}>
-                    <img src={m.img} alt={m.title} loading='lazy' className={moviesStyles.movieImage} />
+        {loading ? (
+            <div className='text-gray-300 py-12 text-center'>Loading movies...</div>
+        ): error ? (
+            <div className='text-red-400 py-12 text-center'>{error}</div>
+        ) : movies.length === 0 ? (
+             <div className='text-gray-400 py-12 text-center'>No featured movies found.</div>
+        ) : (
+            <div className={moviesStyles.grid}>
+                {movies.map((m) => {
+                    const rawImg = m.poster || m.latestTrailer?.thumbnail || null;
+                    const imgSrc = getUploadUrl(rawImg) || PLACEHOLDER_IMG;
+                    const title = m.movieName || m.title || "Untitled";
+                    const category = (Array.isArray(m.categories) && m.categories[0]) ||
+                    m.category || "General";
+                    const movieId = m._id || m.id || title;
+               
+               return (
+                <article key={movieId} className={moviesStyles.movieArticle}>
+                    <Link to={`/movies/${movieId}`} className={moviesStyles.movieLink}>
+                    <img 
+                    src={imgSrc} 
+                    alt={title} 
+                    loading='lazy' 
+                    className={moviesStyles.movieImage}
+                    onError={(e) => {
+                        e.currentTarget.src = PLACEHOLDER_IMG;
+                    }}
+                    />
                     </Link>
 
                     <div className={moviesStyles.movieInfo}>
                         <div className={moviesStyles.titleContainer}>
                             <Tickets className={moviesStyles.ticketsIcon}/>
-                            <span id={`movie-title-${m.id}`} className={moviesStyles.movieTitle}
+                            <span id={`movie-title-${movieId}`} className={moviesStyles.movieTitle}
                             style={{ fontFamily: "'Pacifico', cursive"}}>
-                                {m.title}
+                                {title}
                             </span>
                         </div>
 
                         <div className={moviesStyles.categoryContainer}>
-                            <span className={moviesStyles.categoryText}> {m.category}</span>
+                            <span className={moviesStyles.categoryText}> {category}</span>
                         </div>
                     </div>
                 </article>
-            ))}
+            );
+           })}
         </div>
-
-    </section>
+        )}
+        </section>
+        
+    
   )
 }
 

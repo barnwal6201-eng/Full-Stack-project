@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import  trim  from "validator";
+
 
 const personSchema = new mongoose.Schema({
     name: {
@@ -45,7 +45,8 @@ const latestTrailerSchema = new mongoose.Schema({
         trim: true
     },
     genres: { 
-        type: String
+        type: [String],
+        default: []
     },
     duration: {
         hours: { type: Number, default: 0},
@@ -67,9 +68,9 @@ const latestTrailerSchema = new mongoose.Schema({
         trim: true
     },//storing the url
 
-    directors: {personSchema},
-    producers: {personSchema},
-    singers: {personSchema},
+    directors: [personSchema],
+    producers: [personSchema],
+    singers: [personSchema],
 }, {
     _id: false
 });
