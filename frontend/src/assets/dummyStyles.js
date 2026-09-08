@@ -1395,106 +1395,108 @@ export const movieDetailCSS = `
 
 // Add to src/assets/dummyStyles.js
 export const movieDetailHStyles = {
-  // Page container
-  pageContainer: "min-h-screen bg-gradient-to-b from-black to-gray-900 text-white py-8 px-4",
-  
-  // Main container
-  mainContainer: "max-w-7xl mx-auto",
-  
+  // Top-level page container (used for loaded page, loading state, and not-found state)
+  container: "min-h-screen bg-gradient-to-b from-black to-gray-900 text-white py-8 px-4",
+
+  // Inner max-width wrapper
+  wrapper: "max-w-7xl mx-auto",
+
+  // Trailer modal
+  modalOverlay: "fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4",
+  modalContainer: "relative w-full max-w-6xl",
+  closeButton: "absolute right-0 sm:-top-10 -top-6 sm:-right-4 text-white hover:text-red-400 z-10",
+  videoContainer: "w-full aspect-video rounded-xl overflow-hidden",
+  videoIframe: "w-full h-full rounded-xl",
+
   // Header
-  headerContainer: "flex items-center gap-4 mb-6 sm:mb-8",
+  header: "flex items-center gap-4 mb-6 sm:mb-8",
   backButton: "inline-flex items-center gap-2 text-red-300 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-red-900/20",
-  backButtonText: "text-sm sm:text-base",
-  
+  backText: "text-sm sm:text-base",
+
   // Movie title
   titleContainer: "text-center mb-6 sm:mb-12",
   movieTitle: "text-2xl sm:text-4xl md:text-5xl lg:text-7xl py-1 font-bold tracking-wider mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent",
-  movieInfoContainer: "flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm sm:text-lg text-gray-300",
-  rating: "flex items-center gap-2",
-  ratingIcon: "h-4 w-4 text-yellow-400",
-  duration: "flex items-center gap-2",
-  durationIcon: "h-4 w-4 text-red-400",
-  genre: "px-3 py-1 bg-red-900/40 rounded-full text-red-300 text-xs sm:text-sm border border-red-700/30",
-  
-  // Main grid layout
-  mainGrid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-8",
-  
-  // Poster section
-  posterContainer: "lg:col-span-1 order-1 md:order-1",
+  movieMeta: "flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm sm:text-lg text-gray-300",
+  metaItem: "flex items-center gap-2",
+  metaIcon: "h-4 w-4",
+  ratingIcon: "text-yellow-400",
+  durationIcon: "text-red-400",
+  genreTag: "px-3 py-1 bg-red-900/40 rounded-full text-red-300 text-xs sm:text-sm border border-red-700/30",
+
+  // Main layout
+  mainLayout: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-8",
+  leftColumn: "lg:col-span-1",
+  rightColumns: "lg:col-span-2 flex flex-col gap-6",
+
+  // Poster
   posterCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-6 border border-red-700/20 shadow-2xl",
-  posterImageContainer: "relative overflow-hidden rounded-xl mx-auto w-full",
-  posterImage: "w-full h-full object-cover rounded-xl transition-transform duration-300",
-  trailerButton: "w-full mt-5 sm:mt-6 flex items-center justify-center gap-3 px-5 py-3 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold text-sm sm:text-base transition-all shadow-lg",
-  
-  // Showtimes section
-  showtimesContainer: "lg:col-span-2 order-2 md:order-2",
-  showtimesCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl mb-6",
+  posterImage: "relative overflow-hidden rounded-xl mx-auto w-full",
+  posterImg: "w-full h-full object-cover rounded-xl transition-transform duration-300",
+  trailerButton: "w-full mt-5 sm:mt-6 flex items-center justify-center gap-3 px-5 py-3 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold text-sm sm:text-base transition-all shadow-lg hover:from-red-700 hover:to-red-800",
+
+  // Showtimes card
+  showtimesCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl",
   showtimesTitle: "text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-red-300 text-center flex items-center justify-center gap-2",
-  showtimesTitleIcon: "h-6 w-6",
-  
-  // Day selection
+  showtimesIcon: "h-6 w-6",
+
+  // Day selection — object form so `.base` gives the shared classes and
+  // `.active` / `.inactive` give the state-dependent classes.
   daySelection: "flex overflow-x-auto gap-2 mb-4 pb-2 sm:mb-6 sm:pb-0 scrollbar-hide",
-  dayButton: "flex-shrink-0 px-3 sm:px-5 py-2 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-xs sm:text-sm",
-  dayButtonSelected: "bg-red-600 text-white shadow-lg transform scale-105",
-  dayButtonDefault: "bg-gray-800/60 text-gray-300 hover:bg-gray-700/80",
+  dayButton: {
+    base: "flex-shrink-0 px-3 sm:px-5 py-2 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-xs sm:text-sm",
+    active: "bg-red-600 text-white shadow-lg transform scale-105",
+    inactive: "bg-gray-800/60 text-gray-300 hover:bg-gray-700/80",
+  },
   dayName: "text-xs",
   dayDate: "text-sm sm:text-base",
-  
-  // Showtimes grid
+
+  // Showtime buttons — same object pattern as dayButton
   showtimesGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4",
-  showtimeButton: "px-2 sm:px-3 py-2 sm:py-3 rounded-xl text-xs sm:text-sm md:text-base font-semibold transition-all duration-300 border flex items-center justify-center gap-2 text-center",
-  showtimeButtonSelected: "bg-red-600 text-white border-red-500/50 transform scale-105",
-  showtimeButtonDefault: "bg-gray-800/40 text-gray-200 border-gray-700/50 hover:bg-red-600 hover:text-white hover:border-red-500/50",
+  timeButton: {
+    base: "px-2 sm:px-3 py-2 sm:py-3 rounded-xl text-xs sm:text-sm md:text-base font-semibold transition-all duration-300 border flex items-center justify-center gap-2 text-center",
+    active: "bg-red-600 text-white border-red-500/50 transform scale-105",
+    inactive: "bg-gray-800/40 text-gray-200 border-gray-700/50 hover:bg-red-600 hover:text-white hover:border-red-500/50",
+  },
   soldOutBadge: "ml-2 px-2 py-0.5 rounded-full text-xs bg-red-700/90 text-white font-bold",
-  
-  // No showtimes message
-  noShowtimes: "col-span-full text-center text-gray-400 py-6",
-  
-  // Book now button
-  bookNowContainer: "mt-4 sm:mt-6 text-center",
-  bookNowButton: "px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-sm sm:text-base shadow-2xl hover:from-red-700 hover:to-red-800 transition-transform transform hover:scale-105",
-  
+
+  // Proceed / book button
+  proceedButton: "mt-4 sm:mt-6 text-center",
+  bookButton: "px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-sm sm:text-base shadow-2xl hover:from-red-700 hover:to-red-800 transition-transform transform hover:scale-105",
+
   // Cast section
   castCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl",
   castTitle: "text-lg sm:text-2xl font-bold mb-4 text-red-300 text-center flex items-center justify-center gap-2",
-  castTitleIcon: "h-5 w-5",
+  castIcon: "h-5 w-5",
   castGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6",
   castMember: "text-center group",
   castImageContainer: "relative mx-auto mb-3",
   castImage: "w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto border-2 border-red-600/30 group-hover:border-red-400 transition-colors",
   castName: "font-semibold text-sm sm:text-base",
   castRole: "text-xs sm:text-sm text-gray-400",
-  noCastMessage: "text-gray-400 col-span-full text-center py-8",
-  
+  noCast: "text-gray-400 col-span-full text-center py-8",
+
   // Story section
   storyCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl mb-8",
   storyTitle: "text-lg sm:text-2xl md:text-3xl font-bold mb-4 text-red-300 text-center",
   storyText: "text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg text-center max-w-4xl mx-auto",
-  
+
   // Director & Producer section
   crewGrid: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-8",
   crewCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl text-center",
-  crewTitle: "text-lg sm:text-2xl md:text-3xl font-bold text-red-300 flex items-center justify-center gap-3 mb-4",
+  crewHeader: "flex items-center justify-center gap-3 mb-4",
   crewIcon: "h-5 w-5 text-red-400",
+  crewTitle: "text-lg sm:text-2xl md:text-3xl font-bold text-red-300",
   crewContent: "flex flex-col items-center",
-  crewGridInner: "flex gap-4 sm:gap-6 items-start justify-center",
   crewImage: "w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-red-600/30 mb-3 sm:mb-4",
   crewName: "font-semibold text-sm sm:text-base",
   fallbackAvatar: "w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-700 flex items-center justify-center text-xl text-gray-300 mb-3 sm:mb-4",
-  
-  // Trailer modal
-  trailerModal: "fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4",
-  trailerContainer: "relative w-full max-w-6xl",
-  closeButton: "absolute right-0 sm:-top-10 -top-6 sm:-right-4 text-white hover:text-red-400 z-10",
-  trailerIframe: "w-full aspect-video rounded-xl overflow-hidden",
-  iframe: "w-full h-full rounded-xl",
-  
+
   // Not found state
   notFoundContainer: "min-h-screen flex items-center justify-center bg-black text-white",
   notFoundContent: "text-center",
   notFoundTitle: "text-2xl",
   notFoundLink: "mt-4 inline-block text-red-400 underline",
-  
+
   // Custom CSS
   customCSS: `
     /* hide default scrollbar on small devices for horizontal scrollers while keeping scrolling usable */

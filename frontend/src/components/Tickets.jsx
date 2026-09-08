@@ -26,12 +26,14 @@ const Tickets = ({showTickets, setShowTickets,ticketCount, SetTicketCount}) => {
   <div className='px-6 py-6'>
     <p className='text-center text-gray-300 font-semibold text-base mb-5'>How many seats?</p>
 
-    <div className='flex justify-center gap-4 mb-6'>
+    <div className='flex justify-center gap-4 mb-6 '>
       {[1,2,3,4,5,6,7,8].map((num) => (
         <button
           key={num}
-          onClick={()=> setSelect(num)}
-          className='w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold transition-all cursor-pointer hover:text-xl'
+          onClick={()=> 
+            setSelect(num)
+          }
+          className='w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold transition-all active:text-red-800 cursor-pointer hover:text-2xl md:hover:text-2xl sm:hover:text-2xl'
         >
           {num}
         </button>

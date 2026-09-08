@@ -1,478 +1,824 @@
-import React, { useEffect, useState } from 'react'
-import { seatSelectorHStyles } from '../assets/dummyStyles'
-import movies from '../assets/dummymoviedata'
-import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CreditCard, Film, RockingChair, Rows, Sofa, Ticket } from 'lucide-react'
-import { toast } from 'react-toastify'
-import { useMemo } from 'react'
-import Tickets from './Tickets'
+import React, { useEffect, useState, useMemo } from "react";
+import { seatSelectorHStyles } from "../assets/dummyStyles";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  CreditCard,
+  Film,
+  RockingChair,
+  Rows,
+  Sofa,
+  Ticket,
+} from "lucide-react";
+import { toast } from "react-toastify";
+import Tickets from "./Tickets";
+import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 const ROWS = [
-        {id: 'A', type: 'Standard', count: 8},
-        {id: 'B', type: 'Standard', count: 8},
-        {id: 'C', type: 'Standard', count: 8},
-        {id: 'D', type: 'recliner', count: 8},
-        {id: 'E', type: 'recliner', count: 8},
-    ];
+  { id: "A", type: "Standard", count: 8 },
+  { id: "B", type: "Standard", count: 8 },
+  { id: "C", type: "Standard", count: 8 },
+  { id: "D", type: "recliner", count: 8 },
+  { id: "E", type: "recliner", count: 8 },
+];
 
 const seatId = (r, n) => `${r}${n}`;
 
-const SeatSelectorPageHome  = () => {
+const to24Hour = (timeStr = "00:00", ampm = "") => {
+  const [hRaw = "0", mRaw = "00"] = String(timeStr).split(":");
+  let h = Number(hRaw || 0);
+  const m = String(Number(mRaw) || 0).padStart(2, "0");
+  const a = (ampm || "").toUpperCase();
+  if (a === "AM" && h === 12) h = 0;
+  if (a === "PM" && h !== 12) h += 12;
+  return `${String(h).padStart(2, "0")}:${m}`;
+};
 
-    const [showTickets, setShowTickets] = useState(false);
-     const [bgColor, setBgColor] = useState(true);
-    const [ticketCount, SetTicketCount] = useState(1);
-    const {id, slot} = useParams();
-    const movieId = Number(id);
-    const slotKey = slot ? decodeURIComponent(slot) : "";
-    const navigate = useNavigate();
+const slotToISO = (slot) => {
+  if (!slot) return null;
+  if (typeof slot === "string") return slot;
+  if (typeof slot === "object") {
+    if (slot.date && (slot.time || slot.datetime || slot.iso)) {
+      const hhmm = to24Hour(
+        slot.time || slot.datetime || slot.iso || "00:00",
+        slot.ampm || slot.amp || "",
+      );
+      return `${slot.date}T${hhmm}:00+05:30`;
+    }
+    if (slot.datetime) return slot.datetime;
+    if (slot.time && typeof slot.time === "string") return slot.time;
+  }
+  return null;
+};
 
-    const movie = useMemo(() => movies.find((m) => m.id === movieId), [movieId]);
+const getAuthToken = () =>
+  localStorage.getItem("token") ||
+  localStorage.getItem("authToken") ||
+  localStorage.getItem("accessToken") ||
+  localStorage.getItem("jwt") ||
+  null;
 
-    const slotObj = useMemo(() => {
-     if(!movie || !slotKey) return null;
-     if(!Array.isArray(movie.slots)) return null;
+const normalizedSeatId = (s) => (s ? String(s).trim().toUpperCase() : "");
 
-     const asObj = movie.slots.find(
-      (s) => 
-        s && 
-      typeof s === "object" &&
-      (s.time === slotKey || s.time === decodeURIComponent(slotKey))
-     );
-     if(asObj) return asObj;
+const sameMinute = (a, b) => {
+  if (!a || !b) return false;
+  const da = new Date(a),
+    db = new Date(b);
+  if (isNaN(da.getTime()) || isNaN(db.getTime())) return false;
+  da.setSeconds(0, 0);
+  db.setSeconds(0, 0);
+  return da.getTime() === db.getTime();
+};
 
-     const asString = movie.slots.find(
-      (s) => 
-        typeof s === "string" && 
-      (s === slotKey || s === decodeURIComponent(slotKey))
-     );
-     if(asString) return {time: asString, audi: "Audi 1"};
+export default function SeatSelectorPageHome() {
+  const { id, slot } = useParams();
+  const movieIdParam = id;
+  const slotKey = slot ? decodeURIComponent(slot) : "";
+  const navigate = useNavigate();
 
-     return null;
-    }, [movie, slotKey]);
+  const [movie, setMovie] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [booked, setBooked] = useState(new Set());
+  const [selected, setSelected] = useState(new Set());
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    Boolean(getAuthToken()),
+  );
+  const [bookingLoading, setBookingLoading] = useState(false);
 
-    const audiName = slotObj?.audi ?? "Audi 1";
+  useEffect(() => {
+    setIsAuthenticated(Boolean(getAuthToken()));
+  }, []);
 
-     useEffect(() => {
-        const isValidDate = !!slotKey && !isNaN(new Date(slotKey).getTime());
-        if(!isValidDate) {
-            toast.error(
-                "Invalid or missing showtime. Please select a time from the movie Page."
-            );
-            setTimeout(() => {
-                if(movie) navigate(`/movie/${movie.id}`);
-                else navigate("/movies");
-            }, 600);
-        }
-    }, [slotKey, movie, navigate]);
-
-    const storageKey = `bookings_${movieId}_${slotKey}_${audiName}`;
-    const legacyKey = `bookings_${movieId}_${slotKey}`;
-
-    const [booked, setBooked] = useState(new Set());
-    const [selected, setSelected] = useState(new Set());
-
-    useEffect(() => {
-      if(!movie){
-        toast.error("Movie not found");
-        setTimeout(() => {
-            navigate('/movies')
-        }, 600);
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (
+        ["token", "authToken", "accessToken", "jwt"].includes(e.key) ||
+        e.key === null
+      ) {
+        setIsAuthenticated(Boolean(getAuthToken()));
       }
-    },[movie, navigate]);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
-    useEffect(() => {
+  useEffect(() => {
+    let mounted = true;
+    const fetchMovie = async () => {
+      setLoading(true);
       try {
-        const raw = localStorage.getItem(storageKey);
-        if(raw){
-          const arr = JSON.parse(raw);
-          setBooked(new Set(Array.isArray(arr) ? arr : []));
-        }else{
-          const legacyRaw = localStorage.getItem(legacyKey);
-          if(legacyRaw){
-            const legacyArr = JSON.parse(legacyRaw);
-            const s = new Set(Array.isArray(legacyArr) ? legacyArr : []);
-            setBooked(s);
-            localStorage.setItem(storageKey, JSON.stringify([...s]));
-          }else{
-            setBooked(new Set());
-          }
+        const res = await axios.get(
+          `${API_BASE}/api/movies/${encodeURIComponent(movieIdParam)}`,
+        );
+
+        const data = res?.data;
+        if (!mounted) return;
+        if (!data || data.success === false) {
+          toast.error((data && data.message) || "Failed to load movie");
+          setMovie(null);
+        } else {
+          const item =
+            data.item ||
+            data.data ||
+            (data.success && data.movie) ||
+            (data.success ? data : null);
+
+          setMovie(item || null);
         }
-      } catch (error) {
-        console.error("Failed to read bookings from storage:", error);
-        setBooked(new Set());
+      } catch (err) {
+        console.error("Failed to fetch movie:", err);
+        toast.error("Failed to fetch movie from server");
+        setMovie(null);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setSelected(new Set());
-    },[storageKey, legacyKey]);
+    };
+    if (movieIdParam) fetchMovie();
+    else {
+      setLoading(false);
+      setMovie(null);
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [movieIdParam]);
 
-    const toggleSeat = (id) => {
-        if(booked.has(id)){
-            console.log(`Seat ${id} is already booked. Booking details:`,{
-                movie: movie?.title,
-                showtime: slotKey,
-                audi: audiName,
-                seat: id,
-                status: 'booked',
-            });
-            toast.error(`Seat ${id} is already booked`)
-            return;
+  const slotObj = useMemo(() => {
+    if (!movie || !slotKey) return null;
+
+    const slots = Array.isArray(movie.slots)
+      ? movie.slots
+      : Array.isArray(movie.showtimes)
+        ? movie.showtimes
+        : [];
+    if (!slots.length) return null;
+
+    const sString = slots.find(
+      (s) =>
+        typeof s === "string" &&
+        (s === slotKey || s === decodeURIComponent(slotKey)),
+    );
+    if (sString) return { time: sString, audi: "Audi 1", _iso: sString };
+
+    for (const s of slots) {
+      if (!s) continue;
+      if (typeof s === "object") {
+        const iso = slotToISO(s);
+        if (!iso) continue;
+        if (iso === slotKey || iso === decodeURIComponent(slotKey))
+          return { ...s, _iso: iso };
+      }
+    }
+    try {
+      const providedTs = new Date(slotKey).getTime();
+      if (!isNaN(providedTs)) {
+        for (const s of slots) {
+          const iso = slotToISO(s);
+          if (!iso) continue;
+          const ts = new Date(iso).getTime();
+          if (!isNaN(ts) && ts === providedTs) return { ...s, _iso: iso };
         }
+      }
+    } catch (e) {}
+    return null;
+  }, [movie, slotKey]);
 
-        if (selected.size >= ticketCount && !selected.has(id)) {
-        toast.error(`You can only select ${ticketCount} seat(s).`);
-        return;
-        }
-        
-        const row = id[0];
-        const num = Number(id.slice(1));
-        setSelected((prev) => {
-            const next = new Set(prev);
+  //Resolve auditorium name
+  const audiName = useMemo(() => {
+    if (slotObj && slotObj.auditorium && String(slotObj.auditorium).trim())
+      return String(slotObj.auditorium).trim();
+    if (slotObj && slotObj.audi && String(slotObj.audi).trim())
+      return String(slotObj.audi).trim();
+    if (movie && movie.auditorium && String(movie.auditorium).trim())
+      return String(movie.auditorium).trim();
+    if (movie && movie.audi && String(movie.audi).trim())
+      return String(movie.audi).trim();
+    if (movie && movie.hall && String(movie.hall).trim())
+      return String(movie.hall).trim();
+    return "Audi 1";
+  }, [slotObj, movie]);
 
-            if (next.has(id)) {
-            next.delete(id);
-            return next;
-            }
-            
-            let added = 0;
-            let i = 0;
-            while (added < ticketCount && next.size < ticketCount) {
-            const seatId = `${row}${num + i}`;
-            i++;
+  //Validate showTime
+  useEffect(() => {
+    if (!slotKey) {
+      toast.error("Missing showtime. Select a time from the movie page.");
+      navigate(
+        movie ? `/movies/${movie._id || movie.id || movieIdParam}` : "/movies",
+      );
+      return;
+    }
+  }, [slotKey, movie, slotObj]);
 
-            if(booked.has(seatId)) continue;
-            if (next.has(seatId)) continue;
+  const mid = movie ? movie._id || movie.id || movieIdParam : movieIdParam;
+  const storageKey = `bookings_${mid}_${slotKey}_${audiName}`;
+  const legacyKey = `bookings_${mid}_${slotKey}`;
 
-            next.add(seatId);
-            added++;
-            }
-            return next;
+  //fetched booked seats (paid only)
+  useEffect(() => {
+    let cancelled = false;
+
+    const setBookedAndPrune = (arr) => {
+      const set = new Set(arr);
+      if (cancelled) return;
+      setBooked((prev) => {
+        const same =
+          prev.size === set.size && [...prev].every((v) => set.has(v));
+        if (same) return prev;
+        //ReCheck-----------------------------------------------------------------------------------------------------------------------------
+        setSelected((selPrev) => {
+          const nextSel = new Set(selPrev);
+          for (const s of set) nextSel.delete(s);
+          return nextSel;
         });
+        return set;
+      });
+      try {
+        localStorage.setItem(storageKey, JSON.stringify([...set]));
+      } catch (e) {}
     };
 
-     const clearSelection = () => setSelected(new Set());
-
-     const confirmBooking = () => {
-      if(selected.size === 0){
-        toast.error("Select atleast one seat.");
-        return;
-      }
-
-      const newBooked = new Set([...booked, ...selected]);
-      const arr = [...newBooked];
+    const fetchBooked = async () => {
+      if (!movieIdParam || !slotKey) return;
+      const showtimeQuery = slotObj && slotObj._iso ? slotObj._iso : slotKey;
 
       try {
-        localStorage.setItem(storageKey, JSON.stringify(arr));
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get(`${API_BASE}/api/bookings`, {
+          params: { movieId: movieIdParam, limit: 1000 },
+          headers,
+          timeout: 8000,
+        });
+        const data = res?.data;
+        let items = [];
+        if (!data) items = [];
+        else if (Array.isArray(data)) items = data;
+        else if (Array.isArray(data.items)) items = data.items;
+        else if (Array.isArray(data.bookings)) items = data.bookings;
+        else items = [];
+
+        const paidSeats = [];
+        for (const b of items) {
+          const bShowRaw =
+            b.showtime || b.slot || b.time || b.showtimeIso || b._iso || null;
+          if (!bShowRaw) continue;
+          if (!sameMinute(bShowRaw, showtimeQuery)) continue;
+          const bAudi = (b.auditorium || b.audi || b.audiName || "").toString();
+          if (
+            bAudi &&
+            audiName &&
+            bAudi.toLowerCase() !== audiName.toLowerCase()
+          )
+            continue;
+
+          const ps = (b.paymentStatus || b.payment_status || "")
+            .toString()
+            .toLowerCase();
+          if (ps !== "paid") continue;
+          const sarr = Array.isArray(b.seats)
+            ? b.seats
+                .map((s) =>
+                  typeof s === "string" ? s : (s && (s.seatId || s.id)) || "",
+                )
+                .filter(Boolean)
+            : Array.isArray(b.seatIds)
+              ? b.seatIds.map(String).filter(Boolean)
+              : [];
+          for (const s of sarr) paidSeats.push(normalizedSeatId(s));
+        }
+
+        if (!cancelled) {
+          if (paidSeats.length > 0) {
+            setBookedAndPrune(paidSeats);
+          } else {
+            setBooked(new Set());
+            try {
+              localStorage.setItem(storageKey, JSON.stringify([]));
+            } catch (e) {}
+          }
+        }
+        return;
       } catch (err) {
-        console.error("Failed to save bookings:", err);
-        toast.error("Failed to confirm booking, Try again.");
-        return;  
+        console.warn(
+          "Primary paid-bookings fetch failed, falling back:",
+          err?.message || err,
+        );
       }
 
-      const bookingDetails = {
-            movie: movie?.title,
-            movieId: movieId,
-            showtime: slotKey,
-            audi: audiName,
-            bookedSeats: [...selected].sort(),
-            totalSeats: selected.size,
-            totalAmount: Math.round(
-                [...selected].reduce((sum, s) => {
-                    const rowLetter = s[0];
-                    const def = ROWS.find((r) => r.id === rowLetter);
-                    const multiplier = def?.type === "recliner" ? 1.5 : 1;
-                    return sum + (movie?.price ?? 0) * multiplier;
-                }, 0)
-            ),
-            bookingTime: new Date().toISOString(),
-            bookingId: `B${Date.now()}`,
-        };
+      try {
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res2 = await axios.get(`${API_BASE}/api/bookings/occupied`, {
+          params: { movieId: mid, showtime: showtimeQuery, audi: audiName },
+          headers,
+          timeout: 8000,
+        });
+        const data2 = res2?.data;
+        if (data2 && Array.isArray(data2.occupied)) {
+          const normalized = data2.occupied
+            .map((s) => normalizedSeatId(s))
+            .filter(Boolean);
+          if (!cancelled) setBookedAndPrune(normalized);
+          return;
+        }
+        throw new Error("Invalid occupied response");
+      } catch (err) {
+        console.warn(
+          "fetchBooked fallback failed, using local storage:",
+          err?.message || err,
+        );
+        if (cancelled) return;
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (raw) {
+            const arr = JSON.parse(raw);
+            const normalized = Array.isArray(arr)
+              ? arr.map(normalizedSeatId).filter(Boolean)
+              : [];
+            setBooked(new Set(normalized));
+            return;
+          }
+          const legacyRaw = localStorage.getItem(legacyKey);
+          if (legacyRaw) {
+            const arrLegacy = JSON.parse(legacyRaw);
+            const s = new Set(
+              Array.isArray(arrLegacy) ? arrLegacy.map(normalizedSeatId) : [],
+            );
+            setBooked(s);
+            try {
+              localStorage.setItem(storageKey, JSON.stringify([...s]));
+            } catch (e) {}
+            return;
+          }
+        } catch (e) {
+          console.error("Fallback read failed:", e);
+        }
+        setBooked(new Set());
+      }
+    };
 
-        console.log("Booking Confirmed:", bookingDetails);
-        console.table(bookingDetails);
+    fetchBooked();
+    return () => {
+      cancelled = true;
+    };
+  }, [movieIdParam, slotKey, audiName, slotObj]);
 
+  useEffect(() => {
+    if (!loading && !movie) {
+      toast.error("Movie not found.");
+      navigate("/movies");
+    }
+  }, [loading, movie, navigate]);
+
+  const toggleSeat = (id) => {
+    const nid = normalizedSeatId(id);
+    //console.log(nid)---------------------------------------------===========================================================
+    if (booked.has(nid)) {
+      toast.error(`Seat ${nid} already booked`);
+      return;
+    }
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(nid) ? next.delete(nid) : next.add(nid);
+      return next;
+    });
+  };
+  const clearSection = () => setSelected(new Set());
+
+  //pricing - use paise to avoid rounding issues
+  const basePriceRupee =
+    Number(movie?.seatPrices?.standard ?? movie?.price ?? 0) || 0;
+  const standardPaise = Math.round(basePriceRupee * 100);
+  const reclinerRupee =
+    typeof movie?.seatPrices?.recliner !== "undefined" &&
+    movie?.seatPrices?.recliner !== null
+      ? Number(movie.seatPrices.recliner)
+      : null;
+  const reclinerPaise =
+    reclinerRupee !== null
+      ? Math.round(reclinerRupee * 100)
+      : Math.round(standardPaise * 1.5);
+
+  const confirmBooking = async () => {
+    if (selected.size === 0) {
+      toast.error("Select at least one seat.");
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      toast.error("You must be logged in to book seats.");
+      const returnUrl = encodeURIComponent(
+        window.location.pathname + window.location.search,
+      );
+      setTimeout(() => {
+        navigate(`/login?redirect=${returnUrl}`);
+      }, 400);
+      return;
+    }
+
+    const seatsArr = [...selected].sort();
+    setBookingLoading(true);
+    try {
+      const payload = {
+        movieId: movie?._id || movie?.id || movieIdParam,
+        movieName: movie?.title || movie?.movieName || movie?.name || "",
+        showtime: slotKey,
+        auditorium: audiName,
+        seats: seatsArr,
+        paymentMethod: "card",
+        Currency: "INR",
+        email: "",
+      };
+
+      const res = await axios.post(`${API_BASE}/api/bookings`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = res?.data;
+      if (data && data.success) {
+        if (data.checkout?.url) {
+          const newBooked = new Set([
+            ...booked,
+            ...seatsArr.map(normalizedSeatId),
+          ]);
+          try {
+            localStorage.setItem(storageKey, JSON.stringify([...newBooked]));
+          } catch (e) {}
+          window.location.href = data.checkout.url;
+          return;
+        }
+
+        const newBooked = new Set([
+          ...booked,
+          ...seatsArr.map(normalizedSeatId),
+        ]);
         setBooked(newBooked);
         setSelected(new Set());
-
+        try {
+          localStorage.setItem(storageKey, JSON.stringify([...newBooked]));
+        } catch (e) {}
         toast.success(
-            <div>
-                <div className='font-bold'>Booking Confirmed 🎉</div>
-                <div className='text-sm'>
-                    {bookingDetails.totalSeats} seat(s) booked successfully
-                </div>
-            </div>
+          `${seatsArr.length} seat(s) reserved - proceed to payment`,
         );
-     };
-    
+        return;
+      }
+      toast.error(
+        (data && data.message) || "Failed to create booking on server",
+      );
+    } catch (err) {
+      console.error(
+        "confirmBooking error:",
+        err?.response?.data || err.message || err,
+      );
+      if (err?.response?.status === 401) {
+        toast.error("Session expired - please log in again.");
+        ["token", "authToken", "accessToken", "jwt"].forEach((k) =>
+          localStorage.removeItem(k),
+        );
+        setIsAuthenticated(false);
+        const returnUrl = encodeURIComponent(
+          window.location.pathname + window.location.search,
+        );
+        setTimeout(() => {
+          navigate(`/login?redirect=${returnUrl}`);
+        }, 400);
+        return;
+      }
+      if (err?.response?.status === 409) {
+        const occupied = err.response.data?.occupied || [];
+        if (occupied.length > 0) {
+          setBooked((prev) => {
+            const next = new Set(prev);
+            occupied.forEach((s) => next.add(normalizedSeatId(s)));
+            try {
+              localStorage.setItem(storageKey, JSON.stringify([...next]));
+            } catch (e) {}
+            return next;
+          });
+          setSelected((prev) => {
+            const next = new Set(prev);
+            occupied.forEach((s) => next.delete(normalizedSeatId(s)));
+            return next;
+          });
+          toast.error(
+            `Some seats were just booked by others: ${occupied.join(", ")}`,
+          );
+        } else {
+          toast.error(
+            err.response.data?.message || "Some seats are already booked",
+          );
+        }
+        return;
+      }
+      toast.error(err?.response?.data?.message || "Failed to create booking");
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
-     const basePrice = movie?.price ?? 0;
+  const totalPaise = [...selected].reduce((sum, s) => {
+    const rowLetter = s[0];
+    const def = ROWS.find((r) => r.id === rowLetter);
+    const seatPaise = def?.type === "recliner" ? reclinerPaise : standardPaise;
+    return sum + (seatPaise || 0);
+  }, 0);
+  const total = (totalPaise / 100).toFixed(2);
+  const selectedCount = selected.size;
 
-    const total = [...selected].reduce((sum, s) => {
-        const rowLetter = s[0];
-        const def = ROWS.find((r) => r.id === rowLetter);
-        const multiplier = def?.type === "recliner" ? 1.5 : 1;
-        return sum + basePrice * multiplier;
-    },0);
+  if (loading) {
+    return (
+      <div className={seatSelectorHStyles.pageContainer}>
+        <style>{seatSelectorHStyles.customCSS}</style>
+        <div className={seatSelectorHStyles.mainContainer}>
+          <div className="flex items-center justify-center py-32 text-gray-400 gap-3">
+            <Film className="animate-pulse" size={28} />
+            <span className="text-lg">Loading seats…</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-    const selectedCount = selected.size;
+  const showtimeLabel = (() => {
+    const iso = slotObj?._iso || slotKey;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return slotKey;
+    return d.toLocaleString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  })();
+
+  const movieTitle = movie?.title || movie?.movieName || movie?.name || "Movie";
 
   return (
     <>
-    {showTickets && 
-        <div 
-          className='fixed inset-0 z-50 flex justify-center items-center'
-          style={bgColor ? { backgroundColor: 'rgba(0, 0, 0, 0.5)' } : {}}
-          >
-            <Tickets
-            ticketCount={ticketCount}
-            SetTicketCount={SetTicketCount}
-            showTickets={showTickets}
-            setShowTickets={setShowTickets}
-            />
-            </div>
-    }
-     <div className={seatSelectorHStyles.pageContainer}>
-          <style>{seatSelectorHStyles.customCSS}</style>
-    
-          <div className={seatSelectorHStyles.mainContainer}>
-            <div className={seatSelectorHStyles.headerContainer}>
-            <button 
-            onClick={()=> navigate(-1)}
-            className={seatSelectorHStyles.backButton}
+      <div className={seatSelectorHStyles.pageContainer}>
+        <style>{seatSelectorHStyles.customCSS}</style>
+        <div className={seatSelectorHStyles.mainContainer}>
+          {/* Header */}
+          <div className={seatSelectorHStyles.headerContainer}>
+            <button
+              onClick={() => navigate(-1)}
+              className={seatSelectorHStyles.backButton}
             >
-                <ArrowLeft size={18} /> Back
+              <ArrowLeft size={20} />
+              Back
             </button>
-    
             <div className={seatSelectorHStyles.titleContainer}>
-                <h1 className={seatSelectorHStyles.movieTitle}>{movie?.title}</h1>
-                <div className={seatSelectorHStyles.showtimeText}>
-                    {slotKey
-                    ? new Date(slotKey).toLocaleString("en-IN", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })
-                : "Showtime unavailable"}
-                </div>
+              <h1 className={seatSelectorHStyles.movieTitle}>{movieTitle}</h1>
+              <p className={seatSelectorHStyles.showtimeText}>
+                <Ticket size={14} />
+                {audiName} • {showtimeLabel}
+              </p>
             </div>
-    
-            <div className='ml-auto flex items-center'>
-              
-                {
-                    audiName && (
-                        <div 
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm
-                         bg-black/70 border border-red-600/50 text-red-500
-                         shadow-[0_0_12px_rgba(239,68,68,0.6),0_0_2px_rgba(239,68,68,0.8)]"
-                        title={`Auditorium: ${audiName}`}
-                        >
-                          <Film size={16} />
-                          {audiName}</div>
-                    )
-                }
-            </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm
-                         bg-black/70 border border-red-600/50 text-red-500
-                         shadow-[0_0_12px_rgba(239,68,68,0.6),0_0_2px_rgba(239,68,68,0.8)] cursor-pointer"
-                         onClick={() => setShowTickets(true)}
-                         >
-            Tickets: 
-         <span>{ticketCount}</span>
-        </div>
-
           </div>
-    
+
+          {/* Screen */}
           <div className={seatSelectorHStyles.screenContainer}>
             <div
-            className={seatSelectorHStyles.screen}
-            style={{
+              className={seatSelectorHStyles.screen}
+              style={{
                 transform: "perspective(120px) rotateX(6deg)",
                 maxWidth: 900,
                 boxShadow: "0 0 40px rgba(220, 38, 38, 0.18)",
-            }}
+              }}
             >
-                <div className={seatSelectorHStyles.screenText}>CURVED SCREEN</div>
-                <div className={seatSelectorHStyles.screenSubtext}>Please face the screen -- enjoy the show</div>
+              <div className={seatSelectorHStyles.screenText}>
+                CURVED SCREEN
+              </div>
+              <div className={seatSelectorHStyles.screenSubtext}>
+                Please face the screen -- enjoy the show
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2 py-4">
-          <h2 className="text-2xl font-serif font-bold text-amber-50 tracking-wide"
-            style={{ textShadow: "0 0 20px rgba(239,68,68,0.4)" }}>
-           Select Your Seats
-           </h2>
-         <div className="h-[3px] w-40 rounded-full mb-10"
-         style={{
-             background: "linear-gradient(90deg, transparent, #ef4444, transparent)"
-             }}
-            />
-           </div>
-    
-          <div className={seatSelectorHStyles.mainContainer}>
+          {/* Main content */}
+          <div className={seatSelectorHStyles.mainContent}>
+            <div className={seatSelectorHStyles.sectionHeader}>
+              <div className={seatSelectorHStyles.sectionTitleContainer}>
+                <h2 className={seatSelectorHStyles.sectionTitle}>
+                  <RockingChair size={20} />
+                  Select Your Seats
+                </h2>
+                <div className={seatSelectorHStyles.titleDivider} />
+              </div>
+            </div>
+
+            {/* Seat grid */}
             <div className={seatSelectorHStyles.seatGridContainer}>
-                {ROWS.map((row) => (
-                    <div key={row.id} className={seatSelectorHStyles.rowContainer}>
-                        <div className={seatSelectorHStyles.rowHeader}>
-                            <div className={seatSelectorHStyles.rowLabel}>{row.id}</div>
-    
-                            <div className='flex-1 flex justify-center'>
-                                <div className={seatSelectorHStyles.seatGrid}>
-                                    {Array.from({length: row.count}).map((_, i) => {
-                                        const num = i +1;
-                                        const id = seatId(row.id, num);
-                                        const isBooked = booked.has(id);
-                                        const isSelected = selected.has(id);
-                                        let cls = seatSelectorHStyles.seatButton;
-                                        if(isBooked)
-                                            cls += ` ${seatSelectorHStyles.seatButtonBooked}`;
-                                        else if (isSelected)
-                                            cls += 
-                                              row.type === "recliner"
-                                              ? ` ${seatSelectorHStyles.seatButtonSelectedRecliner}`
-                                              : ` ${seatSelectorHStyles.seatButtonSelectedStandard}`;
-                                        else
-                                            cls += 
-                                             row.type === "recliner"
-                                             ? ` ${seatSelectorHStyles.seatButtonAvailableRecliner}`
-                                             : ` ${seatSelectorHStyles.seatButtonAvailableStandard}`;
-                                         return(
-                                            <button
-                                            key={id}
-                                            onClick={()=> toggleSeat(id)}
-                                            disabled={isBooked}
-                                            className={cls}
-                                            title={
-                                                isBooked
-                                                ? `Seat ${id} - Already Booked`
-                                                : `Seat ${id} (${row.type}) - ₹${
-                                                    row.type === 'recliner'
-                                                    ? Math.round(basePrice * 1.5)
-                                                    : basePrice
-                                                }`
-                                            }
-                                            >
-                                                <div className={seatSelectorHStyles.seatContent}>
-                                                    {row.type === "recliner" ? (
-                                                        <Sofa size={16} className={seatSelectorHStyles.seatIcon} />
-                                                    ) : (
-                                                        <RockingChair size={12} className={seatSelectorHStyles.seatIcon} />
-                                                    )}
-                                                    <div className={seatSelectorHStyles.seatNumber}>{num}</div>
-                                                </div>
-                                            </button>
-                                         )     
-                                    })}
-                                </div>
+              {ROWS.map((row) => (
+                <div key={row.id} className={seatSelectorHStyles.rowContainer}>
+                  <div className={seatSelectorHStyles.rowHeader}>
+                    <span className={seatSelectorHStyles.rowLabel}>
+                      {row.id}
+                    </span>
+                    <span className={seatSelectorHStyles.rowType}>
+                      {row.type}
+                    </span>
+                  </div>
+                  <div className={seatSelectorHStyles.seatGrid}>
+                    {Array.from({ length: row.count }, (_, i) => i + 1).map(
+                      (num) => {
+                        const sid = seatId(row.id, num);
+                        const isRecliner = row.type === "recliner";
+                        const isBooked = booked.has(sid);
+                        const isSelected = selected.has(sid);
+
+                        let cls = `${seatSelectorHStyles.seatButton} `;
+                        if (isBooked) {
+                          cls += seatSelectorHStyles.seatButtonBooked;
+                        } else if (isSelected) {
+                          cls += isRecliner
+                            ? seatSelectorHStyles.seatButtonSelectedRecliner
+                            : seatSelectorHStyles.seatButtonSelectedStandard;
+                        } else {
+                          cls += isRecliner
+                            ? seatSelectorHStyles.seatButtonAvailableRecliner
+                            : seatSelectorHStyles.seatButtonAvailableStandard;
+                        }
+
+                        return (
+                          <button
+                            key={sid}
+                            type="button"
+                            disabled={isBooked}
+                            onClick={() => toggleSeat(sid)}
+                            className={cls}
+                            title={isBooked ? `${sid} - booked` : sid}
+                          >
+                            <div className={seatSelectorHStyles.seatContent}>
+                              {isRecliner ? (
+                                <Sofa
+                                  className={seatSelectorHStyles.seatIcon}
+                                  size={16}
+                                />
+                              ) : (
+                                <RockingChair
+                                  className={seatSelectorHStyles.seatIcon}
+                                  size={16}
+                                />
+                              )}
+                              <span className={seatSelectorHStyles.seatNumber}>
+                                {num}
+                              </span>
                             </div>
-    
-                            <div className={seatSelectorHStyles.rowType}>{row.type}</div>
-                        </div>
-                    </div>
-                ))}
+                          </button>
+                        );
+                      },
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-    
-            {/**Booking summary */}
+
+            {/* Legend */}
+            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded bg-green-900 inline-block" />{" "}
+                Available
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded bg-gradient-to-br from-green-500 to-green-700 inline-block" />{" "}
+                Selected
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded bg-gray-800 opacity-40 inline-block" />{" "}
+                Booked
+              </div>
+            </div>
+
+            {/* Summary */}
             <div className={seatSelectorHStyles.summaryGrid}>
-                <div className={seatSelectorHStyles.summaryContainer}>
-                    <h3 className={seatSelectorHStyles.summaryTitle}>
-                        <Ticket size={18} /> Booking Summary
-                    </h3>
-                    <div className='space-y-4'>
-                        <div className={seatSelectorHStyles.summaryItem}>
-                            <span className={seatSelectorHStyles.summaryLabel}>
-                                Selected Seats:
-                            </span>
-                            <span className={seatSelectorHStyles.summaryValue}>{selectedCount}</span>
-                        </div>
-    
-                        {selectedCount > 0 && (
-                            <>
-                            <div className={seatSelectorHStyles.selectedSeatsContainer}>
-                                <div className={seatSelectorHStyles.selectedSeatsLabel}>
-                                    Selected Seats:
-                                </div>
-                                <div className={seatSelectorHStyles.selectedSeatsList}>
-                                    {[...selected].sort().map((seat) => (
-                                        <span key={seat} 
-                                        className={seatSelectorHStyles.selectedSeatBadge}>
-                                            {seat}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className={seatSelectorHStyles.totalContainer}>
-                                <div className={seatSelectorHStyles.pricingRow}>
-                                    <span className={seatSelectorHStyles.totalLabel}>
-                                        Total Amount:
-                                    </span>
-                                    <span className={seatSelectorHStyles.totalValue}>₹{Math.round(total)}</span>
-                                </div>
-                            </div>
-                            </>
-                        )}
-    
-                        {selectedCount === 0 && (
-                            <div className={seatSelectorHStyles.emptyState}>
-                                <div className={seatSelectorHStyles.emptyStateTitle}>
-                                    No seats selected
-                                </div>
-                                <div className={seatSelectorHStyles.emptyStateSubtitle}>
-                                    Select seats from the grid to continue
-                                </div>
-                            </div>
-                        )}
-    
-                        <div className={seatSelectorHStyles.actionButtons}>
-                            <button onClick={clearSelection} disabled={selectedCount === 0} className={seatSelectorHStyles.clearButton}>
-                                Clear
-                            </button>
-                            <button onClick={confirmBooking} disabled={selectedCount === 0} className={seatSelectorHStyles.confirmButton}>
-                                Confirm Booking
-                            </button>
-                        </div>
+              {/* Left: selection + actions */}
+              <div className={seatSelectorHStyles.summaryContainer}>
+                <h3 className={seatSelectorHStyles.summaryTitle}>
+                  <Rows size={18} />
+                  Your Selection
+                </h3>
+
+                {selectedCount === 0 ? (
+                  <div className={seatSelectorHStyles.emptyState}>
+                    <p className={seatSelectorHStyles.emptyStateTitle}>
+                      No seats selected
+                    </p>
+                    <p className={seatSelectorHStyles.emptyStateSubtitle}>
+                      Tap a seat above to select it
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className={seatSelectorHStyles.selectedSeatsContainer}>
+                      <p className={seatSelectorHStyles.selectedSeatsLabel}>
+                        Selected Seats ({selectedCount})
+                      </p>
+                      <div className={seatSelectorHStyles.selectedSeatsList}>
+                        {[...selected].sort().map((s) => (
+                          <span
+                            key={s}
+                            className={seatSelectorHStyles.selectedSeatBadge}
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                </div>
-    
-                <div className={seatSelectorHStyles.pricingContainer}>
-                    <h3 className={seatSelectorHStyles.pricingTitle}>
-                        <CreditCard size={18} /> Pricing info
-                    </h3>
-                    <div className='space-y-3'>
-                        <div className={seatSelectorHStyles.pricingItem}>
-                            <div className={seatSelectorHStyles.pricingRow}>
-                                <div className={seatSelectorHStyles.pricingLabel}>
-                                    Standard
-                                </div>
-                                <div className={seatSelectorHStyles.pricingValueStandard}>
-                                    ₹{basePrice}
-                                </div>
-                            </div>
-                        </div>
-    
-                        <div className={seatSelectorHStyles.pricingItem}>
-                            <div className={seatSelectorHStyles.pricingRow}>
-                                <div className={seatSelectorHStyles.pricingLabel}>
-                                    Recliner
-                                </div>
-                                <div className={seatSelectorHStyles.pricingValueRecliner}>
-                                    ₹{Math.round(basePrice * 1.5)}
-                                </div>
-                            </div>
-                        </div>
-    
-                        <div className={seatSelectorHStyles.pricingNote}>
-                            All prices include taxes. No hidden charges.
-                        </div>
+
+                    <div className={seatSelectorHStyles.summaryItem}>
+                      <span className={seatSelectorHStyles.summaryLabel}>
+                        Tickets
+                      </span>
+                      <span className={seatSelectorHStyles.summaryValue}>
+                        {selectedCount}
+                      </span>
                     </div>
+
+                    <div className={seatSelectorHStyles.totalContainer}>
+                      <div className="flex justify-between items-center">
+                        <span className={seatSelectorHStyles.totalLabel}>
+                          Total
+                        </span>
+                        <span className={seatSelectorHStyles.totalValue}>
+                          ₹{total}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className={seatSelectorHStyles.actionButtons}>
+                  <button
+                    type="button"
+                    onClick={clearSection}
+                    disabled={selectedCount === 0 || bookingLoading}
+                    className={seatSelectorHStyles.clearButton}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmBooking}
+                    disabled={selectedCount === 0 || bookingLoading}
+                    className={seatSelectorHStyles.confirmButton}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <CreditCard size={18} />
+                      {bookingLoading ? "Processing…" : "Confirm & Pay"}
+                    </span>
+                  </button>
                 </div>
+              </div>
+
+              {/* Right: pricing info */}
+              <div className={seatSelectorHStyles.pricingContainer}>
+                <h3 className={seatSelectorHStyles.pricingTitle}>
+                  <Ticket size={18} />
+                  Pricing
+                </h3>
+                <div className="space-y-3">
+                  <div className={seatSelectorHStyles.pricingItem}>
+                    <div className={seatSelectorHStyles.pricingRow}>
+                      <span className={seatSelectorHStyles.pricingLabel}>
+                        Standard
+                      </span>
+                      <span
+                        className={seatSelectorHStyles.pricingValueStandard}
+                      >
+                        ₹{(standardPaise / 100).toFixed(2)}
+                      </span>
+                    </div>
+                    <p className={seatSelectorHStyles.pricingNote}>
+                      Rows A - C
+                    </p>
+                  </div>
+                  <div className={seatSelectorHStyles.pricingItem}>
+                    <div className={seatSelectorHStyles.pricingRow}>
+                      <span className={seatSelectorHStyles.pricingLabel}>
+                        Recliner
+                      </span>
+                      <span
+                        className={seatSelectorHStyles.pricingValueRecliner}
+                      >
+                        ₹{(reclinerPaise / 100).toFixed(2)}
+                      </span>
+                    </div>
+                    <p className={seatSelectorHStyles.pricingNote}>
+                      Rows D - E
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          </div>
-        </div></>
-  )
+        </div>
+      </div>
+    </>
+  );
 }
 
-export default SeatSelectorPageHome
+//export default SeatSelectorPageHome
