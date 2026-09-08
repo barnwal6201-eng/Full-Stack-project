@@ -218,7 +218,7 @@ export default function SeatSelectorPage()  {
             setBooked((prev) => {
                 const same = prev.size === set.size && [...prev].every((v) => set.has(v));
                 if(same) return prev;
-//ReCheck-----------------------------------------------------------------------------------------------------------------------------
+                
                 setSelected((selPrev) => {
                     const nextSel = new Set(selPrev);
                     for(const s of set) nextSel.delete(s);

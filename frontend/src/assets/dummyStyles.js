@@ -1188,7 +1188,7 @@ export const seatSelectorHStyles = {
   rowContainer: "w-full max-w-4xl flex flex-col items-center",
   rowHeader: "w-full flex items-center justify-center mb-3",
   rowLabel: "w-12 mx-3 text-lg font-bold text-red-400 text-center",
-  rowType: "w-20 px-3 text-sm font-semibold text-gray-400 capitalize text-center",
+  rowType: "w-20 px-3 text-sm font-semibold text-gray-400 capitalize",
   
   // Seat buttons
   seatGrid: "seat-grid",
@@ -1243,12 +1243,12 @@ export const seatSelectorHStyles = {
   
   // Custom CSS
   customCSS: `
-    .seat-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(8, minmax(3.2rem, 5rem)); }
+    .seat-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(10, minmax(3.2rem, 5rem)); }
     .seat-btn { width: 100%; height: 3.5rem; border-radius: .75rem; }
 
     /* Large/tablet slightly smaller */
     @media (max-width: 1024px) {
-      .seat-grid { grid-template-columns: repeat(8, minmax(2.6rem, 4rem)); }
+      .seat-grid { grid-template-columns: repeat(10, minmax(2.6rem, 4rem)); }
       .seat-btn { height: 3rem; }
     }
 

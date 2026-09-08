@@ -226,7 +226,7 @@ export default function SeatSelectorPageHome() {
         const same =
           prev.size === set.size && [...prev].every((v) => set.has(v));
         if (same) return prev;
-        //ReCheck-----------------------------------------------------------------------------------------------------------------------------
+
         setSelected((selPrev) => {
           const nextSel = new Set(selPrev);
           for (const s of set) nextSel.delete(s);
@@ -374,14 +374,35 @@ export default function SeatSelectorPageHome() {
 
   const toggleSeat = (id) => {
     const nid = normalizedSeatId(id);
-    //console.log(nid)---------------------------------------------===========================================================
     if (booked.has(nid)) {
       toast.error(`Seat ${nid} already booked`);
       return;
     }
+    if (selected.size >= ticketCount && !selected.has(id)) {
+      toast.error(`You can only select ${ticketCount} seat(s).`);
+      return;
+    }
+
+    const row = nid[0];
+    const num = Number(nid.slice(1));
+    console.log(row, num);
+
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(nid) ? next.delete(nid) : next.add(nid);
+      next.has(nid) ? next.delete(nid) : next;
+
+      let added = 0;
+      let i = 0;
+      while (added < ticketCount && next.size < ticketCount) {
+        const seatId = `${row}${num + i}`;
+        i++;
+
+        if (booked.has(seatId)) i += 2;
+        if (next.has(seatId)) continue;
+
+        next.add(seatId);
+        added++;
+      }
       return next;
     });
   };
@@ -599,30 +620,23 @@ export default function SeatSelectorPageHome() {
           </div>
 
           {/* Main content */}
-          <div className={seatSelectorHStyles.mainContent}>
-            <div className={seatSelectorHStyles.sectionHeader}>
-              <div className={seatSelectorHStyles.sectionTitleContainer}>
-                <h2 className={seatSelectorHStyles.sectionTitle}>
-                  <RockingChair size={20} />
-                  Select Your Seats
-                </h2>
-                <div className={seatSelectorHStyles.titleDivider} />
-              </div>
+          <div className={seatSelectorHStyles.sectionHeader}>
+            <div className={seatSelectorHStyles.sectionTitleContainer}>
+              <h2 className={seatSelectorHStyles.sectionTitle}>
+                <RockingChair size={20} />
+                Select Your Seats
+              </h2>
+              <div className={seatSelectorHStyles.titleDivider} />
             </div>
 
             {/* Seat grid */}
             <div className={seatSelectorHStyles.seatGridContainer}>
               {ROWS.map((row) => (
                 <div key={row.id} className={seatSelectorHStyles.rowContainer}>
-                  <div className={seatSelectorHStyles.rowHeader}>
+                  <div className={seatSelectorHStyles.seatGrid}>
                     <span className={seatSelectorHStyles.rowLabel}>
                       {row.id}
                     </span>
-                    <span className={seatSelectorHStyles.rowType}>
-                      {row.type}
-                    </span>
-                  </div>
-                  <div className={seatSelectorHStyles.seatGrid}>
                     {Array.from({ length: row.count }, (_, i) => i + 1).map(
                       (num) => {
                         const sid = seatId(row.id, num);
@@ -672,6 +686,9 @@ export default function SeatSelectorPageHome() {
                         );
                       },
                     )}
+                    <span className={seatSelectorHStyles.rowType}>
+                      {row.type}
+                    </span>
                   </div>
                 </div>
               ))}
