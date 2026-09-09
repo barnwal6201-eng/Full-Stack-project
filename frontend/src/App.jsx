@@ -12,6 +12,7 @@ import MovieDetailPageHome from './pages/MovieDetailPageHome'
 import SeatSelectorPageHome from './components/SeatSelectorPageHome'
 import SeatSelectorPage from './components/SeatSelectorPage'
 import { ToastContainer } from 'react-toastify'
+import VerifyPayementPage from '../VerifyPayementPage'
 
 /**
  * ScrollToTop component
@@ -110,6 +111,9 @@ const App = () => {
       
       <Route path='/movie/:id/seat/:slot' element={<SeatSelectorPageHome />} />
       <Route path='/movie/:id/seat-selector/:slot' element={<SeatSelectorPageHome />} />
+
+      <Route path='/success' element={<VerifyPayementPage />} />
+      <Route path='/cancel' element={<VerifyPayementPage />} />
 
     </Routes>
     </div>

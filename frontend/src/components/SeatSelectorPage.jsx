@@ -406,12 +406,15 @@ export default function SeatSelectorPage()  {
           : Math.round(standardPaise * 1.5);
 
     const confirmBooking = async () => {
+      console.log("🔥🔥🔥 confirmBooking CALLED 🔥🔥🔥");
         if(selected.size === 0) {
             toast.error("Select at least one seat.");
             return;
         }
 
         const token = getAuthToken();
+        console.log("raw token:", token);
+    
         if(!token) {
             toast.error("You must be logged in to book seats.");
             const returnUrl = encodeURIComponent(

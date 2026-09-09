@@ -2,12 +2,13 @@ import mongoose from "mongoose";
 import Booking from '../models/bookingModel.js';
 import Movie from "../models/movieModels.js";
 import dotenv from 'dotenv';
-import Stripe from 'stripe'
 dotenv.config();
+import Stripe from 'stripe'
 
-const CLIENT_URL = "process.env.CLIENT_URL";
-const STRIPE_SECRET_KEY = "process.env.STRIPE_KEY";
-const STRIPE_API_VERSION = "process.env.STRIPE_API_VERSION";
+
+const CLIENT_URL = process.env.CLIENT_URL;
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+const STRIPE_API_VERSION = process.env.STRIPE_API_VERSION;
 const RECLINER_ROWS = new Set(["D","E"]);
 const BOOKING_STATUSES = ["pending", "paid", "confirmed", "active", "upcoming"];
 
@@ -270,11 +271,10 @@ export async function createBooking(req, res) {
                 line_items: [{
                     price_data: {
                         currency,
-                        product_data: { name: booking.movie.title || "Movie Booking", description: `Seats: ${seatIdList.join(", ")} - ${auditorium}`,
+                        product_data: { name: booking.movie.title || "Movie Booking", description: `Seats: ${seatIdList.join(", ")} - ${auditorium}`,},
                         unit_amount: amountPaiseForStripe
                     },
-                    quantity: 1
-                    }
+                    quantity: 1,
                 }],
                 success_url: `${CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${CLIENT_URL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
@@ -343,7 +343,7 @@ export async function getBooking(req, res) {
         q.paymentStatus = 'paid';
     }
 
-    const items = (await Booking.find(q)).sort({ createdAt: -1 }).lean().exec();
+    const items = await Booking.find(q).sort({ createdAt: -1 }).lean().exec();
     return res.json({
         success: true,
         items

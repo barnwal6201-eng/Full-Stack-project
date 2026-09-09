@@ -423,12 +423,18 @@ export default function SeatSelectorPageHome() {
       : Math.round(standardPaise * 1.5);
 
   const confirmBooking = async () => {
+    console.log("🔥🔥🔥 confirmBooking CALLED 🔥🔥🔥");
     if (selected.size === 0) {
       toast.error("Select at least one seat.");
       return;
     }
 
     const token = getAuthToken();
+    console.log("raw token:", token);
+    console.log("decoded payload:", payload);
+    console.log("expires at:", new Date(payload.exp * 1000));
+    console.log("now:", new Date());
+    console.log("is expired?", Date.now() > payload.exp * 1000);
     if (!token) {
       toast.error("You must be logged in to book seats.");
       const returnUrl = encodeURIComponent(
@@ -453,6 +459,7 @@ export default function SeatSelectorPageHome() {
         Currency: "INR",
         email: "",
       };
+
 
       const res = await axios.post(`${API_BASE}/api/bookings`, payload, {
         headers: { Authorization: `Bearer ${token}` },
@@ -537,6 +544,7 @@ export default function SeatSelectorPageHome() {
     } finally {
       setBookingLoading(false);
     }
+
   };
 
   const totalPaise = [...selected].reduce((sum, s) => {
@@ -685,6 +693,7 @@ export default function SeatSelectorPageHome() {
                           </button>
                         );
                       },
+                      
                     )}
                     <span className={seatSelectorHStyles.rowType}>
                       {row.type}
@@ -778,7 +787,6 @@ export default function SeatSelectorPageHome() {
                     Clear
                   </button>
                   <button
-                    type="button"
                     onClick={confirmBooking}
                     disabled={selectedCount === 0 || bookingLoading}
                     className={seatSelectorHStyles.confirmButton}
@@ -833,7 +841,10 @@ export default function SeatSelectorPageHome() {
             </div>
           </div>
         </div>
+
+       
       </div>
+      <style>{seatSelectorHStyles.customCSS}</style>
     </>
   );
 }

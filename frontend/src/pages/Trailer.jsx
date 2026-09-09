@@ -128,10 +128,10 @@ useEffect(() => {
 
         const json = await res.json();
         const items = Array.isArray(json.items) ? json.items : [];
-        console.log("RAW item from API:", items[0]);
+        //console.log("RAW item from API:", items[0]);
 
         const mapped = items.map(mapMovieToTrailerItem);
-        console.log(mapped);
+        //console.log(mapped);
         setTrailers(mapped);
         setFeaturedTrailer(mapped[0] || null);
         setLoading(false);

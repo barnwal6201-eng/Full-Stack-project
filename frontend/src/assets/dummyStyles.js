@@ -200,7 +200,6 @@ export const bookingsPageStyles = {
   
   // Booking card
   bookingCard: "bg-gradient-to-b from-gray-900 to-black rounded-2xl p-4 border border-red-800 shadow-xl",
-  cardContent: "flex flex-col lg:flex-row items-start gap-4",
   posterContainer: "w-full lg:w-24 h-44 lg:h-36 flex-shrink-0 overflow-hidden rounded-md border border-red-700",
   poster: "w-full h-full object-cover",
   cardInfo: "flex-1 w-full",
@@ -212,7 +211,7 @@ export const bookingsPageStyles = {
   category: "text-xs text-gray-400 text-right",
   
   // Movie details
-  details: "mt-3 text-sm text-gray-300 flex flex-col sm:flex-row sm:items-center sm:gap-4",
+  details: "mt-6 text-sm text-gray-300 flex flex-col sm:flex-row sm:items-center sm:gap-4",
   timeContainer: "flex items-center gap-2",
   timeIcon: "w-4 h-4 text-red-300",
   locationContainer: "flex items-center gap-2 mt-2 sm:mt-0",
@@ -1159,37 +1158,36 @@ export const trailersCSS = `
 export const seatSelectorHStyles = {
   // Page container
   pageContainer: "min-h-screen bg-gradient-to-b from-black to-gray-900 text-white py-8 px-4",
-  
+
   // Main container
   mainContainer: "max-w-6xl mx-auto",
-  
+
   // Header
   headerContainer: "flex items-center mb-8 gap-4",
   backButton: "inline-flex items-center gap-2 text-red-300 hover:text-white transition-all px-4 py-3 rounded-xl hover:bg-red-900/20",
   titleContainer: "flex-1 text-center",
   movieTitle: "text-4xl md:text-6xl py-1 font-bold tracking-wider mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent",
   showtimeText: "text-sm text-gray-500 mt-1 flex items-center justify-center gap-2",
-  
+
   // Screen
   screenContainer: "mb-8",
   screen: "mx-auto bg-gradient-to-b from-gray-800 to-gray-900 rounded-t-2xl shadow-2xl text-center p-6 relative",
   screenText: "text-lg font-semibold text-gray-300 tracking-widest",
   screenSubtext: "text-xs text-gray-200 mt-2",
-  
+
   // Main content
   mainContent: "bg-gradient-to-br from-black/80 to-gray-900 rounded-3xl p-8 border border-red-700/10 shadow-2xl",
   sectionHeader: "flex justify-center mb-6",
   sectionTitleContainer: "text-center",
   sectionTitle: "text-2xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent font-bold mb-2 flex items-center justify-center gap-2",
   titleDivider: "w-20 h-1 bg-gradient-to-r from-red-500 to-transparent mx-auto",
-  
+
   // Seat grid
   seatGridContainer: "flex flex-col items-center gap-6",
   rowContainer: "w-full max-w-4xl flex flex-col items-center",
-  rowHeader: "w-full flex items-center justify-center mb-3",
-  rowLabel: "w-12 mx-3 text-lg font-bold text-red-400 text-center",
-  rowType: "w-20 px-3 text-sm font-semibold text-gray-400 capitalize",
-  
+  rowLabel: "text-lg font-bold text-red-400 text-center",
+  rowType: "text-sm font-semibold text-gray-400 capitalize text-center",
+
   // Seat buttons
   seatGrid: "seat-grid",
   seatButton: "seat-btn flex items-center justify-center text-sm font-semibold cursor-pointer transition-transform duration-200 transform hover:scale-105",
@@ -1201,7 +1199,7 @@ export const seatSelectorHStyles = {
   seatContent: "flex flex-col items-center justify-center",
   seatIcon: "seat-icon",
   seatNumber: "text-xs mt-0.5 font-bold seat-num",
-  
+
   // Booking summary
   summaryGrid: "mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start",
   summaryContainer: "lg:col-span-2 bg-black/30 p-6 rounded-2xl",
@@ -1209,28 +1207,28 @@ export const seatSelectorHStyles = {
   summaryItem: "flex justify-between items-center p-3 bg-black/40 rounded-xl",
   summaryLabel: "text-gray-300",
   summaryValue: "font-bold text-red-300 text-lg",
-  
+
   // Selected seats
   selectedSeatsContainer: "p-3 bg-black/30 cursor-pointer rounded-xl",
   selectedSeatsLabel: "text-sm text-gray-400 mb-2",
   selectedSeatsList: "flex flex-wrap gap-2",
   selectedSeatBadge: "px-3 py-1 rounded-full text-sm bg-red-500/20 text-red-300",
-  
+
   // Total amount
   totalContainer: "p-3 bg-gradient-to-r from-red-900/20 to-transparent rounded-xl",
   totalLabel: "text-gray-300 font-semibold",
   totalValue: "font-bold text-red-400 text-2xl",
-  
+
   // Empty state
   emptyState: "text-center py-6 text-gray-500",
   emptyStateTitle: "text-lg mb-1",
   emptyStateSubtitle: "text-sm",
-  
+
   // Action buttons
   actionButtons: "flex gap-3 mt-4",
   clearButton: "flex-1 px-4 py-3 rounded-full cursor-pointer bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
-  confirmButton: "flex-1 px-4 py-3 rounded-full cursor-pointer bg-gradient-to-r from-red-600 to-red-700 text-white font-bold hover:from-red-700 hover:to-red-800 transition-all transform  disabled:opacity-50 disabled:cursor-not-allowed",
-  
+  confirmButton: "flex-1 px-4 py-3 rounded-full cursor-pointer bg-gradient-to-r from-red-600 to-red-700 text-white font-bold hover:from-red-700 hover:to-red-800 transition-all transform disabled:opacity-50 disabled:cursor-not-allowed",
+
   // Pricing info
   pricingContainer: "bg-black/30 p-6 rounded-2xl",
   pricingTitle: "text-lg font-bold mb-4 flex items-center gap-2",
@@ -1240,29 +1238,29 @@ export const seatSelectorHStyles = {
   pricingValueStandard: "font-bold text-red-400",
   pricingValueRecliner: "font-bold text-green-400",
   pricingNote: "text-xs text-gray-500",
-  
+
   // Custom CSS
   customCSS: `
-    .seat-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(10, minmax(3.2rem, 5rem)); }
+    .seat-grid { display: grid; align-items: center; gap: 0.75rem; grid-template-columns: repeat(8, minmax(3.2rem, 5rem)); }
     .seat-btn { width: 100%; height: 3.5rem; border-radius: .75rem; }
 
     /* Large/tablet slightly smaller */
     @media (max-width: 1024px) {
-      .seat-grid { grid-template-columns: repeat(10, minmax(2.6rem, 4rem)); }
+      .seat-grid { grid-template-columns: repeat(8, minmax(2.6rem, 4rem)); }
       .seat-btn { height: 3rem; }
     }
 
-    /* Small phones: shrink seats so all 8 fit comfortably */
+    /* Small phones: shrink every column (including label/type) so all 10 fit */
     @media (max-width: 640px) {
-      .seat-grid { grid-template-columns: repeat(8, minmax(1.4rem, 1fr)); gap: .45rem; }
-      .seat-btn { height: 2.2rem; font-size: .625rem; border-radius: .5rem; padding: 0 .25rem; }
+      .seat-grid { grid-template-columns: repeat(8, minmax(1.4rem, 1fr)); gap: .3rem; }
+      .seat-btn { height: 2.2rem; font-size: .625rem; border-radius: .5rem; padding: 0 .15rem; }
       .seat-icon { transform: scale(0.85); }
       .seat-num { font-size: .6rem; }
     }
 
     /* Extra small devices - fallback */
     @media (max-width: 420px) {
-      .seat-grid { grid-template-columns: repeat(8, minmax(1.1rem, 1fr)); gap: .35rem; }
+      .seat-grid { grid-template-columns: repeat(8, minmax(1.1rem, 1fr)); gap: .2rem; }
       .seat-btn { height: 1.9rem; font-size: .55rem; }
     }
   `
