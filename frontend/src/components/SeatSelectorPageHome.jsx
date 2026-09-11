@@ -78,6 +78,9 @@ export default function SeatSelectorPageHome() {
   const slotKey = slot ? decodeURIComponent(slot) : "";
   const navigate = useNavigate();
 
+  const [showTickets, setShowTickets] = useState(false);
+  const [bgColor, setBgColor] = useState(true);
+  const [ticketCount, SetTicketCount] = useState(1);
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [booked, setBooked] = useState(new Set());
@@ -397,8 +400,7 @@ export default function SeatSelectorPageHome() {
         const seatId = `${row}${num + i}`;
         i++;
 
-        if (booked.has(seatId)) i += 2;
-        if (next.has(seatId)) continue;
+        if (booked.has(seatId) || next.has(seatId)) continue;
 
         next.add(seatId);
         added++;
@@ -423,18 +425,13 @@ export default function SeatSelectorPageHome() {
       : Math.round(standardPaise * 1.5);
 
   const confirmBooking = async () => {
-    console.log("🔥🔥🔥 confirmBooking CALLED 🔥🔥🔥");
+    
     if (selected.size === 0) {
       toast.error("Select at least one seat.");
       return;
     }
 
     const token = getAuthToken();
-    console.log("raw token:", token);
-    console.log("decoded payload:", payload);
-    console.log("expires at:", new Date(payload.exp * 1000));
-    console.log("now:", new Date());
-    console.log("is expired?", Date.now() > payload.exp * 1000);
     if (!token) {
       toast.error("You must be logged in to book seats.");
       const returnUrl = encodeURIComponent(
@@ -587,6 +584,21 @@ export default function SeatSelectorPageHome() {
 
   return (
     <>
+
+    {showTickets && 
+        <div 
+          className='fixed inset-0 z-50 flex justify-center items-center cursor-pointer'
+          style={bgColor ? { backgroundColor: 'rgba(0, 0, 0, 0.5)' } : {}}
+          >
+            <Tickets
+            ticketCount={ticketCount}
+            SetTicketCount={SetTicketCount}
+            showTickets={showTickets}
+            setShowTickets={setShowTickets}
+            />
+            </div>
+    }
+
       <div className={seatSelectorHStyles.pageContainer}>
         <style>{seatSelectorHStyles.customCSS}</style>
         <div className={seatSelectorHStyles.mainContainer}>
@@ -606,6 +618,24 @@ export default function SeatSelectorPageHome() {
                 {audiName} • {showtimeLabel}
               </p>
             </div>
+
+            <div style={{
+            background: "linear-gradient(90deg,#ef4444,#dc2626)",
+            color: "#fff",
+            padding: "6px 12px",
+            borderRadius: 12,
+            fontWeight: 700,
+            boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 14,
+        }}
+        onClick={() => setShowTickets(true)}
+        >
+            Tickets: 
+          <span>{ticketCount}</span>
+        </div>
           </div>
 
           {/* Screen */}
@@ -636,70 +666,62 @@ export default function SeatSelectorPageHome() {
               </h2>
               <div className={seatSelectorHStyles.titleDivider} />
             </div>
+            </div>
 
             {/* Seat grid */}
             <div className={seatSelectorHStyles.seatGridContainer}>
               {ROWS.map((row) => (
-                <div key={row.id} className={seatSelectorHStyles.rowContainer}>
-                  <div className={seatSelectorHStyles.seatGrid}>
-                    <span className={seatSelectorHStyles.rowLabel}>
-                      {row.id}
-                    </span>
-                    {Array.from({ length: row.count }, (_, i) => i + 1).map(
-                      (num) => {
-                        const sid = seatId(row.id, num);
-                        const isRecliner = row.type === "recliner";
-                        const isBooked = booked.has(sid);
-                        const isSelected = selected.has(sid);
-
-                        let cls = `${seatSelectorHStyles.seatButton} `;
-                        if (isBooked) {
-                          cls += seatSelectorHStyles.seatButtonBooked;
-                        } else if (isSelected) {
-                          cls += isRecliner
-                            ? seatSelectorHStyles.seatButtonSelectedRecliner
-                            : seatSelectorHStyles.seatButtonSelectedStandard;
-                        } else {
-                          cls += isRecliner
-                            ? seatSelectorHStyles.seatButtonAvailableRecliner
-                            : seatSelectorHStyles.seatButtonAvailableStandard;
-                        }
-
-                        return (
-                          <button
-                            key={sid}
-                            type="button"
-                            disabled={isBooked}
-                            onClick={() => toggleSeat(sid)}
-                            className={cls}
-                            title={isBooked ? `${sid} - booked` : sid}
-                          >
-                            <div className={seatSelectorHStyles.seatContent}>
-                              {isRecliner ? (
-                                <Sofa
-                                  className={seatSelectorHStyles.seatIcon}
-                                  size={16}
-                                />
-                              ) : (
-                                <RockingChair
-                                  className={seatSelectorHStyles.seatIcon}
-                                  size={16}
-                                />
-                              )}
-                              <span className={seatSelectorHStyles.seatNumber}>
-                                {num}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      },
-                      
-                    )}
-                    <span className={seatSelectorHStyles.rowType}>
-                      {row.type}
-                    </span>
-                  </div>
-                </div>
+               <div key={row.id} className={seatSelectorHStyles.rowContainer}
+                  style={{marginTop: "4px"}}
+               >
+                <div className={seatSelectorHStyles.rowHeader}
+                    style={{justifyContent: "space-between", marginBottom: "-36px"}}
+                >
+                <span className={seatSelectorHStyles.rowLabel}>{row.id}</span>
+                 <span className={seatSelectorHStyles.rowType}>{row.type}</span>
+                   </div>
+                <div className={seatSelectorHStyles.seatGrid}>
+                {Array.from({ length: row.count }, (_, i) => i + 1).map((num) => {
+                  const sid = seatId(row.id, num);
+                  const isRecliner = row.type === "recliner";
+                  const isBooked = booked.has(sid);
+                  const isSelected = selected.has(sid);
+               
+                  let cls = `${seatSelectorHStyles.seatButton} `;
+                  if (isBooked) {
+                  cls += seatSelectorHStyles.seatButtonBooked;
+                  } else if (isSelected) {
+                  cls += isRecliner
+                  ? seatSelectorHStyles.seatButtonSelectedRecliner
+                  : seatSelectorHStyles.seatButtonSelectedStandard;
+                  } else {
+                  cls += isRecliner
+                  ? seatSelectorHStyles.seatButtonAvailableRecliner
+                  : seatSelectorHStyles.seatButtonAvailableStandard;
+                  }
+               
+                  return (
+                  <button
+                  key={sid}
+                  type="button"
+                  disabled={isBooked}
+                  onClick={() => toggleSeat(sid)}
+                  className={cls}
+                  title={isBooked ? `${sid} - booked` : sid}
+                  >
+                  <div className={seatSelectorHStyles.seatContent}>
+                  {isRecliner ? (
+                  <Sofa className={seatSelectorHStyles.seatIcon} size={16} />
+                  ) : (
+                  <RockingChair className={seatSelectorHStyles.seatIcon} size={16} />
+                  )}
+                  <span className={seatSelectorHStyles.seatNumber}>{num}</span>
+                 </div>
+                  </button>
+                 );
+                    })}
+                     </div>
+               </div>
               ))}
             </div>
 
@@ -842,11 +864,9 @@ export default function SeatSelectorPageHome() {
           </div>
         </div>
 
-       
-      </div>
       <style>{seatSelectorHStyles.customCSS}</style>
     </>
   );
 }
 
-//export default SeatSelectorPageHome
+//4242 4242 4242 4242

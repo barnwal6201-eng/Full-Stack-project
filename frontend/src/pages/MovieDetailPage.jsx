@@ -303,13 +303,13 @@ const MovieDetailPage = () => {
     const handleTimeSelect = (datetime) => {
         setSelectedTime(datetime);
         const key = encodeURIComponent(datetime);
-        navigate(`/movies/${movie._id}/seat-selector/${key}`);
+        navigate(`/movie/${movie._id}/seat-selector/${key}`);
     };
 
     const handleBookNow = () => {
         if (selectedTime) {
             const key = encodeURIComponent(selectedTime);
-            navigate(`/movies/${movie._id}/seat-selector/${key}`);
+            navigate(`/movie/${movie._id}/seat-selector/${key}`);
         } else {
             toast.error("Please select a showtime first");
         }

@@ -381,8 +381,7 @@ export default function SeatSelectorPage()  {
               const seatId = `${row}${num + i}`;
               i++;
 
-            if(booked.has(seatId)) i += 2;
-            if (next.has(seatId)) continue;
+            if (booked.has(seatId) || next.has(seatId)) continue;
 
             next.add(seatId);
             added++;
@@ -406,15 +405,12 @@ export default function SeatSelectorPage()  {
           : Math.round(standardPaise * 1.5);
 
     const confirmBooking = async () => {
-      console.log("🔥🔥🔥 confirmBooking CALLED 🔥🔥🔥");
         if(selected.size === 0) {
             toast.error("Select at least one seat.");
             return;
         }
 
         const token = getAuthToken();
-        console.log("raw token:", token);
-    
         if(!token) {
             toast.error("You must be logged in to book seats.");
             const returnUrl = encodeURIComponent(
@@ -649,8 +645,12 @@ const showtimeLabel = (() => {
         {/* Seat grid */}
         <div className={seatSelectorStyles.seatGridContainer}>
           {ROWS.map((row) => (
-            <div key={row.id} className={seatSelectorStyles.rowContainer}>
-              <div className={seatSelectorStyles.rowHeader}>
+            <div key={row.id} className={seatSelectorStyles.rowContainer}
+              style={{marginTop: "4px"}}
+            >
+              <div className={seatSelectorStyles.rowHeader}
+              style={{justifyContent: "space-between", marginBottom: "-36px"}}
+              >
                 <span className={seatSelectorStyles.rowLabel}>{row.id}</span>
                 <span className={seatSelectorStyles.rowType}>{row.type}</span>
               </div>

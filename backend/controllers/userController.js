@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const TOKEN_EXPIRES_IN = '24hr';
+const TOKEN_EXPIRES_IN = '7d';
 
 /* --------------------helpers--------------- */
 const emailIsValid = (e) => /\S+@\S+\.\S+/.test(String(e || ""));

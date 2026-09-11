@@ -24,12 +24,14 @@ const VerifyPayementPage = () => {
             return;
         }
 
+
         if(!session_id){
             setStatusMsg("No session_id provided in the URL.");
             return;
         }
 
         try {
+            console.log("session_id being sent:", session_id);
             setStatusMsg('Confirming payment with server.');
             const API_BASE = import.meta.env.VITE_API_BASE;
             const res = await axios.get(
