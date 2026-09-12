@@ -425,7 +425,7 @@ const MovieDetailPage = () => {
 
                 <div className={movieDetailStyles.mainLayout}>
                     <div className={movieDetailStyles.leftColumn}>
-                        <div className={movieDetailStyles.posterCard}>
+                         <div className={movieDetailStyles.posterCard}>
                             <div
                                 className={movieDetailStyles.posterImage}
                                 style={{ maxWidth: '320px', aspectRatio: '2 / 3', background: 'rgba(255,255,255,0.03)' }}

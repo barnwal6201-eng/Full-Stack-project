@@ -166,6 +166,7 @@ const MovieDetailPageHome = () => {
                         setFetchError("Movie data was empty in the server response.");
                     }
                     setMovie(item || null);
+                    console.log(item)
                 }
             } catch (err) {
                 console.error("Failed to fetch movie:", err);

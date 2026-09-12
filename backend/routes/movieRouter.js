@@ -23,9 +23,9 @@ const upload = multer({ storage }).fields([
     {name: "ltThumbnail", maxCount: 1},
     {name: "castFiles", maxCount: 20},
     {name: "directorFiles", maxCount: 20},
-    {name: "producerFiles", maxCount: 20},
+    {name: "producersFiles", maxCount: 20},
     {name: "ltDirectorFiles", maxCount: 20},
-    {name: "ltProducerFiles", maxCount: 20},
+    {name: "ltProducersFiles", maxCount: 20},
     {name: "ltSingerFiles", maxCount: 20},
 ]);
 

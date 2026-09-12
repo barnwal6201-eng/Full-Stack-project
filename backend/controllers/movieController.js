@@ -172,7 +172,7 @@ export async function createMovie(req, res) {
             });
         };
         attachLtFiles("ltDirectorFiles", "directors");
-        attachLtFiles("ltProducerFiles", "producers");
+        attachLtFiles("ltProducersFiles", "producers");
         attachLtFiles("ltSingerFiles", "singers");
 
         latestTrailerBody.directors = buildLatestTrailerPeople(latestTrailerBody.directors);

@@ -314,7 +314,7 @@ const AddPage = () => {
             if (ltThumbnail) form.append('ltThumbnail', ltThumbnail);
 
             appendFilesToForm(form, 'ltDirectorFiles', ltDirectorImages);
-            appendFilesToForm(form, 'ltProducerFiles', ltProducerImages);
+            appendFilesToForm(form, 'ltProducersFiles', ltProducerImages);
             appendFilesToForm(form, 'ltSingerFiles', ltSingerImages);
         } else {
 
@@ -351,11 +351,17 @@ const AddPage = () => {
                     file: d.file ? d.file.name : null,
                 }))
             ));
+            form.append('producers', JSON.stringify(
+                 producerImages.map((p) => ({
+                      name: p.name || "",
+                      file: p.file ? p.file.name : null,
+                 }))
+            ));
             form.append('story', story || '');
 
             appendFilesToForm(form, 'castFiles', castImages);
             appendFilesToForm(form, 'directorFiles', directorImages);
-            appendFilesToForm(form, 'producerFiles', producerImages);
+            appendFilesToForm(form, 'producersFiles', producerImages);
         }
 
         try {
