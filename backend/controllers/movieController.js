@@ -221,7 +221,7 @@ export async function createMovie(req, res) {
 //GET ALL MOVIES
 export async function getMovies(req, res) {
     try {
-        const {category, type, sort= '-createdAt', page = 1, limit = 12, search, latestTrailers} = req.query;
+        const {category, type, sort= '-createdAt', page = 1, limit = 50, search, latestTrailers, featured} = req.query;
         let filter = {};
         if(typeof category === "string" && category.trim()) filter.categories = { $in: [category.trim()] };
         if(typeof type === "string" && type.trim()) filter.type = type.trim();
@@ -239,7 +239,15 @@ export async function getMovies(req, res) {
             } : {
                 $and: [filter, {type: 'latestTrailers'}]
             }
-        }    
+        }   
+        
+        if (featured && String(featured).toLowerCase() === 'true') {
+            filter.$or = (filter.$or || []).concat([
+                { featured: true },
+                { isFeatured: true },
+                { type: 'featured' }
+            ]);
+        }
 
         const pg = Math.max(1, parseInt(page, 10) || 1);
         const lim = Math.min(200, parseInt(limit, 10) || 12);

@@ -53,6 +53,8 @@ const BookingsPage = () => {
                         headers,
                         params,
                     });
+
+                   
                 }catch (err) {
                     res = await axios.get(`${API_BASE}/api/bookings`, {
                         headers,

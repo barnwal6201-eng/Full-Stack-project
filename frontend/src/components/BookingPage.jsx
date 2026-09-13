@@ -336,8 +336,8 @@ const BookingPage = () => {
                         ₹{totals.total.toLocaleString("en-IN")}
                       </div>
                     </div>
-
-                    {isOpen && (<div className={bookingsPageStyles.qrSection}>
+                    <div className='mt-3'>
+                     {isOpen && (<div className={bookingsPageStyles.qrSection}>
                       <div className={bookingsPageStyles.qrLabel}>
                         <QrCode className={bookingsPageStyles.qrIcon} />
                         <div>Ticket QR</div>
@@ -357,7 +357,8 @@ const BookingPage = () => {
                         )}
                       </div>
                     </div>
-                  )}
+                   )}
+                    </div>
                   </div>
 
                   <div className={bookingsPageStyles.toggleButton}>
@@ -373,7 +374,7 @@ const BookingPage = () => {
                         isOpen ? bookingsPageStyles.chevronOpen : bookingsPageStyles.chevronClosed
                       }`} />
                     </button>
-                  </div>
+                    </div>
                   
                 </article>
               )

@@ -28,7 +28,7 @@ const DashboardPage = () => {
                     {
                         params: {paymentStatus: 'paid', limit: 1000},
                     }),
-                    axios.get(`${API_BASE}/api/auth`),
+                   // axios.get(`${API_BASE}/api/auth`),
                 ])
                 const normalizeArrayResponse = (r) => {
                     if(!r) return [];
@@ -99,9 +99,10 @@ const DashboardPage = () => {
 
                 if(!cancelled) {
                     setMovies(normMovies);
-                    setBookings(normBookings);
+                    setBookings(paidBookings);
                     setUsers(normUsers);
                 }
+
 
             } catch (err) {
                 console.error('dashboard fetch error:', err);
@@ -158,6 +159,7 @@ const DashboardPage = () => {
 
         return {totalBookings, totalRevenue,totalUsers, movieStats};
     }, [movies, bookings, users]);
+
 
 
   return (
@@ -241,7 +243,9 @@ const DashboardPage = () => {
                             );
                         })}
                         {summary.movieStats.length === 0 && (
-                            <tr className={styles3.tableEmpty} colSpan={4}>No Movie Data Yet</tr>
+                            <tr>
+                                <td className={styles3.tableEmpty} colSpan={4}>No Movie Data Yet</td>
+                            </tr>
                         )}
                     </tbody>
                 </table>

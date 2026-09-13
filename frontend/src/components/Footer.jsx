@@ -137,7 +137,7 @@ const Footer = () => {
                     <ul className={footerStyles.linksList}>
                         {genreLinks.map((link) => (
                             <li key={link.label} >
-                                <a href={link.label} className={footerStyles.linkItem} >
+                                <a href={link.href} className={footerStyles.linkItem} >
                                     <span className={footerStyles.linkDot}/>
                                     {link.label}
                                 </a>
