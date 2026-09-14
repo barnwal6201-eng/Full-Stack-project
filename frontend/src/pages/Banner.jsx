@@ -1,19 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { bannerStyles } from '../assets/dummyStyles'
-import Video from '../assets//MovieBannerVideo.mp4'
 import { Info, Star, Tickets } from 'lucide-react'
+import Rating from '../components/Rating'
+import VideoComponent from '../components/VideoComponent'
 
 const Banner = () => {
+    const[isEdit, setIsEdit] = useState(false);
+
   return (
     <div className={bannerStyles.container}>
-      <div className={bannerStyles.videoContainer}>
-        <video autoPlay loop muted playsInline className={bannerStyles.video}>
-            <source src={Video} type='video/mp4' />
-            {/*fallback text */}
-            Your browser does not support the video tag.
-        </video>
-        <div className={bannerStyles.overlay}></div>
-      </div>
+      <VideoComponent />
 
       {/*Content */}
       <div className={bannerStyles.content}>
@@ -29,24 +25,15 @@ const Banner = () => {
                 imagination in this breathtaking cinematic experience.
             </p>
 
-            <div className={bannerStyles.ratingGenreContainer}>
-                <div className={bannerStyles.ratingContainer}>
-                    <div className={bannerStyles.starsContainer}>
-                        {[1,2,3,4,5].map((star) => (
-                            <Star
-                            key={star}
-                            className={bannerStyles.star}
-                            aria-hidden="true"
-                            />
-                        ))}
-                    </div>
-                    <span className={bannerStyles.ratingText}>4.8/5</span>
-                </div>
+            {/* make rating componet 
+               1. make sure it is configurable  -> 1. read only 2. read and write 
 
-                <div className={bannerStyles.genreText}>
-                    Adventure ● Fantasy ● Drama
-                </div>
-            </div>
+               <Star data={data } edit={true} update={} />
+             */}
+            <Rating
+            isEdit={isEdit}
+            setIsEdit={setIsEdit}
+            />
 
             <div className={bannerStyles.buttonsContainer}>
                 <a href="/movies" className={bannerStyles.bookButton}>
@@ -57,6 +44,14 @@ const Banner = () => {
                 <a href="/contact" className={bannerStyles.infoButton}>
                 <Info className={bannerStyles.icon} />
                 More Info
+                </a>
+            </div>
+            <div className='w-35 mt-4 font-[pacifico]'
+             onClick={() => setIsEdit(true)}
+            >
+                <a href="/rating" className={bannerStyles.bookButton}>
+                <Star className={bannerStyles.icon} fill='yellow' />
+                Rate us
                 </a>
             </div>
         </div>

@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { moviesPageStyles } from '../assets/dummyStyles'
 import {Link} from 'react-router-dom'
+import { getUploadUrl } from '../utils';
+import Loading from '../components/Loading';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const COLLAPSE_COUNT = 12;
 const PLACEHOLDER = import.meta.env.VITE_PLACEHOLDER_IMG;
 
-const getUploadUrl = (maybe) => {
-  if(!maybe) return null;
-  if(typeof maybe !== 'string') return null;
-  if(maybe.startsWith("http://") || maybe.startsWith("https://")) return maybe;
-  return `${API_BASE}/uploads/${String(maybe).replace(/^uploads\//, "")}`;
-};
 
 const categoriesList = [
   {id: "all", name: "All Movies"},
@@ -70,7 +66,7 @@ const MoviesPage = () => {
 
         try {
           const res2 = await fetch(`${API_BASE}/api/movies?limit=200`);
-          if(!res.ok) throw new Error(`Fallback HTTP ${res2.status}`);
+          if(!res2.ok) throw new Error(`Fallback HTTP ${res2.status}`);
           const json2 = await res2.json();
           const items2 = Array.isArray(json2.items) ? json2.items : [];
           const mapped2 = items2.map(mapBackendMovie);
@@ -135,7 +131,7 @@ const MoviesPage = () => {
         <div className={moviesPageStyles.moviesContainer}>
 
           {loading ? (
-            <div className='text-gray-300 py-12 text-center'>Loading movies...</div>
+          <Loading loading={"movies..."} />
         ): error ? (
             <div className='text-red-400 py-12 text-center'>{error}</div>
         ): ( <>

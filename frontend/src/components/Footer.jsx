@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { footerStyles } from '../assets/dummyStyles'
-import { href } from 'react-router-dom';
 import { ArrowUp, Clapperboard, Film, Mail, MapPin, Phone, Popcorn, Star, Ticket } from 'lucide-react';
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
 
@@ -11,7 +10,7 @@ const Footer = () => {
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: "smooth"});
-    };//for smooth scroll
+    };
 
     const links = [
        {label: "Home", href: "/"},
@@ -42,7 +41,6 @@ const Footer = () => {
         return () => window.removeEventListener("scroll", toggleVisibility);
     }, []);
 
-    //Array of icon components for floating animation
     const floatingIcons = [Clapperboard, Film, Star, Ticket, Popcorn];
 
   return (
@@ -54,7 +52,6 @@ const Footer = () => {
             <div className={footerStyles.bgGlow2}></div>
         </div>
 
-        {/*floating icons - hidden on small devices to avoid overlap; still visible on md+ (tablet & desktop) */}
         <div className={footerStyles.floatingIconsContainer}>
             {[...Array(12)].map((_, i) => {
                 const IconComponent = floatingIcons[i % floatingIcons.length];

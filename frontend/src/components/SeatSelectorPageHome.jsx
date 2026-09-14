@@ -1,57 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { seatSelectorHStyles } from "../assets/dummyStyles";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  CreditCard,
-  Film,
-  RockingChair,
-  Rows,
-  Sofa,
-  Ticket,
-} from "lucide-react";
+import { ArrowLeft, CreditCard, Film, RockingChair, Rows, Sofa, Ticket } from "lucide-react";
 import { toast } from "react-toastify";
 import Tickets from "./Tickets";
 import axios from "axios";
+import ROWS, {to24Hour, slotToISO, sameMinute} from "../utils"
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-const ROWS = [
-  { id: "A", type: "Standard", count: 8 },
-  { id: "B", type: "Standard", count: 8 },
-  { id: "C", type: "Standard", count: 8 },
-  { id: "D", type: "recliner", count: 8 },
-  { id: "E", type: "recliner", count: 8 },
-];
-
 const seatId = (r, n) => `${r}${n}`;
-
-const to24Hour = (timeStr = "00:00", ampm = "") => {
-  const [hRaw = "0", mRaw = "00"] = String(timeStr).split(":");
-  let h = Number(hRaw || 0);
-  const m = String(Number(mRaw) || 0).padStart(2, "0");
-  const a = (ampm || "").toUpperCase();
-  if (a === "AM" && h === 12) h = 0;
-  if (a === "PM" && h !== 12) h += 12;
-  return `${String(h).padStart(2, "0")}:${m}`;
-};
-
-const slotToISO = (slot) => {
-  if (!slot) return null;
-  if (typeof slot === "string") return slot;
-  if (typeof slot === "object") {
-    if (slot.date && (slot.time || slot.datetime || slot.iso)) {
-      const hhmm = to24Hour(
-        slot.time || slot.datetime || slot.iso || "00:00",
-        slot.ampm || slot.amp || "",
-      );
-      return `${slot.date}T${hhmm}:00+05:30`;
-    }
-    if (slot.datetime) return slot.datetime;
-    if (slot.time && typeof slot.time === "string") return slot.time;
-  }
-  return null;
-};
 
 const getAuthToken = () =>
   localStorage.getItem("token") ||
@@ -61,16 +19,6 @@ const getAuthToken = () =>
   null;
 
 const normalizedSeatId = (s) => (s ? String(s).trim().toUpperCase() : "");
-
-const sameMinute = (a, b) => {
-  if (!a || !b) return false;
-  const da = new Date(a),
-    db = new Date(b);
-  if (isNaN(da.getTime()) || isNaN(db.getTime())) return false;
-  da.setSeconds(0, 0);
-  db.setSeconds(0, 0);
-  return da.getTime() === db.getTime();
-};
 
 export default function SeatSelectorPageHome() {
   const { id, slot } = useParams();
@@ -391,16 +339,27 @@ export default function SeatSelectorPageHome() {
     console.log(row, num);
 
     setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(nid) ? next.delete(nid) : next;
+      const next = new Set(prev); // 3 
+      if(next.has(nid) ) {
+        console.log('delted')
+        next.delete(nid)
+        return next;
+      }
+      
+
+      console.log(nid)
+      console.log(prev, next)
 
       let added = 0;
       let i = 0;
-      while (added < ticketCount && next.size < ticketCount) {
+      while (added < ticketCount && next.size < ticketCount && (num + i) <= 8 ) {
         const seatId = `${row}${num + i}`;
+
+        console.log(num + i );
         i++;
 
-        if (booked.has(seatId) || next.has(seatId)) continue;
+        if (booked.has(seatId) || next.has(seatId)) break;
+        
 
         next.add(seatId);
         added++;

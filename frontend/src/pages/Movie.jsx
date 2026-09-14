@@ -6,7 +6,7 @@ import Footer from '../components/Footer'
 const Movie = () => {
   return (
     <div>
-        <Navbar />
+      <Navbar />
       <MoviesPage />
       <Footer />
     </div>

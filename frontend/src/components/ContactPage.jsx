@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { contactStyles } from '../assets/dummyStyles';
-import { DivideCircle, Mail, MapPin, MessageCircle, Phone, Popcorn, Send, Ticket } from 'lucide-react';
+import {  Mail, MapPin, MessageCircle, Phone, Popcorn, Send, Ticket } from 'lucide-react';
 
 const ContactPage = () => {
 
@@ -15,8 +15,6 @@ const ContactPage = () => {
 
     const handleChange = (e) => {
         const {name, value} = e.target;
-
-        //only allow digits for phone and limit to 10 char
         if(name === 'phone'){
             const digits = value.replace(/\D/g, '').slice(0, 10);
             setFormData(prev => ({...prev, phone: digits}));
@@ -61,19 +59,6 @@ const ContactPage = () => {
 
   return (
     <div className={contactStyles.pageContainer}>
-      <ToastContainer
-      position='top'
-      autoClose={2000}
-      hideProgressBar={false}
-      newestOnTop
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme='black'
-      />
-
       <div className={contactStyles.bgGradient}></div>
       <div className={contactStyles.bgBlob1}></div>
       <div className={contactStyles.bgBlob2}></div>

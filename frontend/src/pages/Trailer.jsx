@@ -1,40 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { trailersCSS, trailersStyles } from '../assets/dummyStyles'
 import { Calendar, ChevronLeft, ChevronRight, Clapperboard, Clock, Play, X } from 'lucide-react'
-import { trailersData } from '../assets/trailerdata'
+import { getUploadUrl, formatDuration } from '../utils'
+import Loading from '../components/Loading';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const PLACEHOLDER_THUMB = import.meta.env.VITE_PLACEHOLDER_THUMB;
-
-const getUploadUrl = (input) => {
-  if(!input) return null;
-  if(typeof input === 'string') {
-    if(input.startsWith("http://") || input.startsWith("https://"))
-      return input;
-    
-    return `${API_BASE}/uploads/${input}`;
-  }
-
-  if(typeof input === 'object'){
-    const possible = input.url || input.path || input.filename || input.file || input.image || "";
-
-    if(possible) return getUploadUrl(possible);
-  }
-  return null;
-};
-
-const formatDuration = (dur) => {
-  if(!dur) return "";
-  if(typeof dur === "string") return dur;
-  if(typeof dur === "number") return `${dur}m`;
-
-  const h = dur.hours ?? 0;
-  const m = dur.minutes ?? 0;
-  if(h && m) return `${h}h ${m}m`;
-  if (h) return `${h}h`;
-  if (m) return `${m}m`;
-  return "";
-};
 
 const mapMovieToTrailerItem = (movie) => {
   const lt = movie.latestTrailers || {};
@@ -128,10 +99,8 @@ useEffect(() => {
 
         const json = await res.json();
         const items = Array.isArray(json.items) ? json.items : [];
-        //console.log("RAW item from API:", items[0]);
 
         const mapped = items.map(mapMovieToTrailerItem);
-        //console.log(mapped);
         setTrailers(mapped);
         setFeaturedTrailer(mapped[0] || null);
         setLoading(false);
@@ -149,7 +118,6 @@ useEffect(() => {
 }, []);
 
 useEffect(()=> {
-  //no-op kept for parity
   const handleScroll = () => {};
   window.addEventListener("scroll", handleScroll);
   return () => window.removeEventListener("scroll", handleScroll);
@@ -167,7 +135,6 @@ const scrollRight = () => {
   }
 };
 
-//this function help to select particular trailer
 const selectTrailer = (trailer) => {
   setFeaturedTrailer(trailer);
   setIsPlaying(false);
@@ -176,7 +143,7 @@ const selectTrailer = (trailer) => {
       videoRef.current.currentTime = 0;
     }
   } catch (e) {
-    //ignore
+    console.log(e);
   }
 
   //center selected item in carousel
@@ -191,7 +158,7 @@ const selectTrailer = (trailer) => {
       }
     }
   } catch (error) {
-    //ignore
+    console.error(error);
   }
 };
 
@@ -238,21 +205,18 @@ const getEmbedBaseUrl = (videoUrl) => {
    }
 };
 
-//build final iframe src with autoplay/mute parameters
+
 const buildFrameSrc = (videoUrl) => {
   const base = getEmbedBaseUrl(videoUrl);
   if(!base) return null;
   const sep = base.includes("?") ? "&" : "?";
-  //add autoplay / mute / rel
   return `${base}${sep}autoplay=1&mute=${isMuted ? 1 : 0}&rel=0`;
-};//it helps in playing the video or for muting
+};
 
 
 if(loading) {
   return (
-    <div className={trailersStyles.container}>
-      <div className='py-12 text-center text-gray-300'>Loading Trailers...</div>
-    </div>
+    <Loading loading={"trailer..."} />
   );
 }
 
@@ -260,16 +224,6 @@ if(error) {
   return (
     <div className={trailersStyles.container}>
       <div className='py-12 text-center text-red-400'>{error}</div>
-    </div>
-  );
-}
-
-if (!featuredTrailer) {
-  return (
-    <div className={trailersStyles.container}>
-      <div className="py-12 text-center text-gray-300">
-        No trailers available.
-      </div>
     </div>
   );
 }

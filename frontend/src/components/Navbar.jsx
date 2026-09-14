@@ -15,9 +15,8 @@ useEffect(()=> {
   const handleScroll = () => setIsScrolled(window.scrollY > 10);
   window.addEventListener("scroll", handleScroll, {passive: true});
   return () => window.removeEventListener("scroll", handleScroll);
-}, []);//it helps in smooth scrolling
+}, []);
 
-//Read auth state from localStorage
 useEffect(() => {
   const readAuthFromStorage = () => {
     const json = localStorage.getItem("cine_auth");
@@ -76,7 +75,7 @@ useEffect(() => {
     window.removeEventListener("resize", onResize);
     window.removeEventListener("keydown", onKey);
   };
-}, [isMenuOpen]);//it will open the menu for smaller screen and also closes when escape key is present
+}, [isMenuOpen]);
 
 const handleLogout = () => {
   localStorage.removeItem('cine_auth');

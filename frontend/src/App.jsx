@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { createBrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -14,12 +14,7 @@ import SeatSelectorPage from './components/SeatSelectorPage'
 import { ToastContainer } from 'react-toastify'
 import VerifyPayementPage from '../VerifyPayementPage'
 
-/**
- * ScrollToTop component
- * -Forces an immediate jump to the very top on every navigation.
- * -If URL has a hash, it will try to jump to that element (also immediately).
- * -Disables browser's automatic scroll restoration to avoid the browser restoring previous position.
- */
+
 function ScrollToTop() {
   const location = useLocation();
 
@@ -30,11 +25,10 @@ function ScrollToTop() {
         window.history.scrollRestoration = 'manual';
         
       } catch (err) {
-        //ignore
+        console.error(err);  
       }
-      
     }
-    console.log("lalita")
+    
   },[]);
 
   useEffect(() => {
@@ -58,6 +52,7 @@ function ScrollToTop() {
 
   return null;
 }
+
 
 const App = () => {
 

@@ -4,93 +4,16 @@ import { movieDetailCSS, movieDetailStyles } from '../assets/dummyStyles'
 import { toast } from 'react-toastify'
 import { ArrowLeft, Calendar, Clock, Film, ImageOff, Play, Star, User, X } from 'lucide-react'
 import axios from 'axios'
+import ROWS, { slotToISO, to24Hour, formatDuration, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId } from '../utils';
+import Loading from '../components/Loading';
+import MovieError from '../components/MovieError';
+import FallbackAvatar from '../components/FallbackAvatar';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
-
-const ROWS = [
-    { id: 'A', type: 'Standard', count: 8 },
-    { id: 'B', type: 'Standard', count: 8 },
-    { id: 'C', type: 'Standard', count: 8 },
-    { id: 'D', type: 'recliner', count: 8 },
-    { id: 'E', type: 'recliner', count: 8 },
-];
-
 const TOTAL_SEATS = ROWS.reduce((s, r) => s + r.count, 0);
-
-const FallbackAvatar = ({ className = "w-12 h-12" }) => (
-    <div
-        className={`${className} bg-gray-700 rounded-full flex items-center justify-center text-sm text-gray-300`}
-        aria-hidden='true'
-    >
-        ?
-    </div>
-);
-
-/** Utility: extract a youtube id from either an id or a full url */
-export function extractYouTubeId(urlOrId) {
-    if (!urlOrId) return null;
-    if (/^[A-Za-z0-9_-]{6,}$/.test(urlOrId)) return urlOrId;
-    const re =
-        /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|.*[?&]v=)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i;
-    const m = urlOrId.match(re);
-    return m ? m[1] : null;
-};
 
 const getEmbedUrl = (id) =>
     id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1` : null;
-
-/** Converts "10:30" + "AM"/"PM" -> "10:30" 24h "HH:MM" */
-const to24Hour = (timeStr = "00:00", ampm = "") => {
-    const [hRaw = "0", mRaw = "00"] = String(timeStr).split(":");
-    let h = Number(hRaw || 0);
-    const m = String(Number(mRaw) || 0).padStart(2, "0");
-    const a = (ampm || "").toUpperCase();
-    if (a === "AM" && h === 12) h = 0;
-    if (a === "PM" && h !== 12) h += 12;
-    return `${String(h).padStart(2, "0")}:${m}`;
-};
-
-/**
- * Backend slots look like: { date: "2026-08-10", time: "10:30", ampm: "AM" }
- * Build a real ISO datetime string (assumed IST, +05:30) from that shape.
- * Also tolerates already-ISO strings or other object shapes, for resilience.
- */
-const slotToISO = (slot) => {
-    if (!slot) return null;
-    if (typeof slot === "string") return slot;
-    if (typeof slot === "object") {
-        if (slot.date && slot.time) {
-            const hhmm = to24Hour(slot.time, slot.ampm || "");
-            return `${slot.date}T${hhmm}:00+05:30`;
-        }
-        if (slot.datetime) return slot.datetime;
-        if (slot.iso) return slot.iso;
-    }
-    return null;
-};
-
-const getParts = (dateLike, timeZone) => {
-    const dt = typeof dateLike === "string" ? new Date(dateLike) : dateLike;
-    const parts = new Intl.DateTimeFormat("en", {
-        timeZone, year: "numeric", month: "2-digit", day: "2-digit",
-        hour: "2-digit", minute: "2-digit", hour12: true,
-    }).formatToParts(dt);
-    const map = {};
-    for (const p of parts) if (p.type !== "literal") map[p.type] = p.value;
-    map.dayPeriod = map.dayPeriod || map.ampm || map.AMPM;
-    return map;
-};
-
-const formatDateKey = (dateLike, timeZone = "Asia/Kolkata") => {
-    const p = getParts(dateLike, timeZone);
-    return `${p.year}-${p.month}-${p.day}`;
-};
-
-const formatTimeInTZ = (dateLike, timeZone = "Asia/Kolkata") => {
-    const p = getParts(dateLike, timeZone);
-    const hour = String(Number(p.hour));
-    return `${hour}:${p.minute} ${String(p.dayPeriod ?? "").toUpperCase()}`;
-};
 
 const getAuthToken = () =>
     localStorage.getItem("token") ||
@@ -98,20 +21,13 @@ const getAuthToken = () =>
     localStorage.getItem("accessToken") ||
     localStorage.getItem("jwt") || null;
 
-/** duration arrives as minutes (NumberInt) e.g. 158 -> "2h 38m" */
-const formatDuration = (duration) => {
-    if (duration === null || duration === undefined || duration === "") return null;
-    const mins = Number(duration);
-    if (Number.isNaN(mins)) return String(duration);
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return h > 0 ? `${h}h ${m}m` : `${m}m`;
-};
 
 const MovieDetailPage = () => {
     const { id } = useParams();
     const movieId = id;
     const navigate = useNavigate();
+
+    // use  usereducer 
 
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -324,25 +240,13 @@ const MovieDetailPage = () => {
 
     if (loading) {
         return (
-            <div className={movieDetailStyles.container}>
-                <div className="flex items-center justify-center py-32 text-gray-400 gap-3">
-                    <Film className="animate-pulse" size={28} />
-                    <span className="text-lg">Loading movie…</span>
-                </div>
-            </div>
+            <Loading loading={"movie..."} />
         );
     }
 
     if (!movie) {
         return (
-            <div className={movieDetailStyles.notFoundContainer}>
-                <div className={movieDetailStyles.notFoundContent}>
-                    <h2 className={movieDetailStyles.notFoundTitle}>
-                        {fetchError || "Movie not found."}
-                    </h2>
-                    <Link to="/movies" className={movieDetailStyles.notFoundLink}>Back to Movies</Link>
-                </div>
-            </div>
+            <MovieError message={fetchError || "Movie not found."} />
         )
     }
 

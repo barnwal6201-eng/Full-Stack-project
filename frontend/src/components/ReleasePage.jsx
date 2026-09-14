@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { releasesStyles } from '../assets/dummyStyles'
-import movies from '../assets/dummyrdata'
-
 
 const PLACEHOLDER_IMG = import.meta.env.VITE_PLACEHOLDER_IMG;
 const API_BASE = import.meta.env.VITE_API_BASE;

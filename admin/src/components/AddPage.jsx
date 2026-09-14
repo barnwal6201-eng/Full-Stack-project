@@ -40,8 +40,6 @@ const AddPage = () => {
     const [ltSingerImages, setLtSingerImages] = useState([]);
 
     const fileInputRef = useRef();
-
-    // duration hours/mins local state for normal
     const [durationHours, setDurationHours] = useState(Math.floor(duration / 60));
     const [durationMinutes, setDurationMinutes] = useState(duration % 60);
 
