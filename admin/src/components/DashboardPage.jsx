@@ -20,8 +20,6 @@ const DashboardPage = () => {
 
         async function fetchAll() {
             try {
-                //requests for paid booking only
-
                 const [mRes, bRes, uRes] = await Promise.allSettled([
                     axios.get(`${API_BASE}/api/movies`),
                     axios.get(`${API_BASE}/api/bookings`,
@@ -102,8 +100,6 @@ const DashboardPage = () => {
                     setBookings(paidBookings);
                     setUsers(normUsers);
                 }
-
-
             } catch (err) {
                 console.error('dashboard fetch error:', err);
             }
@@ -135,7 +131,6 @@ const DashboardPage = () => {
 
         const totalUsers = usersFromApi.size > 0 ? usersFromApi.size : usersFromBookings.size;
 
-        //per-movie aggregation - only include movies that actually have bookings
         const map = {};
 
         const movieTitleMap = {};
@@ -159,7 +154,6 @@ const DashboardPage = () => {
 
         return {totalBookings, totalRevenue,totalUsers, movieStats};
     }, [movies, bookings, users]);
-
 
 
   return (

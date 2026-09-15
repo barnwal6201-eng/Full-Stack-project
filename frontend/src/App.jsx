@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { createBrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -83,7 +83,9 @@ const App = () => {
       pauseOnFocusLoss
       draggable
       pauseOnHover
-      theme='black'
+      theme='dark'
+      toastClassName='cine-toast'
+      progressClassName='cine-toast-progress'
       />
 
     <ScrollToTop />

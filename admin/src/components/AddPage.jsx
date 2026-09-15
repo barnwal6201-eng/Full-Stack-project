@@ -3,6 +3,8 @@ import { toast, ToastContainer } from 'react-toastify'
 import axios from 'axios'
 import { addMoviePageCustomStyles, addMoviePageStyles } from '../assets/dummyStyles'
 import { Film, X, Image as ImageIcon, Users, Clock, Star, Play, Plus } from 'lucide-react'
+import Uploader from './Uploader'
+import NamedUploader from './NameUploader'
 
 
 const API_HOST = import.meta.env.VITE_API_BASE_URL;
@@ -219,7 +221,6 @@ const AddPage = () => {
 
         if (!movieName.trim()) return 'Please enter movie name.';
 
-        // FIX: poster is now required for every movie type, including Coming Soon
         if (!poster) return 'Please add a poster image';
 
         if (movieType !== 'comingSoon') {
@@ -383,7 +384,6 @@ const AddPage = () => {
             setIsUploading(false);
         }
     }
-
     const showFullFields = movieType === 'normal' || movieType === 'featured';
     const isComingSoon = movieType === 'comingSoon';
     const isLatestTrailer = movieType === 'latestTrailers';
@@ -512,26 +512,20 @@ const AddPage = () => {
                                             <div className={addMoviePageStyles.gridCols3}>
                                                 <div className={addMoviePageStyles.inputContainer}>
                                                     <label className={addMoviePageStyles.label}>Standard Seat Price (required)</label>
-                                                    <input
-                                                        type="number"
-                                                        value={standardSeatPrice}
+                                                    <input type="number" value={standardSeatPrice}
                                                         onChange={(e) => setStandardSeaterPrice(e.target.value)}
                                                         className={addMoviePageStyles.input}
                                                     />
                                                 </div>
                                                 <div className={addMoviePageStyles.inputContainer}>
                                                     <label className={addMoviePageStyles.label}>Recliner Seat Price (required)</label>
-                                                    <input
-                                                        type="number"
-                                                        value={reclinerSeatPrice}
-                                                        onChange={(e) => setReclinerSeaterPrice(e.target.value)}
+                                                    <input type="number" value={reclinerSeatPrice} onChange={(e) => setReclinerSeaterPrice(e.target.value)}
                                                         className={addMoviePageStyles.input}
                                                     />
                                                 </div>
                                                 <div className={addMoviePageStyles.inputContainer}>
                                                     <label className={addMoviePageStyles.label}>Auditorium</label>
-                                                    <select
-                                                        value={auditorium}
+                                                    <select value={auditorium}
                                                         onChange={(e) => setAuditorium(e.target.value)}
                                                         className={addMoviePageStyles.select}
                                                     >
@@ -541,8 +535,7 @@ const AddPage = () => {
                                                         <option value="other">Other</option>
                                                     </select>
                                                     {auditorium === 'other' && (
-                                                        <input
-                                                            value={customerAuditorium}
+                                                        <input value={customerAuditorium}
                                                             onChange={(e) => setCustomerAuditorium(e.target.value)}
                                                             placeholder="Enter auditorium name"
                                                             className={`${addMoviePageStyles.input} mt-2`}
@@ -884,113 +877,5 @@ const AddPage = () => {
         </div>
     )
 };
-
-
-// UPLOADER FUNCTION
-function Uploader({ title, onFiles, items, remove, icon, updateMeta }) {
-    return (
-        <div className={addMoviePageStyles.uploaderContainer}>
-            <div className={addMoviePageStyles.uploaderHeader}>
-                <div className={addMoviePageStyles.uploaderTitle}>
-                    {icon}
-                    <h4 className={addMoviePageStyles.uploaderTitleText}>{title}</h4>
-                </div>
-
-                <label className={addMoviePageStyles.uploaderAddButton}>
-                    + Add
-                    <input type="file" multiple accept='image/*' onChange={onFiles} className={addMoviePageStyles.uploaderAddInput} />
-                </label>
-            </div>
-
-            <div className={addMoviePageStyles.uploaderGrid}>
-                {items && items.length ? (
-                    items.map((it, idx) => (
-                        <div key={idx} className={addMoviePageStyles.uploaderItem}>
-                            <img src={it.preview} alt="preview" className={addMoviePageStyles.uploaderItemImage} />
-                            <button type='button' onClick={() => remove(idx)} className={addMoviePageStyles.uploaderItemRemove}>
-                                <X className={addMoviePageStyles.uploaderItemRemoveIcon} />
-                            </button>
-
-                            {typeof it.name !== 'undefined' && (
-                                <div className='mt-2'>
-                                    <input
-                                        value={it.name}
-                                        onChange={(e) => updateMeta && updateMeta(idx, 'name', e.target.value)}
-                                        placeholder='Name'
-                                        className={addMoviePageStyles.uploaderItemInput}
-                                    />
-                                </div>
-                            )}
-
-                            {typeof it.role !== 'undefined' && (
-                                <div className='mt-2'>
-                                    <input
-                                        value={it.role}
-                                        onChange={(e) => updateMeta && updateMeta(idx, 'role', e.target.value)}
-                                        placeholder='Role'
-                                        className={addMoviePageStyles.uploaderItemInput}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    ))
-                ) : (
-                    <div className={addMoviePageStyles.uploaderEmpty}>
-                        No images added
-                    </div>
-                )}
-            </div>
-        </div>
-    )
-}
-
-
-// for latestTrailer
-function NamedUploader({ title, onFiles, items, remove, updatName, icon }) {
-    return (
-        <div className={addMoviePageStyles.uploaderContainer}>
-            <div className={addMoviePageStyles.uploaderHeader}>
-                <div className={addMoviePageStyles.uploaderTitle}>
-                    {icon}
-                    <h4 className={addMoviePageStyles.uploaderTitleText}>{title}</h4>
-                </div>
-
-                <label className={addMoviePageStyles.uploaderAddButton}>
-                    + Add
-                    <input type="file" multiple accept='image/*' onChange={onFiles} className={addMoviePageStyles.uploaderAddInput} />
-                </label>
-            </div>
-
-            <div className={addMoviePageStyles.namedUploaderGrid}>
-                {items && items.length ? (
-                    items.map((it, idx) => (
-                        <div key={idx} className={addMoviePageStyles.namedUploaderItem}>
-                            <img src={it.preview} alt="preview" className={addMoviePageStyles.namedUploaderImage} />
-
-                            <div className='flex-1'>
-                                <input
-                                    value={it.name}
-                                    onChange={(e) => updatName(idx, e.target.value)}
-                                    placeholder='Name'
-                                    className={addMoviePageStyles.namedUploaderInput}
-                                />
-                                <div className={addMoviePageStyles.namedUploaderFileName}>
-                                    File: {it.file?.name}
-                                </div>
-                            </div>
-                            <button type='button' onClick={() => remove(idx)} className={addMoviePageStyles.uploaderItemRemove}>
-                                <X className={addMoviePageStyles.uploaderItemRemoveIcon} />
-                            </button>
-                        </div>
-                    ))
-                ) : (
-                    <div className={addMoviePageStyles.uploaderEmpty}>
-                        No images added
-                    </div>
-                )}
-            </div>
-        </div>
-    )
-}
 
 export default AddPage

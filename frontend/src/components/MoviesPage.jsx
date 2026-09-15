@@ -1,36 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { moviesPageStyles } from '../assets/dummyStyles'
 import {Link} from 'react-router-dom'
-import { getUploadUrl } from '../utils';
+import { getUploadUrl, categoriesList, mapBackendMovie } from '../utils';
 import Loading from '../components/Loading';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const COLLAPSE_COUNT = 12;
 const PLACEHOLDER = import.meta.env.VITE_PLACEHOLDER_IMG;
-
-
-const categoriesList = [
-  {id: "all", name: "All Movies"},
-  {id: "action", name: "Action"},
-  {id: "horror", name: "Horror"},
-  {id: "comedy", name: "Comedy"},
-  {id: "adventure", name: "Adventure"},
-];
-
-const mapBackendMovie = (m) => {
-  const id = m._id || m.id || "";
-  const title = m.movieName || m.title || "Untitled";
-  const rawImg = m.poster || m.latestTrailer?.thumbnail || m.thumbnail || null;
-  const image = getUploadUrl(rawImg) || PLACEHOLDER;
-
-  const cat = (Array.isArray(m.categories) && m.categories[0]) || m.category ||
-  (Array.isArray(m.latestTrailer?.genres) && m.latestTrailer.genres[0]) || "General";
-
-  const category = String(cat || "General");
-
-  return {id, title, image, category, raw: m};
-};
-
 
 const MoviesPage = () => {
     const [activeCategory, setActiveCategory] = useState('all');

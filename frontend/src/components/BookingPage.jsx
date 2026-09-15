@@ -94,7 +94,8 @@ const BookingPage = () => {
           headers: {Authorization: `Bearer ${token}`},
           timeout: 15000,
         });
-      } catch (err) {
+      } catch (e) {
+        console.log(e);
         res = await axios.get(`${API_BASE}/api/bookings`, {
           headers: {Authorization: `Bearer ${token}`},
           timeout: 15000,
@@ -102,15 +103,21 @@ const BookingPage = () => {
       }
       
       const data = res?.data || {};
-      let items = [];
-      if(Array.isArray(data)) items = data;
-      else if(Array.isArray(data.items)) items = data.items;
-      else if(Array.isArray(data.bookings)) items = data.bookings;
-      else if(Array.isArray(data.data)) items = data.data;
-      else if(data.item && Array.isArray(data.item)) items = data.item;
-      else if(data.items && Array.isArray(data.items)) items = data.items;
-      else if(data && data._id) items = [data];
+     let items = [];
 
+    if (Array.isArray(data)) {
+    items = data;
+    } else if (Array.isArray(data.items)) {
+      items = data.items;
+    } else if (Array.isArray(data.bookings)) {
+      items = data.bookings;
+    } else if (Array.isArray(data.data)) {
+      items = data.data;
+    } else if (Array.isArray(data.item)) {
+      items = data.item;
+    } else if (data._id) { 
+      items = [data];
+    }
       const normalized = items.map((b) => {
       const id = b._id || b.id || b.bookingId || String(b.id || "");
       const movie = b.movie || {};
@@ -142,7 +149,6 @@ const BookingPage = () => {
         }else if(typeof b.total === "number"){
           amount = b.total;
         }
-
         return {
           id,
           title, 
@@ -230,13 +236,13 @@ const BookingPage = () => {
     }));
   }
 
-  const handleQrScan = (bookingId) => {
+  const handleQrScan = (bookingId, bookingKey = bookingId) => {
     const entry = qrs[bookingId];
     if(!entry || !entry.payload) return;
     try {
       const parsed = JSON.parse(entry.payload);
-      setExpanded((prev) => ({...prev, [bookingId]: true}));
-      const el = document.getElementById(`booking-card-${bookingId}`);
+      setExpanded((prev) => ({...prev, [bookingKey]: true}));
+      const el = document.getElementById(`booking-card-${bookingKey}`);
       if(el && el.scrollIntoView)
         el.scrollIntoView({behavior: "smooth", block: "center"});
       setScannerDetails({bookingId, ...parsed});
@@ -267,16 +273,17 @@ const BookingPage = () => {
           {bookings.length === 0 && !loading ? (
             <div className={bookingsPageStyles.noBookings}>No Bookings Found.</div>
           ) : (
-            bookings.map((b) => {
+            bookings.map((b, index) => {
               const totals = computeTotals(b);
-              const isOpen = !!expanded[b.id];
+              const bookingKey = `${b.id || "booking"}-${index}`;
+              const isOpen = !!expanded[bookingKey];
 
               return (
                 <article
-                  id={`booking-card-${b.id}`}
-                  key={b.id}
+                  id={`booking-card-${bookingKey}`}
+                  key={bookingKey}
                   className={bookingsPageStyles.bookingCard}
-                  aria-labelledby={`booking-${b.id}-title`}
+                  aria-labelledby={`booking-${bookingKey}-title`}
                 >
                   <div className='flex flex-col'>
                        <div>
@@ -290,7 +297,7 @@ const BookingPage = () => {
                       <div className={bookingsPageStyles.cardHeader}>
                         <div>
                           <h2
-                          id={`booking-${b.id}-title`}
+                          id={`booking-${bookingKey}-title`}
                           className={bookingsPageStyles.movieTitle}
                           >
                             <Film className={bookingsPageStyles.movieIcon} />
@@ -345,9 +352,9 @@ const BookingPage = () => {
                       <div className='ml-auto'>
                         {qrs[b.id] && qrs[b.id].url ? (
                           <img src={qrs[b.id].url} alt={`${b.title} qr`} className={ bookingsPageStyles.qrImage}
-                          role='button' tabIndex={0} onClick={ () => handleQrScan(b.id)}
+                          role='button' tabIndex={0} onClick={ () => handleQrScan(b.id, bookingKey)}
                           onKeyDown={(e) => {
-                            if(e.key === "Enter") handleQrScan(b.id);
+                            if(e.key === "Enter") handleQrScan(b.id, bookingKey);
                           }}
                           />
                         ) : (
@@ -364,7 +371,7 @@ const BookingPage = () => {
                   <div className={bookingsPageStyles.toggleButton}>
                     <button
                     onClick={() => 
-                      toggle(b.id)
+                      toggle(bookingKey)
                     }
                     aria-expanded= {isOpen}
                     className={bookingsPageStyles.detailsButton}

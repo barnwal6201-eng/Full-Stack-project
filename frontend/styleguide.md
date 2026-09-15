@@ -1,0 +1,2 @@
+I added two files for color schema. right now ux prespective it was not good so i added these two files now your task is to make make the ux and ui better. 
+note you are not allowed to touch and function or functionality. your only task is to do make ui and ux better 

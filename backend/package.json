@@ -7,7 +7,8 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -23,5 +24,13 @@
     "stripe": "^22.3.2",
     "uuid": "^14.0.1",
     "validator": "^13.15.35"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.12.0"
   }
 }

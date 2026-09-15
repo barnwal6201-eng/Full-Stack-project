@@ -2,19 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { styles2, fontStyles } from '../assets/dummyStyles'
 import axios from 'axios'
 import {Clock, Film, Ticket, X} from 'lucide-react'
-
-const formatSlot = (date) => {
-    if(!(date instanceof Date)) date = new Date(date);
-    return new Intl.DateTimeFormat("en-US", {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-    }).format(date);
-};
+import { formatSlot } from '../utils'
 
 const fmtINR = (n) => 
     typeof n === 'number' ? `₹${n.toLocaleString("en-IN", {maximumFractionDigits: 0})}`: "₹0";
@@ -44,17 +32,13 @@ const BookingsPage = () => {
             try {
                 const token = getStoredToken();
                 const headers = token ? {Authorization: `Bearer ${token}`} : {};
-
                 const params = {paymentStatus: "paid", limit: 1000};
-
                 let res;
                 try {
                     res = await axios.get(`${API_BASE}/api/bookings/my`, {
                         headers,
                         params,
                     });
-
-                   
                 }catch (err) {
                     res = await axios.get(`${API_BASE}/api/bookings`, {
                         headers,
@@ -107,8 +91,8 @@ const BookingsPage = () => {
                         b.paymentStatus || (b.raw && b.raw.paymentStatus) || ""
                     ).toString().toLowerCase();
 
-                    let auditorium = b.auditorium || b.audi || b.audiName || b.hall ||
-                    (b.raw && (b.raw.auditorium || b.raw.audi || b.raw.hall)) || "";
+                    let auditorium = b.auditorium || b.audi || 
+                    (b.raw && (b.raw.auditorium || b.raw.audi )) || "";
 
                     auditorium = auditorium ? String(auditorium) : "";
 

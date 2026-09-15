@@ -1,4 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_BASE;
+const PLACEHOLDER = import.meta.env.VITE_PLACEHOLDER_IMG;
 
 const ROWS = [
   { id: "A", type: "Standard", count: 8 },
@@ -98,5 +99,53 @@ function extractYouTubeId(urlOrId) {
         const m = urlOrId.match(re);
         return m ? m[1] : null;
     };
+
+  const categoriesList = [
+  {id: "all", name: "All Movies"},
+  {id: "action", name: "Action"},
+  {id: "horror", name: "Horror"},
+  {id: "comedy", name: "Comedy"},
+  {id: "adventure", name: "Adventure"},
+];
+
+const mapBackendMovie = (m) => {
+  const id = m._id || m.id || "";
+  const title = m.movieName || m.title || "Untitled";
+  const rawImg = m.poster || m.latestTrailer?.thumbnail || m.thumbnail || null;
+  const image = getUploadUrl(rawImg) || PLACEHOLDER;
+
+  const cat = (Array.isArray(m.categories) && m.categories[0]) || m.category ||
+  (Array.isArray(m.latestTrailer?.genres) && m.latestTrailer.genres[0]) || "General";
+
+  const category = String(cat || "General");
+
+  return {id, title, image, category, raw: m};
+};
+
+const getInitialAvatar = (label = "?", size = 80) => {
+    const letter = (label || "?").trim().charAt(0).toUpperCase() || "?";
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+        <rect width="100%" height="100%" fill="#27272a"/>
+        <text x="50%" y="50%" font-family="sans-serif" font-size="${size / 2.2}"
+              text-anchor="middle" dy=".35em" fill="#a1a1aa">${letter}</text>
+    </svg>`;
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
+
+const extractFilenameFromUrl = (u) => {
+    if (!u || typeof u !== 'string') return null;
+    const parts = u.split("/uploads/");
+    if (parts.length > 1) return parts[parts.length - 1];
+    if (u.startsWith("uploads/")) return u.replace(/^uploads\//, "");
+    return (!u.includes('/') && u.includes('.') && !u.endsWith('.')) ? u : null;
+};
+
+ const cleanImageUrl = (url) => {
+    if (!url || typeof url !== 'string') return null;
+    const filename = extractFilenameFromUrl(url); 
+    if (!filename) return null;
+    return `${API_BASE}/uploads/${filename}`;
+};
+
 export default ROWS;
-export {to24Hour, slotToISO, sameMinute, getUploadUrl, formatDuration, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId};
+export {to24Hour, slotToISO, sameMinute, getUploadUrl, formatDuration, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId, categoriesList, mapBackendMovie, getInitialAvatar, cleanImageUrl};

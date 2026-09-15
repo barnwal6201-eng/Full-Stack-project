@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import  trim  from "validator";
 
 const bookingSchema = new mongoose.Schema({
     movieId: {

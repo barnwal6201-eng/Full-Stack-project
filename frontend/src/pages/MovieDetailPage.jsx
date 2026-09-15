@@ -4,7 +4,7 @@ import { movieDetailCSS, movieDetailStyles } from '../assets/dummyStyles'
 import { toast } from 'react-toastify'
 import { ArrowLeft, Calendar, Clock, Film, ImageOff, Play, Star, User, X } from 'lucide-react'
 import axios from 'axios'
-import ROWS, { slotToISO, to24Hour, formatDuration, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId } from '../utils';
+import ROWS, { slotToISO, getInitialAvatar, to24Hour, formatDuration, cleanImageUrl, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId } from '../utils';
 import Loading from '../components/Loading';
 import MovieError from '../components/MovieError';
 import FallbackAvatar from '../components/FallbackAvatar';
@@ -250,7 +250,6 @@ const MovieDetailPage = () => {
         )
     }
 
-    // ---- Field mapping against the real backend schema ----
     const title = movie.movieName || "Untitled";
     const genre = Array.isArray(movie.categories) ? movie.categories.join(", ") : "";
     const durationLabel = formatDuration(movie.duration);
@@ -301,8 +300,8 @@ const MovieDetailPage = () => {
                         className={movieDetailStyles.movieTitle}
                         style={{
                             fontFamily: "'Cinzel', 'Times New Roman', serif",
-                            textShadow: "0 4px 20px rgba(220, 38, 38, 0.6)",
-                            letterSpacing: "0.08em",
+                            textShadow: "0 2px 14px rgba(0, 0, 0, 0.35)",
+                            letterSpacing: "0.035em",
                         }}
                     >
                         {title}
@@ -446,12 +445,12 @@ const MovieDetailPage = () => {
                                             <div className={movieDetailStyles.castImageContainer}>
                                                 {c.preview ? (
                                                     <img
-                                                        src={c.preview}
+                                                        src={cleanImageUrl(c.preview)}
                                                         alt={c.name}
                                                         className={movieDetailStyles.castImage}
                                                         onError={(e) => {
                                                             e.currentTarget.onerror = null;
-                                                            e.currentTarget.src = "https://via.placeholder.com/80?text=A";
+                                                            e.currentTarget.src = getInitialAvatar(c.name, 80);
                                                         }}
                                                     />
                                                 ) : (
@@ -494,12 +493,12 @@ const MovieDetailPage = () => {
                                         <div key={i} className='flex flex-col items-center'>
                                             {d?.preview ? (
                                                 <img
-                                                    src={d.preview}
+                                                    src={cleanImageUrl(d.preview)}
                                                     alt={d.name || `Director ${i + 1}`}
                                                     className={movieDetailStyles.crewImage}
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null;
-                                                        e.currentTarget.src = "https://via.placeholder.com/96?text=D";
+                                                        e.currentTarget.src = getInitialAvatar(d?.name, 96);
                                                     }}
                                                 />
                                             ) : (
@@ -532,12 +531,12 @@ const MovieDetailPage = () => {
                                         <div key={i} className='flex flex-col items-center'>
                                             {p?.preview ? (
                                                 <img
-                                                    src={p.preview}
+                                                    src={cleanImageUrl(p.preview)}
                                                     alt={p.name || `Producer ${i + 1}`}
                                                     className={movieDetailStyles.crewImage}
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null;
-                                                        e.currentTarget.src = "https://via.placeholder.com/96?text=P";
+                                                        e.currentTarget.src = getInitialAvatar(p?.name, 96);
                                                     }}
                                                 />
                                             ) : (

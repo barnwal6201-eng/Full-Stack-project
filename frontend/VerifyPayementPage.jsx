@@ -88,7 +88,7 @@ const VerifyPayementPage = () => {
       <div className='text-center max-w-lg'>
         <p className='mb-2'>{statusMsg}</p>
         <p className='text-sm opacity-70'>
-            If this page shows "session not found", try copying the `session_id`
+            If this page shows &quot;session not found&quot;, try copying the `session_id`
             from your browser URL and verify it with your backend logs or contact 
             support.
         </p>

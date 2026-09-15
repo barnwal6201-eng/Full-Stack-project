@@ -109,7 +109,7 @@ const navItems = [
         </div>
 
         <div className={navbarStyles.desktopNav}>
-          <div className={navbarStyles.desktopNavItem}>
+          <div className={navbarStyles.desktopNavItems}>
            {navItems.map((item)=> {
             const Icon = item.icon;
             return(

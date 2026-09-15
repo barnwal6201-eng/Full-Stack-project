@@ -343,7 +343,6 @@ const SignupPage = () => {
                     )}
                 </div>
              
-
                 <div>
                     <label htmlFor="password" className={signUpStyles.field}>
                         PASSWORD
@@ -379,7 +378,6 @@ const SignupPage = () => {
                     )}
                 </div>
             </div>
-
             <div className={signUpStyles.submitContainer}>
                 <button
                 type='submit'
@@ -387,8 +385,7 @@ const SignupPage = () => {
                 disabled={isLoading}
                 className={`${signUpStyles.submitButton.base} ${
                     isLoading ? signUpStyles.submitButton.loading : ""
-                }`}
-                >
+                }`}>
                     {isLoading ? (
                         <div className={signUpStyles.submitContent}>
                             <div className={signUpStyles.loadingSpinner}></div>

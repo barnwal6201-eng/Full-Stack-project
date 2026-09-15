@@ -1,1 +1,258 @@
+@import "./light-variables.css";
+@import "./dark-varialbes.css";
 @import "tailwindcss";
+
+/*
+ * CineVerse visual system
+ *
+ * The project already uses Tailwind colour utilities throughout its view
+ * components. Mapping those utilities to the supplied design tokens keeps the
+ * React markup and all behaviour untouched while giving every screen one
+ * consistent visual language.
+ */
+@theme {
+  --color-red-50: #eff0ff;
+  --color-red-100: #e7e8fe;
+  --color-red-200: #d9dbff;
+  --color-red-300: #bec2ff;
+  --color-red-400: #9298fb;
+  --color-red-500: #747bf9;
+  --color-red-600: #5961ea;
+  --color-red-700: #525ae3;
+  --color-red-800: #4247c2;
+  --color-red-900: #2d32a2;
+  --color-red-950: #12146b;
+
+  --color-gray-50: #f9faff;
+  --color-gray-100: #eef2fd;
+  --color-gray-200: #d7e0fa;
+  --color-gray-300: #bcc8e5;
+  --color-gray-400: #8491b6;
+  --color-gray-500: #657195;
+  --color-gray-600: #4b5572;
+  --color-gray-700: #2d3550;
+  --color-gray-800: #1e253d;
+  --color-gray-900: #141a2e;
+  --color-gray-950: #05091a;
+  --color-black: #05091a;
+
+  --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --cine-canvas: #05091a;
+  --cine-surface: #141a2e;
+  --cine-surface-raised: #1e253d;
+  --cine-border: #303854;
+  --cine-text: #eaeefb;
+  --cine-muted: #a0add0;
+  --cine-brand: #747bf9;
+  --cine-brand-strong: #5961ea;
+  --cine-ring: #999fff;
+  --cine-shadow: 0 24px 64px rgb(0 0 0 / 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--cine-brand-strong) var(--cine-canvas);
+  scrollbar-width: thin;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% -8%, rgb(89 97 234 / 0.08), transparent 30rem),
+    var(--cine-canvas);
+  color: var(--cine-text);
+}
+
+#root {
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+::selection {
+  background: rgb(116 123 249 / 0.34);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cine-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--cine-canvas);
+  border-radius: 999px;
+  background: var(--cine-brand-strong);
+}
+
+img,
+video {
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans) !important;
+  text-wrap: balance;
+}
+
+[style*="font-family"],
+.font-cinema,
+.font-dancing {
+  font-family: var(--font-sans) !important;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a,
+button {
+  font-family: var(--font-sans);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 180ms;
+  transition-timing-function: ease-out;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--cine-ring);
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--cine-brand);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8491b6;
+  opacity: 1;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+button:disabled {
+  box-shadow: none;
+  transform: none;
+}
+
+/* Keep notifications consistent with the indigo interface. */
+.cine-toast.Toastify__toast {
+  min-height: 60px;
+  border: 1px solid var(--cine-border);
+  border-radius: 14px;
+  background: rgb(20 26 46 / 0.96);
+  color: var(--cine-text);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.24);
+  backdrop-filter: blur(14px);
+}
+
+.cine-toast.Toastify__toast--error .Toastify__toast-icon {
+  color: var(--cine-brand);
+}
+
+.cine-toast.Toastify__toast--error {
+  --toastify-icon-color-error: var(--cine-brand);
+  --toastify-color-progress-error: var(--cine-brand);
+}
+
+.cine-toast.Toastify__toast--success .Toastify__toast-icon {
+  color: #31bc77;
+}
+
+.cine-toast .Toastify__close-button {
+  color: var(--cine-muted);
+  opacity: 0.85;
+}
+
+.cine-toast-progress.Toastify__progress-bar {
+  background: linear-gradient(90deg, var(--cine-brand-strong), var(--cine-ring));
+}
+
+/* Keep depth quiet and let borders carry most of the hierarchy. */
+.shadow-xl {
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.16) !important;
+}
+
+.shadow-2xl {
+  box-shadow: 0 14px 34px rgb(0 0 0 / 0.18) !important;
+}
+
+@media (hover: hover) {
+  a[href^="/movie/"]:has(img):hover img,
+  a[href^="/movies/"]:has(img):hover img {
+    transform: scale(1.045);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

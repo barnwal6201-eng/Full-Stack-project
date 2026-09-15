@@ -211,7 +211,7 @@ export async function createBooking(req, res) {
 }
 
     const seatIdList = Array.from(new Set(normalizedSeats.map(s => s.seatId)));
-    const conflictingSeats = seatIdList.filter(s => occupiedSeats.has(s));
+   // const conflictingSeats = seatIdList.filter(s => occupiedSeats.has(s));
 
     //movie snapShot + top-level searchable fields
     const movieSnapshot = movie
@@ -299,17 +299,7 @@ export async function createBooking(req, res) {
                 error: String(stripeErr.message || stripeErr)
             })
         }
-    }
-    
-
-    return res.status(201).json({
-                success: true,
-                message: "Booking created (pending payment)",
-                booking: {id: booking._id, status: booking.status, amount: doc.amount, amountPaise: doc.amountPaise, currency: doc.currency},
-                checkout: {id: session.id, url: session.url}
-            });
-        
-
+    }   
     } catch (err) {
         console.error('CreateBooking error:', err && err.stack ? err.stack : err);
         return res.status(500).json({
@@ -461,8 +451,8 @@ export async function getOccupiedSeat(req, res) {
         }
 
         return res.json({ success: true, message: [...occupiedSet]});
-    } catch (err) {
-        console.error("getOccupiedSeats error:", err && err.stack ? err.stack: err);
+    } catch (stripeErr) {
+        console.error("getOccupiedSeats error:", stripeErr && stripeErr.stack ? stripeErr.stack: stripeErr);
             return res.status(500).json({
                 success: false,
                 message: 'Server error while fetching occupied seats',
@@ -517,8 +507,8 @@ export async function confirmPayment(req, res){
             success: true,
             booking
          });
-    } catch (err) {
-        console.error("confirmBooking error:", err && err.stack ? err.stack: err);
+    } catch (stripeErr) {
+        console.error("confirmBooking error:", stripeErr && stripeErr.stack ? stripeErr.stack: stripeErr);
             return res.status(500).json({
                 success: false,
                 message: 'Server error',

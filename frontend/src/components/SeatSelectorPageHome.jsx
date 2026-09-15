@@ -6,6 +6,9 @@ import { toast } from "react-toastify";
 import Tickets from "./Tickets";
 import axios from "axios";
 import ROWS, {to24Hour, slotToISO, sameMinute} from "../utils"
+import Legend from "./Legend"
+import Pricing from "./Pricing";
+import Loading from "./Loading";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -136,7 +139,6 @@ export default function SeatSelectorPageHome() {
     return null;
   }, [movie, slotKey]);
 
-  //Resolve auditorium name
   const audiName = useMemo(() => {
     if (slotObj && slotObj.auditorium && String(slotObj.auditorium).trim())
       return String(slotObj.auditorium).trim();
@@ -146,8 +148,6 @@ export default function SeatSelectorPageHome() {
       return String(movie.auditorium).trim();
     if (movie && movie.audi && String(movie.audi).trim())
       return String(movie.audi).trim();
-    if (movie && movie.hall && String(movie.hall).trim())
-      return String(movie.hall).trim();
     return "Audi 1";
   }, [slotObj, movie]);
 
@@ -341,26 +341,18 @@ export default function SeatSelectorPageHome() {
     setSelected((prev) => {
       const next = new Set(prev); // 3 
       if(next.has(nid) ) {
-        console.log('delted')
         next.delete(nid)
         return next;
       }
-      
-
-      console.log(nid)
-      console.log(prev, next)
 
       let added = 0;
       let i = 0;
       while (added < ticketCount && next.size < ticketCount && (num + i) <= 8 ) {
         const seatId = `${row}${num + i}`;
-
-        console.log(num + i );
         i++;
 
         if (booked.has(seatId) || next.has(seatId)) break;
-        
-
+      
         next.add(seatId);
         added++;
       }
@@ -514,15 +506,7 @@ export default function SeatSelectorPageHome() {
 
   if (loading) {
     return (
-      <div className={seatSelectorHStyles.pageContainer}>
-        <style>{seatSelectorHStyles.customCSS}</style>
-        <div className={seatSelectorHStyles.mainContainer}>
-          <div className="flex items-center justify-center py-32 text-gray-400 gap-3">
-            <Film className="animate-pulse" size={28} />
-            <span className="text-lg">Loading seats…</span>
-          </div>
-        </div>
-      </div>
+      <Loading message={"seats..."} />
     );
   }
 
@@ -546,8 +530,8 @@ export default function SeatSelectorPageHome() {
 
     {showTickets && 
         <div 
-          className='fixed inset-0 z-50 flex justify-center items-center cursor-pointer'
-          style={bgColor ? { backgroundColor: 'rgba(0, 0, 0, 0.5)' } : {}}
+          className='fixed inset-0 z-50 flex justify-center items-center p-4 backdrop-blur-sm'
+          style={bgColor ? { backgroundColor: 'rgba(5, 9, 26, 0.78)' } : {}}
           >
             <Tickets
             ticketCount={ticketCount}
@@ -579,16 +563,18 @@ export default function SeatSelectorPageHome() {
             </div>
 
             <div style={{
-            background: "linear-gradient(90deg,#ef4444,#dc2626)",
-            color: "#fff",
-            padding: "6px 12px",
+            background: "#5961ea",
+            color: "#ffffff",
+            padding: "8px 12px",
             borderRadius: 12,
-            fontWeight: 700,
-            boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+            fontWeight: 600,
+            boxShadow: "0 6px 16px rgba(18, 20, 107, 0.2)",
+            border: "1px solid #747bf9",
             display: "inline-flex",
             alignItems: "center",
             gap: 8,
-            fontSize: 14,
+            fontSize: 13,
+            cursor: "pointer",
         }}
         onClick={() => setShowTickets(true)}
         >
@@ -604,7 +590,7 @@ export default function SeatSelectorPageHome() {
               style={{
                 transform: "perspective(120px) rotateX(6deg)",
                 maxWidth: 900,
-                boxShadow: "0 0 40px rgba(220, 38, 38, 0.18)",
+                boxShadow: "0 18px 40px rgba(0, 0, 0, 0.18), 0 0 28px rgba(89, 97, 234, 0.08)",
               }}
             >
               <div className={seatSelectorHStyles.screenText}>
@@ -685,30 +671,14 @@ export default function SeatSelectorPageHome() {
             </div>
 
             {/* Legend */}
-            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded bg-green-900 inline-block" />{" "}
-                Available
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded bg-gradient-to-br from-green-500 to-green-700 inline-block" />{" "}
-                Selected
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded bg-gray-800 opacity-40 inline-block" />{" "}
-                Booked
-              </div>
-            </div>
+            <Legend />
 
-            {/* Summary */}
             <div className={seatSelectorHStyles.summaryGrid}>
-              {/* Left: selection + actions */}
               <div className={seatSelectorHStyles.summaryContainer}>
                 <h3 className={seatSelectorHStyles.summaryTitle}>
                   <Rows size={18} />
                   Your Selection
                 </h3>
-
                 {selectedCount === 0 ? (
                   <div className={seatSelectorHStyles.emptyState}>
                     <p className={seatSelectorHStyles.emptyStateTitle}>
@@ -726,10 +696,7 @@ export default function SeatSelectorPageHome() {
                       </p>
                       <div className={seatSelectorHStyles.selectedSeatsList}>
                         {[...selected].sort().map((s) => (
-                          <span
-                            key={s}
-                            className={seatSelectorHStyles.selectedSeatBadge}
-                          >
+                          <span key={s} className={seatSelectorHStyles.selectedSeatBadge}>
                             {s}
                           </span>
                         ))}
@@ -759,19 +726,10 @@ export default function SeatSelectorPageHome() {
                 )}
 
                 <div className={seatSelectorHStyles.actionButtons}>
-                  <button
-                    type="button"
-                    onClick={clearSection}
-                    disabled={selectedCount === 0 || bookingLoading}
-                    className={seatSelectorHStyles.clearButton}
-                  >
+                  <button type="button" onClick={clearSection} disabled={selectedCount === 0 || bookingLoading} className={seatSelectorHStyles.clearButton} >
                     Clear
                   </button>
-                  <button
-                    onClick={confirmBooking}
-                    disabled={selectedCount === 0 || bookingLoading}
-                    className={seatSelectorHStyles.confirmButton}
-                  >
+                  <button onClick={confirmBooking} disabled={selectedCount === 0 || bookingLoading} className={seatSelectorHStyles.confirmButton} >
                     <span className="flex items-center justify-center gap-2">
                       <CreditCard size={18} />
                       {bookingLoading ? "Processing…" : "Confirm & Pay"}
@@ -779,50 +737,11 @@ export default function SeatSelectorPageHome() {
                   </button>
                 </div>
               </div>
-
               {/* Right: pricing info */}
-              <div className={seatSelectorHStyles.pricingContainer}>
-                <h3 className={seatSelectorHStyles.pricingTitle}>
-                  <Ticket size={18} />
-                  Pricing
-                </h3>
-                <div className="space-y-3">
-                  <div className={seatSelectorHStyles.pricingItem}>
-                    <div className={seatSelectorHStyles.pricingRow}>
-                      <span className={seatSelectorHStyles.pricingLabel}>
-                        Standard
-                      </span>
-                      <span
-                        className={seatSelectorHStyles.pricingValueStandard}
-                      >
-                        ₹{(standardPaise / 100).toFixed(2)}
-                      </span>
-                    </div>
-                    <p className={seatSelectorHStyles.pricingNote}>
-                      Rows A - C
-                    </p>
-                  </div>
-                  <div className={seatSelectorHStyles.pricingItem}>
-                    <div className={seatSelectorHStyles.pricingRow}>
-                      <span className={seatSelectorHStyles.pricingLabel}>
-                        Recliner
-                      </span>
-                      <span
-                        className={seatSelectorHStyles.pricingValueRecliner}
-                      >
-                        ₹{(reclinerPaise / 100).toFixed(2)}
-                      </span>
-                    </div>
-                    <p className={seatSelectorHStyles.pricingNote}>
-                      Rows D - E
-                    </p>
-                  </div>
-                </div>
-              </div>
+             <Pricing standardPaise={standardPaise} reclinerPaise={reclinerPaise} />
             </div>
           </div>
         </div>
-
       <style>{seatSelectorHStyles.customCSS}</style>
     </>
   );

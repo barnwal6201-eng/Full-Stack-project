@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { movieDetailHStyles } from '../assets/dummyStyles';
 import { ArrowLeft, Calendar, Clock, Play, Star, User, Users, X, Film, ImageOff } from 'lucide-react'
 import axios from 'axios'
-import ROWS, { slotToISO, to24Hour, formatDuration, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId } from '../utils';
+import ROWS, { slotToISO, to24Hour, getInitialAvatar, formatDuration, cleanImageUrl, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId } from '../utils';
 import Loading from '../components/Loading';
 import MovieError from '../components/MovieError';
 import FallbackAvatar from '../components/FallbackAvatar';
@@ -12,9 +12,6 @@ import FallbackAvatar from '../components/FallbackAvatar';
 const API_BASE = import.meta.env.VITE_API_BASE;
 const TOTAL_SEATS = ROWS.reduce((s,r) => s + r.count, 0);
 
-
-
-    /**Builds embed URL with autoplay and minimal related-video noise */
     const getEmbedUrl = (id) => 
         id 
     ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`
@@ -45,7 +42,6 @@ const MovieDetailPageHome = () => {
     const [selectedDay, setSelectedDay] = useState(0);
     const [selectedTime, setSelectedTime] = useState(null);
 
-     // Fetch movie from backend
     useEffect(() => {
         let mounted = true;
         const fetchMovie = async () => {
@@ -104,7 +100,6 @@ const MovieDetailPageHome = () => {
         setPosterFailed(false);
     }, [movie?.poster]);
 
-    /** Group slots ({date,time,ampm} objects) into days */
     const showTimeDays = useMemo(() => {
         if (!movie) return [];
         const TZ = "Asia/Kolkata";
@@ -123,7 +118,7 @@ const MovieDetailPageHome = () => {
                 if (!slotsByDate[dateKey]) slotsByDate[dateKey] = [];
                 slotsByDate[dateKey].push({ iso, audi: movie.auditorium || null });
             } catch (error) {
-                // ignore invalid slot
+                console.error(error)
             }
             });
     
@@ -251,8 +246,6 @@ const MovieDetailPageHome = () => {
             />
         )
     }
-
-    // ---- Field mapping against the real backend schema ----
     const title = movie.movieName || "Untitled";
     const genre = Array.isArray(movie.categories) ? movie.categories.join(", ") : "";
     const durationLabel = formatDuration(movie.duration);
@@ -299,14 +292,8 @@ const MovieDetailPageHome = () => {
                 </div>
 
                 <div className={movieDetailHStyles.titleContainer}>
-                    <h1
-                        className={movieDetailHStyles.movieTitle}
-                        style={{
-                            fontFamily: "'Cinzel', 'Times New Roman', serif",
-                            textShadow: "0 4px 20px rgba(220, 38, 38, 0.6)",
-                            letterSpacing: "0.08em",
-                        }}
-                    >
+                    <h1 className={movieDetailHStyles.movieTitle}
+                    style={{ fontFamily: "'Cinzel', 'Times New Roman', serif", textShadow: "0 2px 14px rgba(0, 0, 0, 0.35)", letterSpacing: "0.035em",}}>
                         {title}
                     </h1>
 
@@ -448,12 +435,12 @@ const MovieDetailPageHome = () => {
                                             <div className={movieDetailHStyles.castImageContainer}>
                                                 {c.preview ? (
                                                     <img
-                                                        src={c.preview}
+                                                        src={cleanImageUrl(c.preview)}
                                                         alt={c.name}
                                                         className={movieDetailHStyles.castImage}
                                                         onError={(e) => {
                                                             e.currentTarget.onerror = null;
-                                                            e.currentTarget.src = "https://via.placeholder.com/80?text=A";
+                                                            e.currentTarget.src = getInitialAvatar(c.name, 80);
                                                         }}
                                                     />
                                                 ) : (
@@ -495,12 +482,12 @@ const MovieDetailPageHome = () => {
                                         <div key={i} className='flex flex-col items-center'>
                                             {d?.preview ? (
                                                 <img
-                                                    src={d.preview}
+                                                    src={cleanImageUrl(d.preview)}
                                                     alt={d.name || `Director ${i + 1}`}
                                                     className={movieDetailHStyles.crewImage}
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null;
-                                                        e.currentTarget.src = "https://via.placeholder.com/96?text=D";
+                                                        e.currentTarget.src = getInitialAvatar(d?.name, 96);
                                                     }}
                                                 />
                                             ) : (
@@ -532,12 +519,12 @@ const MovieDetailPageHome = () => {
                                         <div key={i} className='flex flex-col items-center'>
                                             {p?.preview ? (
                                                 <img
-                                                    src={p.preview}
+                                                    src={cleanImageUrl(p.preview)}
                                                     alt={p.name || `Producer ${i + 1}`}
                                                     className={movieDetailHStyles.crewImage}
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null;
-                                                        e.currentTarget.src = "https://via.placeholder.com/96?text=P";
+                                                        e.currentTarget.src = getInitialAvatar(p?.name, 96);
                                                     }}
                                                 />
                                             ) : (
