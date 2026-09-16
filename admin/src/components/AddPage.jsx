@@ -228,6 +228,8 @@ const AddPage = () => {
         }
 
         if (movieType === 'normal' || movieType === 'featured') {
+            const totalDuration = (Number(durationHours) || 0) * 60 + (Number(durationMinutes) || 0);
+            if (totalDuration <= 0) return 'Please enter a valid movie duration.';
             if (
                 Number.isNaN(Number(standardSeatPrice)) ||
                 Number(standardSeatPrice) <= 0

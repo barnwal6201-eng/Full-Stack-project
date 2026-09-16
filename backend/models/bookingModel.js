@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema({
             default: ""
         },
         //store duration in minutes to match controller's durationMins
-        durationnMins: {
+        durationMins: {
             type: Number,
             default: 0
         },
