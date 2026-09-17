@@ -5,7 +5,7 @@ import Rating from '../components/Rating'
 import VideoComponent from '../components/VideoComponent'
 
 const Banner = () => {
-    const[isEdit, setIsEdit] = useState(false);
+    const[isEdit, setIsEdit] = useState(true);
 
   return (
     <div className={bannerStyles.container}>
@@ -25,11 +25,6 @@ const Banner = () => {
                 imagination in this breathtaking cinematic experience.
             </p>
 
-            {/* make rating componet 
-               1. make sure it is configurable  -> 1. read only 2. read and write 
-
-               <Star data={data } edit={true} update={} />
-             */}
             <Rating
             isEdit={isEdit}
             setIsEdit={setIsEdit}
@@ -47,7 +42,7 @@ const Banner = () => {
                 </a>
             </div>
             <div className='w-35 mt-4 font-[pacifico]'
-             onClick={() => setIsEdit(true)}
+             onClick={() => setIsEdit(false)}
             >
                 <a href="/rating" className={bannerStyles.bookButton}>
                 <Star className={bannerStyles.icon} fill='yellow' />

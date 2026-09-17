@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { Star } from 'lucide-react'
 import { bannerStyles } from '../assets/dummyStyles'
+import UserRating from './UserRating'
 
 const Rating = ({isEdit, setIsEdit}) => { 
   return (
     <>
-       {isEdit && (
+       {isEdit ? (
         <div className={bannerStyles.ratingGenreContainer}>
                 <div className={bannerStyles.ratingContainer}>
                     <div className={bannerStyles.starsContainer}>
@@ -24,6 +25,8 @@ const Rating = ({isEdit, setIsEdit}) => {
                     Adventure ● Fantasy ● Drama
                 </div>
             </div>
+       ) : (
+        <UserRating />
        )}
       </>
     

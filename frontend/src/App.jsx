@@ -13,6 +13,7 @@ import SeatSelectorPageHome from './components/SeatSelectorPageHome'
 import SeatSelectorPage from './components/SeatSelectorPage'
 import { ToastContainer } from 'react-toastify'
 import VerifyPayementPage from '../VerifyPayementPage'
+import UserRating from './components/UserRating'
 
 
 function ScrollToTop() {
@@ -98,7 +99,7 @@ const App = () => {
       <Route path='/releases' element={<Release />} />
       <Route path='/contact' element={<Contact />} />
       <Route path='/bookings' element={<Booking />} />
-
+      <Route path='/rating' element={<UserRating />} />
       <Route path='/movie/:id' element={<MovieDetailPage />} />
       <Route path='/movies/:id' element={<MovieDetailPageHome />} />
 

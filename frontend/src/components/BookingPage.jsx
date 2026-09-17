@@ -119,6 +119,7 @@ const BookingPage = () => {
       items = [data];
     }
       const normalized = items.map((b) => {
+        console.log("Raw data", b);
       const id = b._id || b.id || b.bookingId || String(b.id || "");
       const movie = b.movie || {};
       const title = movie.title || movie.name || b.movieName || b.title || "Untitled";
