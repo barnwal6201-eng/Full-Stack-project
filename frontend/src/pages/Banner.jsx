@@ -25,10 +25,7 @@ const Banner = () => {
                 imagination in this breathtaking cinematic experience.
             </p>
 
-            <Rating
-            isEdit={isEdit}
-            setIsEdit={setIsEdit}
-            />
+            <Rating/>
 
             <div className={bannerStyles.buttonsContainer}>
                 <a href="/movies" className={bannerStyles.bookButton}>
@@ -41,9 +38,7 @@ const Banner = () => {
                 More Info
                 </a>
             </div>
-            <div className='w-35 mt-4 font-[pacifico]'
-             onClick={() => setIsEdit(false)}
-            >
+            <div className='w-35 mt-4 font-[pacifico]'>
                 <a href="/rating" className={bannerStyles.bookButton}>
                 <Star className={bannerStyles.icon} fill='yellow' />
                 Rate us

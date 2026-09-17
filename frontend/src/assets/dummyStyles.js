@@ -4,15 +4,15 @@ export const bannerStyles = {
   container: "relative overflow-hidden min-h-[640px] h-[92svh] sm:min-h-[720px] md:min-h-[760px]",
   videoContainer: "absolute inset-0 z-0",
   video: "absolute inset-0 w-full h-full object-cover",
-  overlay: "absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/10",
+  overlay: "absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/15",
   
   // Content styles
   content: "relative z-10 flex items-center justify-start h-full px-5 sm:px-8 lg:px-12 max-w-7xl mx-auto",
   contentInner: "max-w-2xl mt-16 md:mt-8",
   
   // Text styles
-  title: "text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-5 leading-[1.05] tracking-[-0.03em] drop-shadow-lg",
-  description: "text-sm sm:text-base md:text-lg text-gray-200 mb-7 max-w-xl leading-relaxed drop-shadow-lg",
+  title: "text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-5 leading-[1.05] tracking-[-0.04em] drop-shadow-md",
+  description: "text-sm sm:text-base md:text-lg text-gray-200 mb-7 max-w-xl leading-relaxed",
   
   // Rating and genre styles
   ratingGenreContainer: "flex flex-wrap items-center gap-4 mb-6",
@@ -24,8 +24,8 @@ export const bannerStyles = {
   
   // Button styles
   buttonsContainer: "flex flex-wrap gap-3",
-  bookButton: "min-h-12 bg-red-600 cursor-pointer hover:bg-red-500 px-5 sm:px-7 py-3 rounded-xl flex items-center transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-red-950/40 hover:shadow-xl text-sm sm:text-base font-semibold",
-  infoButton: "min-h-12 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-5 sm:px-7 py-3 rounded-xl flex items-center transition-all duration-300 border border-white/25 text-sm sm:text-base font-semibold",
+  bookButton: "min-h-12 bg-gradient-to-r from-red-600 to-red-500 cursor-pointer hover:from-red-700 hover:to-red-600 px-5 sm:px-7 py-3 rounded-xl flex items-center transition-all duration-200 transform hover:-translate-y-0.5 shadow-md shadow-red-950/20 text-sm sm:text-base font-semibold border border-red-400/25",
+  infoButton: "min-h-12 bg-white/10 hover:bg-white/15 text-white backdrop-blur-md px-5 sm:px-7 py-3 rounded-xl flex items-center transition-all duration-200 border border-white/20 text-sm sm:text-base font-semibold",
   
   // Icon styles
   icon: "h-4 w-4 sm:h-5 sm:w-5 mr-2",
@@ -47,9 +47,9 @@ export const bannerStyles = {
 export const navbarStyles = {
   // Main nav container
   nav: {
-    base: "fixed left-3 right-3 sm:left-5 sm:right-5 top-3 sm:top-5 z-50 transition-all duration-300 border border-white/10",
-    scrolled: "py-2.5 bg-black/90 backdrop-blur-xl shadow-lg shadow-black/20 rounded-2xl",
-    notScrolled: "py-3 bg-black/75 backdrop-blur-xl shadow-lg shadow-black/20 rounded-2xl"
+    base: "fixed left-3 right-3 sm:left-5 sm:right-5 top-3 sm:top-5 z-50 transition-all duration-300 border border-white/15",
+    scrolled: "py-2.5 bg-gray-950/95 backdrop-blur-xl shadow-md shadow-black/20 rounded-2xl",
+    notScrolled: "py-3 bg-gray-950/85 backdrop-blur-xl shadow-md shadow-black/20 rounded-2xl"
   },
 
   // Layout
@@ -62,7 +62,7 @@ export const navbarStyles = {
   logoText: "text-lg md:text-base xl:text-lg font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-red-200 tracking-tight",
 
   // Desktop navigation
-  desktopNav: "hidden lg:flex absolute left-1/2 transform -translate-x-1/2 z-10 items-center bg-gray-900/80 backdrop-blur-md rounded-xl px-1.5 py-1.5 gap-1 border border-white/5",
+  desktopNav: "hidden lg:flex absolute left-1/2 transform -translate-x-1/2 z-10 items-center bg-gray-900/70 backdrop-blur-md rounded-xl px-1.5 py-1.5 gap-1 border border-white/10",
   desktopNavItems: "flex gap-2 items-center",
   desktopNavItem: "flex relative group",
   desktopNavLink: {
@@ -89,7 +89,7 @@ export const navbarStyles = {
   authSection: "flex items-center gap-2",
   desktopAuth: "hidden md:block",
   logoutButton: "min-h-11 flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-sm font-semibold border border-gray-700",
-  loginButton: "min-h-11 flex items-center gap-2 px-3 lg:px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white text-sm font-semibold shadow-lg shadow-red-950/30",
+  loginButton: "min-h-11 flex items-center gap-2 px-3 lg:px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white text-sm font-semibold shadow-sm border border-red-400/25",
   authIcon: "h-4 w-4",
 
   // Mobile menu
@@ -187,7 +187,7 @@ export const bookingsPageStyles = {
   
   // Header
   header: "mb-6 flex items-center justify-between",
-  title: "text-3xl md:text-4xl font-extrabold text-red-500",
+  title: "text-3xl md:text-4xl font-bold tracking-tight text-gray-100",
   subtitle: "text-sm text-gray-400",
   
   // Loading and error states
@@ -199,13 +199,13 @@ export const bookingsPageStyles = {
   grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start",
   
   // Booking card
-  bookingCard: "self-start bg-gray-900/85 rounded-2xl p-4 sm:p-5 border border-gray-700 shadow-md shadow-black/15 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-500/40",
+  bookingCard: "self-start bg-gray-900/85 rounded-2xl p-4 sm:p-5 border border-gray-700/80 shadow-sm shadow-black/10 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-400/35 hover:shadow-md hover:shadow-black/15",
   cardContent: "flex flex-col lg:flex-row items-start gap-4",
-  posterContainer: "w-full lg:w-24 h-44 lg:h-36 flex-shrink-0 overflow-hidden rounded-md border border-red-700",
+  posterContainer: "w-full lg:w-24 h-44 lg:h-36 flex-shrink-0 overflow-hidden rounded-lg border border-gray-700",
   poster: "w-full h-full object-cover",
   cardInfo: "flex-1 w-full",
   cardHeader: "flex items-start justify-between gap-3",
-  movieTitle: "text-lg font-bold text-red-400 flex items-center gap-2",
+  movieTitle: "text-lg font-semibold tracking-tight text-gray-100 flex items-center gap-2",
   movieIcon: "w-5 h-5",
   bookingId: "text-xs text-gray-400 mt-1",
   bookingIdText: "font-mono text-xs text-gray-200",
@@ -292,7 +292,7 @@ export const contactStyles = {
   pageContainer: "min-h-screen pt-28 bg-gradient-to-b from-gray-950 to-black text-white pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden",
   
   // Background elements
-  bgGradient: "absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-red-900/20 to-transparent",
+  bgGradient: "absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-red-900/10 to-transparent",
   bgBlob1: "absolute top-40 right-10 w-32 h-32 bg-red-500/10 rounded-full filter blur-xl",
   bgBlob2: "absolute bottom-20 left-8 w-24 h-24 bg-red-700/10 rounded-full filter blur-xl",
   
@@ -316,8 +316,8 @@ export const contactStyles = {
   
   // Card styles
   cardRelative: "relative",
-  cardGradient: "absolute -inset-px bg-red-500/15 rounded-2xl blur-sm",
-  cardContainer: "relative bg-gray-900/95 rounded-2xl p-5 sm:p-7 shadow-md shadow-black/15 border border-gray-700",
+  cardGradient: "absolute -inset-px bg-red-500/10 rounded-2xl blur-sm",
+  cardContainer: "relative bg-gray-900/90 rounded-2xl p-5 sm:p-7 shadow-sm shadow-black/10 border border-gray-700/80",
   cardBadge: "absolute -top-3 left-6 bg-red-700 text-white px-3.5 py-1 rounded-lg text-xs font-semibold flex items-center tracking-wide",
   cardIcon: "h-4 w-4 mr-1",
   
@@ -379,8 +379,8 @@ export const moviesPageStyles = {
   moviesGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-7 sm:gap-6",
   
   // Movie card
-  movieCard: "group relative cursor-pointer rounded-2xl p-2 -m-2 transition-all duration-300 hover:bg-gray-800/70 focus-visible:bg-gray-800/70",
-  movieImageContainer: "overflow-hidden rounded-xl aspect-[2/3] bg-gray-800 shadow-lg shadow-black/20 ring-1 ring-white/10 group-hover:ring-red-400/60 transition-all duration-300",
+  movieCard: "group relative cursor-pointer rounded-2xl p-2 -m-2 border border-transparent transition-all duration-200 hover:bg-gray-800/45 hover:border-white/10 focus-visible:bg-gray-800/45",
+  movieImageContainer: "overflow-hidden rounded-xl aspect-[2/3] bg-gray-800 shadow-md shadow-black/15 ring-1 ring-white/10 group-hover:ring-red-400/45 transition-all duration-300",
   movieImage: "w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.045]",
   movieInfo: "mt-3 px-1",
   movieTitle: "font-semibold text-left truncate text-gray-100",
@@ -392,7 +392,7 @@ export const moviesPageStyles = {
 
   // Show more button
   showMoreContainer: "mt-8 flex justify-center",
-  showMoreButton: "min-h-12 px-7 py-3 cursor-pointer rounded-xl text-white border border-red-400/30 bg-gradient-to-r from-red-600 to-red-500 hover:-translate-y-0.5 shadow-lg shadow-red-950/30 transition"
+  showMoreButton: "min-h-12 px-7 py-3 cursor-pointer rounded-xl text-white border border-red-400/25 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 hover:-translate-y-0.5 shadow-sm transition"
 };
 
 // Add to src/assets/dummyStyles.js
@@ -404,7 +404,7 @@ export const footerStyles = {
   animatedBorder: "absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent",
   
   // Background elements
-  bgContainer: "absolute inset-0 opacity-[0.07] pointer-events-none",
+  bgContainer: "absolute inset-0 opacity-[0.05] pointer-events-none",
   bgGlow1: "absolute -top-12 -left-12 w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 bg-red-600 rounded-full filter blur-3xl opacity-50",
   bgGlow2: "absolute -right-16 -bottom-16 w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 bg-red-800 rounded-full filter blur-3xl opacity-40",
   
@@ -426,7 +426,7 @@ export const footerStyles = {
   brandTitleWhite: "text-white",
   brandDescription: "text-gray-400 mb-6 sm:mb-8 font-light text-sm sm:text-base leading-relaxed",
   socialContainer: "flex space-x-3 sm:space-x-5",
-  socialLink: "text-gray-400 p-2.5 rounded-xl transform transition-all duration-200 hover:-translate-y-0.5 hover:text-red-300 border border-gray-800 hover:border-red-500 hover:bg-red-600/10",
+  socialLink: "text-gray-400 p-2.5 rounded-xl transform transition-all duration-200 hover:-translate-y-0.5 hover:text-red-300 border border-gray-800 hover:border-red-500/50 hover:bg-red-600/10",
   socialIcon: "h-4 w-4 sm:h-5 sm:w-5",
   
   // Section headers
@@ -494,10 +494,10 @@ export const moviesStyles = {
   grid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-7 sm:gap-6",
   
   // Movie article
-  movieArticle: "flex flex-col items-center group rounded-2xl p-2 -m-2 transition-colors hover:bg-gray-800/60",
+  movieArticle: "flex flex-col items-center group rounded-2xl p-2 -m-2 border border-transparent transition-colors hover:bg-gray-800/45 hover:border-white/10",
   
   // Movie link
-  movieLink: "w-full block rounded-xl overflow-hidden transform transition-all duration-300 shadow-lg shadow-black/20 ring-1 ring-white/10 group-hover:ring-red-400/60",
+  movieLink: "w-full block rounded-xl overflow-hidden transform transition-all duration-300 shadow-md shadow-black/15 ring-1 ring-white/10 group-hover:ring-red-400/45",
   
   // Movie image
   movieImage: "w-full rounded-xl object-cover aspect-[2/3] h-auto transition-transform duration-500 group-hover:scale-[1.045]",
@@ -534,8 +534,8 @@ export const loginStyles = {
   backButtonText: "font-medium text-sm sm:text-base",
   
   // Card styles
-  cardContainer: "relative bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-black/20 overflow-hidden border border-gray-700",
-  cardHeader: "relative h-2 bg-gradient-to-r from-red-700 via-red-600 to-red-700",
+  cardContainer: "relative bg-gray-900/90 backdrop-blur-xl rounded-2xl shadow-md shadow-black/15 overflow-hidden border border-gray-700/80",
+  cardHeader: "relative h-1 bg-gradient-to-r from-red-800 via-red-500 to-red-800",
   cardContent: "px-6 sm:px-9 py-8 sm:py-10",
   
   // Header section
@@ -557,7 +557,7 @@ export const loginStyles = {
   passwordToggleIcon: "text-red-300",
   
   // Submit button
-  submitButton: "w-full min-h-12 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-3 px-4 rounded-xl hover:-translate-y-0.5 transition-all cursor-pointer duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 shadow-lg shadow-red-950/30",
+  submitButton: "w-full min-h-12 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-3 px-4 rounded-xl hover:from-red-700 hover:to-red-600 hover:-translate-y-0.5 transition-all cursor-pointer duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 shadow-sm border border-red-400/25",
   submitButtonDisabled: "opacity-80 cursor-not-allowed",
   loadingSpinner: "animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2",
   buttonContent: "flex items-center justify-center",
@@ -635,7 +635,7 @@ export const newsStyles = {
   grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8",
   
   // Hero card
-  heroCard: "relative rounded-3xl overflow-hidden bg-white shadow-md ring-1 ring-gray-200 transform transition hover:-translate-y-0.5 hover:shadow-lg lg:col-span-2",
+  heroCard: "relative rounded-3xl overflow-hidden bg-white shadow-sm ring-1 ring-gray-200 transform transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md lg:col-span-2",
   heroImageContainer: "relative",
   heroImage: "h-85 sm:h-64 md:h-105 lg:h-96 xl:h-80 w-full relative",
   heroImg: "w-full h-full object-cover",
@@ -655,7 +655,7 @@ export const newsStyles = {
   stripGrid: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-4",
   
   // Article card
-  articleCard: "group relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-0 shadow-sm transform transition hover:-translate-y-0.5 hover:shadow-md flex flex-col h-full",
+  articleCard: "group relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-0 shadow-sm transform transition-all duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md flex flex-col h-full",
   articleImage: "relative h-40 sm:h-36 md:h-32 w-full",
   articleImg: "w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]",
   articleCategory: "absolute left-3 bottom-3 bg-red-600 text-white px-2 py-1 rounded-md text-xs font-semibold",
@@ -666,7 +666,7 @@ export const newsStyles = {
   
   // Sidebar
   sidebar: "space-y-6",
-  sidebarCard: "relative rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm transform transition hover:-translate-y-0.5 hover:shadow-md",
+  sidebarCard: "relative rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm transform transition-all duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md",
   sidebarCardInner: "flex items-stretch",
   sidebarImage: "w-28 sm:w-32 h-28 sm:h-32 overflow-hidden flex-shrink-0 rounded-l-2xl",
   sidebarImg: "w-full h-full object-cover",
@@ -730,15 +730,15 @@ export const releasesStyles = {
   
   // Header section
   headerContainer: "text-center mb-10 mt-6 max-w-3xl mx-auto",
-  headerTitle: "font-bold text-4xl md:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-white via-red-200 to-red-400 tracking-[-0.035em]",
+  headerTitle: "font-bold text-4xl md:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-100 to-red-300 tracking-[-0.04em]",
   headerSubtitle: "mt-4 text-xl text-gray-300",
   
   // Movie grid
   movieGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 gap-y-7 sm:gap-6 max-w-7xl mx-auto",
   
   // Movie card
-  movieCard: "group relative rounded-2xl p-2 -m-2 transition-all duration-300 hover:bg-gray-800/60 hover:z-10",
-  imageContainer: "relative overflow-hidden rounded-xl bg-gray-800 shadow-lg shadow-black/20 ring-1 ring-white/10 group-hover:ring-red-400/60",
+  movieCard: "group relative rounded-2xl p-2 -m-2 border border-transparent transition-all duration-200 hover:bg-gray-800/45 hover:border-white/10 hover:z-10",
+  imageContainer: "relative overflow-hidden rounded-xl bg-gray-800 shadow-md shadow-black/15 ring-1 ring-white/10 group-hover:ring-red-400/45",
   movieImage: "w-full aspect-[2/3] h-auto object-cover transition-transform duration-500 group-hover:scale-[1.045]",
   
   // Movie info
@@ -772,7 +772,7 @@ export const seatSelectorStyles = {
   
   
   // Main content
-  mainContent: "bg-gray-900/70 rounded-3xl p-4 sm:p-8 border border-gray-700/80 shadow-sm",
+  mainContent: "bg-gray-900/70 rounded-3xl p-4 sm:p-8 border border-gray-700/70 shadow-sm shadow-black/10",
   sectionHeader: "flex justify-center mb-7",
   sectionTitleContainer: "text-center",
   sectionTitle: "text-xl sm:text-2xl text-gray-100 font-semibold mb-2 flex items-center justify-center gap-2 tracking-tight",
@@ -913,7 +913,7 @@ export const signUpStyles = {
   backText: "ml-2 text-sm font-medium",
   
   // Card
-  card: "relative bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-lg shadow-black/20 overflow-hidden border border-gray-700",
+  card: "relative bg-gray-900/90 backdrop-blur-xl rounded-2xl shadow-md shadow-black/15 overflow-hidden border border-gray-700/80",
   cardHeader: "relative h-1 bg-gradient-to-r from-red-600 via-red-500 to-red-600",
   cardContent: "px-5 sm:px-8 py-7 sm:py-9",
   
@@ -948,7 +948,7 @@ export const signUpStyles = {
   // Submit button
   submitContainer: "pt-4",
   submitButton: {
-    base: "w-full min-h-12 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-3 px-4 rounded-xl hover:-translate-y-0.5 transition-all duration-200 transform cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 shadow-lg shadow-red-950/30 text-base",
+    base: "w-full min-h-12 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-3 px-4 rounded-xl hover:from-red-700 hover:to-red-600 hover:-translate-y-0.5 transition-all duration-200 transform cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 shadow-sm border border-red-400/25 text-base",
     loading: "opacity-80 cursor-not-allowed"
   },
   loadingSpinner: "animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2",
@@ -1042,7 +1042,7 @@ export const trailersStyles = {
   
   // Left side - Trailers List
   leftSide: "w-full md:w-1/2 lg:w-2/5",
-  leftCard: "bg-white rounded-2xl border border-gray-200 shadow-lg p-5 md:p-6",
+  leftCard: "bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6",
   leftTitle: "text-2xl font-semibold mb-4 flex items-center gap-2",
   titleIcon: "text-red-600",
   
@@ -1076,7 +1076,7 @@ export const trailersStyles = {
   
   // Right side - Featured Trailer
   rightSide: "w-full md:w-1/2 lg:w-3/5",
-  rightCard: "bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden",
+  rightCard: "bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden",
   
   // Video Player
   videoContainer: "relative",
@@ -1191,7 +1191,7 @@ export const seatSelectorHStyles = {
   screenSubtext: "text-xs text-gray-400 mt-1.5",
   
   // Main content
-  mainContent: "bg-gray-900/70 rounded-3xl p-4 sm:p-8 border border-gray-700/80 shadow-sm",
+  mainContent: "bg-gray-900/70 rounded-3xl p-4 sm:p-8 border border-gray-700/70 shadow-sm shadow-black/10",
   sectionHeader: "flex justify-center mb-7",
   sectionTitleContainer: "text-center",
   sectionTitle: "text-xl sm:text-2xl text-gray-100 font-semibold mb-2 flex items-center justify-center gap-2 tracking-tight",
@@ -1339,7 +1339,7 @@ export const movieDetailStyles = {
   
   // Left column - Poster
   leftColumn: "lg:col-span-1 order-1 md:order-1",
-  posterCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-6 border border-red-700/20 shadow-2xl",
+  posterCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-6 border border-gray-700/70 shadow-sm",
   posterImage: "relative overflow-hidden rounded-xl mx-auto w-full",
   posterImg: "w-full h-full object-cover rounded-xl transition-transform duration-300",
   trailerButton: "w-full mt-6 flex items-center justify-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold text-base sm:text-lg transition-all shadow-lg",
@@ -1349,8 +1349,8 @@ export const movieDetailStyles = {
   rightColumns: "lg:col-span-2 order-2 md:order-2",
   
   // Showtimes section
-  showtimesCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl mb-6",
-  showtimesTitle: "text-2xl sm:text-4xl font-bold mb-6 text-red-300 text-center flex items-center justify-center gap-2",
+  showtimesCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm mb-6",
+  showtimesTitle: "text-2xl sm:text-4xl font-semibold tracking-tight mb-6 text-gray-100 text-center flex items-center justify-center gap-2",
   showtimesIcon: "h-6 w-6",
   
   // Day selection
@@ -1377,7 +1377,7 @@ export const movieDetailStyles = {
   bookButton: "px-6 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-base sm:text-lg shadow-2xl hover:from-red-700 hover:to-red-800 transition-transform transform hover:scale-105",
   
   // Cast section
-  castCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl",
+  castCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm",
   castTitle: "text-xl sm:text-3xl font-bold mb-4 sm:mb-6 text-red-300 text-center flex items-center justify-center gap-2",
   castIcon: "h-5 w-5",
   castGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6",
@@ -1389,13 +1389,13 @@ export const movieDetailStyles = {
   noCast: "text-gray-400 col-span-full text-center py-8",
   
   // Story section
-  storyCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl mb-8",
+  storyCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm mb-8",
   storyTitle: "text-2xl sm:text-4xl font-bold mb-4 sm:mb-6 text-red-300 text-center",
   storyText: "text-gray-300 leading-relaxed text-base sm:text-lg text-center max-w-4xl mx-auto",
   
   // Director & Producer section
   crewGrid: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-8",
-  crewCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl text-center",
+  crewCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm text-center",
   crewHeader: "flex items-center justify-center gap-3 mb-4",
   crewIcon: "h-5 w-5 text-red-400",
   crewTitle: "text-xl sm:text-3xl font-bold text-red-300",
@@ -1471,14 +1471,14 @@ export const movieDetailHStyles = {
   rightColumns: "lg:col-span-2 flex flex-col gap-6",
 
   // Poster
-  posterCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-6 border border-red-700/20 shadow-2xl",
+  posterCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-6 border border-gray-700/70 shadow-sm",
   posterImage: "relative overflow-hidden rounded-xl mx-auto w-full",
   posterImg: "w-full h-full object-cover rounded-xl transition-transform duration-300",
   trailerButton: "w-full mt-5 sm:mt-6 flex items-center justify-center gap-3 px-5 py-3 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold text-sm sm:text-base transition-all shadow-lg hover:from-red-700 hover:to-red-800",
 
   // Showtimes card
-  showtimesCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl",
-  showtimesTitle: "text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-red-300 text-center flex items-center justify-center gap-2",
+  showtimesCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm",
+  showtimesTitle: "text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight mb-4 sm:mb-6 text-gray-100 text-center flex items-center justify-center gap-2",
   showtimesIcon: "h-6 w-6",
 
   // Day selection — object form so `.base` gives the shared classes and
@@ -1506,7 +1506,7 @@ export const movieDetailHStyles = {
   bookButton: "px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-sm sm:text-base shadow-2xl hover:from-red-700 hover:to-red-800 transition-transform transform hover:scale-105",
 
   // Cast section
-  castCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl",
+  castCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm",
   castTitle: "text-lg sm:text-2xl font-bold mb-4 text-red-300 text-center flex items-center justify-center gap-2",
   castIcon: "h-5 w-5",
   castGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6",
@@ -1518,13 +1518,13 @@ export const movieDetailHStyles = {
   noCast: "text-gray-400 col-span-full text-center py-8",
 
   // Story section
-  storyCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl mb-8",
+  storyCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm mb-8",
   storyTitle: "text-lg sm:text-2xl md:text-3xl font-bold mb-4 text-red-300 text-center",
   storyText: "text-gray-300 leading-relaxed text-sm sm:text-base md:text-lg text-center max-w-4xl mx-auto",
 
   // Director & Producer section
   crewGrid: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-8",
-  crewCard: "bg-gradient-to-br from-black/80 to-gray-900 rounded-2xl p-4 sm:p-8 border border-red-700/20 shadow-2xl text-center",
+  crewCard: "bg-gradient-to-br from-gray-900/90 to-gray-950 rounded-2xl p-4 sm:p-8 border border-gray-700/70 shadow-sm text-center",
   crewHeader: "flex items-center justify-center gap-3 mb-4",
   crewIcon: "h-5 w-5 text-red-400",
   crewTitle: "text-lg sm:text-2xl md:text-3xl font-bold text-red-300",
