@@ -151,7 +151,6 @@ export default function SeatSelectorPageHome() {
     return "Audi 1";
   }, [slotObj, movie]);
 
-  //Validate showTime
   useEffect(() => {
     if (!slotKey) {
       toast.error("Missing showtime. Select a time from the movie page.");
@@ -166,7 +165,6 @@ export default function SeatSelectorPageHome() {
   const storageKey = `bookings_${mid}_${slotKey}_${audiName}`;
   const legacyKey = `bookings_${mid}_${slotKey}`;
 
-  //fetched booked seats (paid only)
   useEffect(() => {
     let cancelled = false;
 
@@ -527,7 +525,6 @@ export default function SeatSelectorPageHome() {
 
   return (
     <>
-
     {showTickets && 
         <div 
           className='fixed inset-0 z-50 flex justify-center items-center p-4 backdrop-blur-sm'
@@ -545,7 +542,6 @@ export default function SeatSelectorPageHome() {
       <div className={seatSelectorHStyles.pageContainer}>
         <style>{seatSelectorHStyles.customCSS}</style>
         <div className={seatSelectorHStyles.mainContainer}>
-          {/* Header */}
           <div className={seatSelectorHStyles.headerContainer}>
             <button
               onClick={() => navigate(-1)}
@@ -576,14 +572,12 @@ export default function SeatSelectorPageHome() {
             fontSize: 13,
             cursor: "pointer",
         }}
-        onClick={() => setShowTickets(true)}
-        >
+        onClick={() => setShowTickets(true)}>
             Tickets: 
           <span>{ticketCount}</span>
         </div>
           </div>
 
-          {/* Screen */}
           <div className={seatSelectorHStyles.screenContainer}>
             <div
               className={seatSelectorHStyles.screen}
@@ -613,7 +607,6 @@ export default function SeatSelectorPageHome() {
             </div>
             </div>
 
-            {/* Seat grid */}
             <div className={seatSelectorHStyles.seatGridContainer}>
               {ROWS.map((row) => (
                <div key={row.id} className={seatSelectorHStyles.rowContainer}
@@ -746,5 +739,4 @@ export default function SeatSelectorPageHome() {
     </>
   );
 }
-
 //4242 4242 4242 4242

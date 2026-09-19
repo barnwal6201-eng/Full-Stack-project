@@ -5,9 +5,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import {ChevronDown, Clock, Film, MapPin, QrCode, X} from 'lucide-react'
 
-
 const API_BASE = import.meta.env.VITE_API_BASE;
-
 function getStoredToken() {
   return(
     localStorage.getItem("token") ||
@@ -444,5 +442,4 @@ const BookingPage = () => {
     </div>
   )
 }
-
 export default BookingPage

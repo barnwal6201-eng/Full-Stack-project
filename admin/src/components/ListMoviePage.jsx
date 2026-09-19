@@ -16,7 +16,6 @@ export const ListMoviePage = () => {
     const [selected, setSelected] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
     const searchRef = useRef();
 
     useEffect(() => {

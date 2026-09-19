@@ -9,7 +9,7 @@ const API_BASE = 'http://localhost:5000';
 //Builds a full upload URL from a filename or return null if invalid
 const getUploadUrl = (val) => {
     if(!val) return null;
-    if(typeof val === 'string' && /^(https?:\/\/\/)/.test(val)) return val;
+    if(typeof val === 'string' && /^https?:\/\//.test(val)) return val;
     const cleaned = String(val).replace(/^uploads\//, "");
     if(!cleaned) return null;
     return `${API_BASE}/uploads/${cleaned}`;
@@ -23,14 +23,6 @@ const extractFilenameFromUrl = (u) => {
     if (u.startsWith("uploads/")) return u.replace(/^uploads\//, "");
     return (!u.includes('/') && u.includes('.') && !u.endsWith('.')) ? u : null;
 };
-/*const extractFilenameFromUrl = (u) => {
-    if(!u || typeof u !== 'string') return null;
-    const parts = u.split("/uploads/");
-    if (parts.length > 1) return parts[parts.length - 1];
-    //if(parts[1]) return parts[1];
-    if(u.startsWith("uploads/")) return u.replace(/^uploads\//, "");
-    return (!u.includes('/') && u.includes('.') && !u.endsWith('.')) ? u : null;
-};*/
 
 //Deletes a file form the uploads folder if it exists
 const tryUnlinkUploadUrl = (urlOrFilename) => {
@@ -97,7 +89,7 @@ const enrichLatestTrailerForOutput = (lt = {}) => {
 const videoIdToUrl = (id) => {
     if(!id) return null;
     // if it's already a full URL, don't double-wrap it
-    if(/^(https?:\/\/\/)/.test(String(id))) return id;
+    if(/^https?:\/\//.test(String(id))) return id;
     return `https://www.youtube.com/watch?v=${id}`;
 };
 

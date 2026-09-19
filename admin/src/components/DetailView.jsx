@@ -42,7 +42,6 @@ function DetailView({item, onClose}){
             </div>
 
             <div className='space-y-6'>
-                {/*Latest Trailer */}
                 {item.type === 'latestTrailers' && (
                     <>
                     {item.thumbnail && (
@@ -98,11 +97,9 @@ function DetailView({item, onClose}){
                                 Watch Trailer Now
                             </a>
                         )}
-
                         <PersonGrid list={item.directors} roleLabel='Directors' />
                         <PersonGrid list={item.producers} roleLabel='Producers' />
                         <PersonGrid list={item.singers} roleLabel='Singers' />
-                   
                     </>
                 )}
 
@@ -224,5 +221,4 @@ function DetailView({item, onClose}){
         </div>
     )
 }
-
 export default DetailView;

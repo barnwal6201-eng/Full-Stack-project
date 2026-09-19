@@ -6,7 +6,6 @@ import Loading from '../components/Loading';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const COLLAPSE_COUNT = 12;
-const PLACEHOLDER = import.meta.env.VITE_PLACEHOLDER_IMG;
 
 const MoviesPage = () => {
     const [activeCategory, setActiveCategory] = useState('all');
@@ -138,7 +137,6 @@ const MoviesPage = () => {
           </div>
         </>)}
           
-
           {filteredMovies.length > COLLAPSE_COUNT && (
             <div className={moviesPageStyles.showMoreContainer}>
               <button type='button' onClick={()=>setShowAll((prev) => !prev)} className={moviesPageStyles.showMoreButton}>
@@ -151,5 +149,4 @@ const MoviesPage = () => {
     </div>
   )
 }
-
 export default MoviesPage

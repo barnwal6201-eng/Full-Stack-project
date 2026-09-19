@@ -1,75 +1,49 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useReducer, useRef } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import axios from 'axios'
 import { addMoviePageCustomStyles, addMoviePageStyles } from '../assets/dummyStyles'
 import { Film, X, Image as ImageIcon, Users, Clock, Star, Play, Plus } from 'lucide-react'
 import Uploader from './Uploader'
 import NamedUploader from './NameUploader'
-
+import { initialState, addPageReducer } from './addPageReducer'
 
 const API_HOST = import.meta.env.VITE_API_BASE_URL;
 
 const AddPage = () => {
-
-    const [movieName, setMovieName] = useState("");
-    const [categories, setCategories] = useState([]);
-    const [poster, setPoster] = useState(null);
-    const [posterPreview, setPosterPreview] = useState(null);
-    const [trailerUrl, setTrailerUrl] = useState("");
-    const [videoUrl, setVideoUrl] = useState("");
-    const [rating, setRating] = useState(7.5);
-    const [duration, setDuration] = useState(120);
-    const [slots, setSlots] = useState([
-        { id: Date.now(), date: "", time: "", ampm: "AM" },
-    ]);
-    const [castImages, setCastImages] = useState([]);
-    const [directorImages, setDirectorImages] = useState([]);
-    const [producerImages, setProducerImages] = useState([]);
-    const [story, setStory] = useState("");
-    const [movieType, setMovieType] = useState("normal");
-    const [standardSeatPrice, setStandardSeaterPrice] = useState(0);
-    const [reclinerSeatPrice, setReclinerSeaterPrice] = useState(0);
-
-    const [ltDurationHours, setLtDurationHours] = useState(1);
-    const [ltDurationMinutes, setLtDurationMinutes] = useState(30);
-    const [ltYear, setLtYear] = useState(new Date().getFullYear());
-    const [ltDescription, setLtDescription] = useState("");
-    const [ltThumbnail, setLtThumbnail] = useState(null);
-    const [ltThumbnailPreview, setLtThumbnailPreview] = useState(null);
-    const [ltVideoUrl, setLtVideoUrl] = useState("");
-    const [ltDirectorImages, setLtDirectorImages] = useState([]);
-    const [ltProducerImages, setLtProducerImages] = useState([]);
-    const [ltSingerImages, setLtSingerImages] = useState([]);
+    const [state, dispatch] = useReducer(addPageReducer, initialState);
+    const {
+        movieName, categories, poster, posterPreview, trailerUrl, videoUrl,
+        rating, duration, durationHours, durationMinutes, slots,
+        castImages, directorImages, producerImages, story, movieType,
+        standardSeatPrice, reclinerSeatPrice,
+        ltDurationHours, ltDurationMinutes, ltYear, ltDescription,
+        ltThumbnail, ltThumbnailPreview, ltVideoUrl,
+        ltDirectorImages, ltProducerImages, ltSingerImages,
+        auditorium, customerAuditorium, isUploading,
+    } = state;
 
     const fileInputRef = useRef();
-    const [durationHours, setDurationHours] = useState(Math.floor(duration / 60));
-    const [durationMinutes, setDurationMinutes] = useState(duration % 60);
-
     const availableAuditoriums = ["Audi 1", "Audi 2", "Audi 3"];
-    const [auditorium, setAuditorium] = useState("Audi 1");
-    const [customerAuditorium, setCustomerAuditorium] = useState("");
-
-    const [isUploading, setIsUploading] = useState(false);
+    const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
 
     useEffect(() => {
         const total = (Number(durationHours) || 0) * 60 + (Number(durationMinutes) || 0);
-        setDuration(total);
+        dispatch({ type: 'SET_FIELD', field: 'duration', value: total });
     }, [durationHours, durationMinutes]);
 
-    const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
-
     function toggleCategory(cat) {
-        setCategories((prev) =>
-            prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-        );
+        dispatch({ type: 'TOGGLE_CATEGORY', category: cat });
     }
+
+    const set = (field) => (value) => dispatch({ type: 'SET_FIELD', field, value });
 
     const handlePosterChange = (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
-        setPoster(file);
+        dispatch({ type: 'SET_FIELD', field: 'poster', value: file });
         const reader = new FileReader();
-        reader.onload = (ev) => setPosterPreview(ev.target.result);
+        reader.onload = (ev) =>
+            dispatch({ type: 'SET_FIELD', field: 'posterPreview', value: ev.target.result });
         reader.readAsDataURL(file);
         e.target.value = null;
     };
@@ -77,14 +51,15 @@ const AddPage = () => {
     const handleLtThumbnailChange = (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
-        setLtThumbnail(file);
+        dispatch({ type: 'SET_FIELD', field: 'ltThumbnail', value: file });
         const reader = new FileReader();
-        reader.onload = (ev) => setLtThumbnailPreview(ev.target.result);
+        reader.onload = (ev) =>
+            dispatch({ type: 'SET_FIELD', field: 'ltThumbnailPreview', value: ev.target.result });
         reader.readAsDataURL(file);
         e.target.value = null;
     };
 
-    const readFilesToPreviewsWithMeta = (files, setter, metaType = null) => {
+    const readFilesToPreviewsWithMeta = (files, field, metaType = null) => {
         const arr = Array.from(files);
         const readers = arr.map((file) => {
             return new Promise((res) => {
@@ -99,101 +74,60 @@ const AddPage = () => {
             });
         });
         Promise.all(readers).then((items) => {
-            setter((prev) => [...prev, ...items])
+            dispatch({ type: 'ADD_ITEMS', field, items });
         });
     };
 
-    const handleMultipleFiles = (e, setter, metaType = null) => {
+    const handleMultipleFiles = (e, field, metaType = null) => {
         if (!e.target.files) return;
-        readFilesToPreviewsWithMeta(e.target.files, setter, metaType);
+        readFilesToPreviewsWithMeta(e.target.files, field, metaType);
         e.target.value = null;
     };
 
-    const readFilesToNamedPreviews = (files, setter) => {
+    const readFilesToNamedPreviews = (files, field) => {
         const arr = Array.from(files);
         const readers = arr.map((file) => {
             return new Promise((res) => {
                 const r = new FileReader();
-                r.onload = (e) => res({
-                    file, preview: e.target.result, name: ""
-                });
+                r.onload = (e) => res({ file, preview: e.target.result, name: "" });
                 r.readAsDataURL(file);
             });
         });
         Promise.all(readers).then((items) => {
-            setter((prev) => [...prev, ...items])
+            dispatch({ type: 'ADD_ITEMS', field, items });
         });
     };
 
-    const handleMultipleNamedFiles = (e, setter) => {
+    const handleMultipleNamedFiles = (e, field) => {
         if (!e.target.files) return;
-        readFilesToNamedPreviews(e.target.files, setter);
+        readFilesToNamedPreviews(e.target.files, field);
         e.target.value = null;
     };
 
-    const removePreview = (id, setter) => {
-        setter((prev) => prev.filter((p, idx) => idx !== id));
+    const removePreview = (index, field) => {
+        dispatch({ type: 'REMOVE_ITEM', field, index });
     };
 
-    // FIX: was referencing an undefined `idx` variable — now uses the `id` param correctly
-    const updateNamedItemName = (id, setter, value) => {
-        setter((prev) =>
-            prev.map((it, i) => (i === id ? { ...it, name: value } : it))
-        );
+    const updateNamedItemName = (index, field, value) => {
+        dispatch({ type: 'UPDATE_ITEM', field, index, key: 'name', value });
     };
 
-    const updateMetaField = (idx, setter, field, value) => {
-        setter((prev) =>
-            prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it))
-        );
+    const updateMetaField = (index, field, key, value) => {
+        dispatch({ type: 'UPDATE_ITEM', field, index, key, value });
     };
 
     function addSlot() {
-        setSlots((s) => [
-            ...s,
-            { id: Date.now() + Math.random(), date: "", time: "", ampm: "AM" },
-        ]);
+        dispatch({ type: 'ADD_SLOT' });
     }
     function removeSlot(id) {
-        setSlots((s) => s.filter((slot) => slot.id !== id));
+        dispatch({ type: 'REMOVE_SLOT', id });
     }
     function updateSlot(id, field, value) {
-        setSlots((s) =>
-            s.map((slot) => (slot.id === id ? { ...slot, [field]: value } : slot))
-        );
+        dispatch({ type: 'UPDATE_SLOT', id, field, value });
     }
 
     function resetForm() {
-        setMovieName("");
-        setCategories([]);
-        setPoster(null);
-        setPosterPreview(null);
-        setTrailerUrl("");
-        setVideoUrl("");
-        setRating(7.5);
-        setDuration(120);
-        setDurationHours(Math.floor(120 / 60));
-        setDurationMinutes(120 % 60);
-        setSlots([{ id: Date.now(), date: "", time: "", ampm: "AM" }]);
-        setCastImages([]);
-        setDirectorImages([]);
-        setProducerImages([]);
-        setStory("");
-        setMovieType("normal");
-        setStandardSeaterPrice(0);
-        setReclinerSeaterPrice(0);
-        setLtDurationHours(1);
-        setLtDurationMinutes(30);
-        setLtYear(new Date().getFullYear());
-        setLtDescription("");
-        setLtThumbnail(null);
-        setLtThumbnailPreview(null);
-        setLtVideoUrl("");
-        setLtDirectorImages([]);
-        setLtProducerImages([]);
-        setLtSingerImages([]);
-        setAuditorium("Audi 1");
-        setCustomerAuditorium("");
+        dispatch({ type: 'RESET' });
     }
 
     function validate() {
@@ -204,23 +138,16 @@ const AddPage = () => {
             if (!ltVideoUrl.trim()) return 'Please provide the video URL for latest trailer.';
             if (!ltDescription.trim()) return 'Please add a description for latest trailer.';
             if (!ltYear) return 'Please enter year for latest trailer.';
-            const badDirector = ltDirectorImages.find(
-                (d) => d && (!d.name || !d.name.trim())
-            );
+            const badDirector = ltDirectorImages.find((d) => d && (!d.name || !d.name.trim()));
             if (badDirector) return 'Please add a name for every director image.';
-            const badProducer = ltProducerImages.find(
-                (d) => d && (!d.name || !d.name.trim())
-            );
+            const badProducer = ltProducerImages.find((d) => d && (!d.name || !d.name.trim()));
             if (badProducer) return 'Please add a name for every producer image.';
-            const badSinger = ltSingerImages.find(
-                (d) => d && (!d.name || !d.name.trim())
-            );
+            const badSinger = ltSingerImages.find((d) => d && (!d.name || !d.name.trim()));
             if (badSinger) return 'Please add a name for every singer image.';
             return null;
         }
 
         if (!movieName.trim()) return 'Please enter movie name.';
-
         if (!poster) return 'Please add a poster image';
 
         if (movieType !== 'comingSoon') {
@@ -230,35 +157,24 @@ const AddPage = () => {
         if (movieType === 'normal' || movieType === 'featured') {
             const totalDuration = (Number(durationHours) || 0) * 60 + (Number(durationMinutes) || 0);
             if (totalDuration <= 0) return 'Please enter a valid movie duration.';
-            if (
-                Number.isNaN(Number(standardSeatPrice)) ||
-                Number(standardSeatPrice) <= 0
-            )
+
+            if (Number.isNaN(Number(standardSeatPrice)) || Number(standardSeatPrice) <= 0)
                 return 'Please enter a valid standard seat price.';
-            if (
-                Number.isNaN(Number(reclinerSeatPrice)) ||
-                Number(reclinerSeatPrice) <= 0
-            )
+            if (Number.isNaN(Number(reclinerSeatPrice)) || Number(reclinerSeatPrice) <= 0)
                 return 'Please enter a valid recliner seat price.';
 
             const finalAuditorium =
                 auditorium === 'other' ? (customerAuditorium || "").trim() : auditorium;
             if (!finalAuditorium) return 'Please select auditorium.';
-        }
 
-        if (movieType === 'normal' || movieType === 'featured') {
             const badCast = castImages.find((c) => {
                 if (!c) return false;
                 return !c.name || !c.name.trim() || !c.role || !c.role.trim();
             });
             if (badCast) return 'Please add name and role for every cast image.';
-            const badDirector = directorImages.find(
-                (d) => d && (!d.name || !d.name.trim())
-            );
+            const badDirector = directorImages.find((d) => d && (!d.name || !d.name.trim()));
             if (badDirector) return 'Please add name for every director image.';
-            const badProducer = producerImages.find(
-                (p) => p && (!p.name || !p.name.trim())
-            );
+            const badProducer = producerImages.find((p) => p && (!p.name || !p.name.trim()));
             if (badProducer) return 'Please add name for every producer image.';
         }
         return null;
@@ -270,16 +186,15 @@ const AddPage = () => {
             const it = items[i];
             if (it && it.file) form.append(fieldName, it.file);
         }
-    };
+    }
 
     async function hanldeSubmit(e) {
         e.preventDefault();
         const error = validate();
         if (error) return toast.error(error);
 
-        setIsUploading(true);
+        dispatch({ type: 'SET_FIELD', field: 'isUploading', value: true });
         const form = new FormData();
-
         form.append('type', movieType);
 
         if (movieType === 'latestTrailers') {
@@ -295,30 +210,19 @@ const AddPage = () => {
                 description: ltDescription,
                 thumbnail: ltThumbnail,
                 videoId: ltVideoUrl,
-                directors: ltDirectorImages.map((d) => ({
-                    name: d.name || "",
-                    file: d.file ? d.file.name : null,
-                })),
-                producers: ltProducerImages.map((p) => ({
-                    name: p.name || "",
-                    file: p.file ? p.file.name : null,
-                })),
-                singers: ltSingerImages.map((s) => ({
-                    name: s.name || "",
-                    file: s.file ? s.file.name : null,
-                })),
+                directors: ltDirectorImages.map((d) => ({ name: d.name || "", file: d.file ? d.file.name : null })),
+                producers: ltProducerImages.map((p) => ({ name: p.name || "", file: p.file ? p.file.name : null })),
+                singers: ltSingerImages.map((s) => ({ name: s.name || "", file: s.file ? s.file.name : null })),
             };
 
             form.append('movieName', movieName);
             form.append('latestTrailers', JSON.stringify(latestTrailerObj));
-
             if (ltThumbnail) form.append('ltThumbnail', ltThumbnail);
 
             appendFilesToForm(form, 'ltDirectorFiles', ltDirectorImages);
             appendFilesToForm(form, 'ltProducersFiles', ltProducerImages);
             appendFilesToForm(form, 'ltSingerFiles', ltSingerImages);
         } else {
-
             form.append('movieName', movieName);
             form.append('categories', JSON.stringify(categories));
             if (poster) form.append('poster', poster);
@@ -327,36 +231,24 @@ const AddPage = () => {
             form.append('rating', String(rating));
             form.append('duration', String(duration));
             form.append('slots', JSON.stringify(slots));
-            form.append(
-                'seatPrices',
-                JSON.stringify({ standard: Number(standardSeatPrice), recliner: Number(reclinerSeatPrice), })
-            );
+            form.append('seatPrices', JSON.stringify({
+                standard: Number(standardSeatPrice),
+                recliner: Number(reclinerSeatPrice),
+            }));
 
-            const finalAuditorium = auditorium === 'other' ?
-                customerAuditorium.trim() || 'Audi 1' : auditorium;
+            const finalAuditorium = auditorium === 'other'
+                ? customerAuditorium.trim() || 'Audi 1'
+                : auditorium;
             form.append('auditorium', finalAuditorium);
 
-            form.append(
-                'cast',
-                JSON.stringify(
-                    castImages.map((c) => ({
-                        name: c.name || '',
-                        role: c.role || "",
-                        file: c.file ? c.file.name : null,
-                    }))
-                )
-            );
+            form.append('cast', JSON.stringify(
+                castImages.map((c) => ({ name: c.name || '', role: c.role || "", file: c.file ? c.file.name : null }))
+            ));
             form.append('directors', JSON.stringify(
-                directorImages.map((d) => ({
-                    name: d.name || "",
-                    file: d.file ? d.file.name : null,
-                }))
+                directorImages.map((d) => ({ name: d.name || "", file: d.file ? d.file.name : null }))
             ));
             form.append('producers', JSON.stringify(
-                 producerImages.map((p) => ({
-                      name: p.name || "",
-                      file: p.file ? p.file.name : null,
-                 }))
+                producerImages.map((p) => ({ name: p.name || "", file: p.file ? p.file.name : null }))
             ));
             form.append('story', story || '');
 
@@ -373,19 +265,18 @@ const AddPage = () => {
             if (resp?.data?.success) {
                 toast.success('Movie added successfully!');
                 resetForm();
-            }
-            else {
-                toast.error(resp?.data?.message || 'Unexpected error from server')
+            } else {
+                toast.error(resp?.data?.message || 'Unexpected error from server');
             }
         } catch (error) {
             console.error('submit error: ', error);
-            const msg =
-                error?.response?.data?.message || error.message || 'Failed to upload.';
+            const msg = error?.response?.data?.message || error.message || 'Failed to upload.';
             toast.error(msg);
         } finally {
-            setIsUploading(false);
+            dispatch({ type: 'SET_FIELD', field: 'isUploading', value: false });
         }
     }
+
     const showFullFields = movieType === 'normal' || movieType === 'featured';
     const isComingSoon = movieType === 'comingSoon';
     const isLatestTrailer = movieType === 'latestTrailers';
@@ -395,50 +286,30 @@ const AddPage = () => {
             <style>{addMoviePageCustomStyles}</style>
             <div className={addMoviePageStyles.mainContainer}>
                 <header className={addMoviePageStyles.header}>
-               <h1 className={`${addMoviePageStyles.title} font-cinzel`}>
-               <Film className={addMoviePageStyles.titleIcon} /> Add Movie
-              </h1>
-                  </header>
+                    <h1 className={`${addMoviePageStyles.title} font-cinzel`}>
+                        <Film className={addMoviePageStyles.titleIcon} /> Add Movie
+                    </h1>
+                </header>
 
                 <form onSubmit={hanldeSubmit} className={addMoviePageStyles.form}>
 
                     <div className={addMoviePageStyles.radioContainer}>
-                        <label className={addMoviePageStyles.radioLabel}>
-                            <input type="radio"
-                                name='movieType'
-                                checked={movieType === 'normal'}
-                                onChange={() => setMovieType('normal')}
-                                className={addMoviePageStyles.radioInput}
-                            />
-                            <span>Normal</span>
-                        </label>
-                        <label className={addMoviePageStyles.radioLabel}>
-                            <input type="radio"
-                                name='movieType'
-                                checked={movieType === 'featured'}
-                                onChange={() => setMovieType('featured')}
-                                className={addMoviePageStyles.radioInput}
-                            />
-                            <span>Featured</span>
-                        </label>
-                        <label className={addMoviePageStyles.radioLabel}>
-                            <input type="radio"
-                                name='movieType'
-                                checked={movieType === 'comingSoon'}
-                                onChange={() => setMovieType('comingSoon')}
-                                className={addMoviePageStyles.radioInput}
-                            />
-                            <span>Coming Soon</span>
-                        </label>
-                        <label className={addMoviePageStyles.radioLabel}>
-                            <input type="radio"
-                                name='movieType'
-                                checked={movieType === 'latestTrailers'}
-                                onChange={() => setMovieType('latestTrailers')}
-                                className={addMoviePageStyles.radioInput}
-                            />
-                            <span>Latest Trailers</span>
-                        </label>
+                        {['normal', 'featured', 'comingSoon', 'latestTrailers'].map((t) => (
+                            <label key={t} className={addMoviePageStyles.radioLabel}>
+                                <input type="radio"
+                                    name='movieType'
+                                    checked={movieType === t}
+                                    onChange={() => set('movieType')(t)}
+                                    className={addMoviePageStyles.radioInput}
+                                />
+                                <span>
+                                    {t === 'normal' ? 'Normal'
+                                        : t === 'featured' ? 'Featured'
+                                        : t === 'comingSoon' ? 'Coming Soon'
+                                        : 'Latest Trailers'}
+                                </span>
+                            </label>
+                        ))}
                     </div>
 
                     {!isLatestTrailer && (
@@ -446,7 +317,6 @@ const AddPage = () => {
                             <div className={addMoviePageStyles.section}>
                                 <div className={addMoviePageStyles.gridCols2}>
 
-                                    {/* FIX: poster upload is now shown for Coming Soon too (removed !isComingSoon guard) */}
                                     <div className={addMoviePageStyles.inputContainer}>
                                         <label className={addMoviePageStyles.label}>Poster Image</label>
                                         {posterPreview ? (
@@ -454,7 +324,7 @@ const AddPage = () => {
                                                 <img src={posterPreview} alt="poster preview" className={addMoviePageStyles.previewImage} />
                                                 <button
                                                     type="button"
-                                                    onClick={() => { setPoster(null); setPosterPreview(null); }}
+                                                    onClick={() => dispatch({ type: 'SET_FIELDS', fields: { poster: null, posterPreview: null } })}
                                                     className={addMoviePageStyles.removeButton}
                                                 >
                                                     <X className={addMoviePageStyles.removeIcon} />
@@ -483,7 +353,7 @@ const AddPage = () => {
                                             <label className={addMoviePageStyles.label}>Movie Name</label>
                                             <input
                                                 value={movieName}
-                                                onChange={(e) => setMovieName(e.target.value)}
+                                                onChange={(e) => set('movieName')(e.target.value)}
                                                 placeholder="Enter movie name"
                                                 className={addMoviePageStyles.input}
                                             />
@@ -515,20 +385,20 @@ const AddPage = () => {
                                                 <div className={addMoviePageStyles.inputContainer}>
                                                     <label className={addMoviePageStyles.label}>Standard Seat Price (required)</label>
                                                     <input type="number" value={standardSeatPrice}
-                                                        onChange={(e) => setStandardSeaterPrice(e.target.value)}
+                                                        onChange={(e) => set('standardSeatPrice')(e.target.value)}
                                                         className={addMoviePageStyles.input}
                                                     />
                                                 </div>
                                                 <div className={addMoviePageStyles.inputContainer}>
                                                     <label className={addMoviePageStyles.label}>Recliner Seat Price (required)</label>
-                                                    <input type="number" value={reclinerSeatPrice} onChange={(e) => setReclinerSeaterPrice(e.target.value)}
+                                                    <input type="number" value={reclinerSeatPrice} onChange={(e) => set('reclinerSeatPrice')(e.target.value)}
                                                         className={addMoviePageStyles.input}
                                                     />
                                                 </div>
                                                 <div className={addMoviePageStyles.inputContainer}>
                                                     <label className={addMoviePageStyles.label}>Auditorium</label>
                                                     <select value={auditorium}
-                                                        onChange={(e) => setAuditorium(e.target.value)}
+                                                        onChange={(e) => set('auditorium')(e.target.value)}
                                                         className={addMoviePageStyles.select}
                                                     >
                                                         {availableAuditoriums.map((a) => (
@@ -538,7 +408,7 @@ const AddPage = () => {
                                                     </select>
                                                     {auditorium === 'other' && (
                                                         <input value={customerAuditorium}
-                                                            onChange={(e) => setCustomerAuditorium(e.target.value)}
+                                                            onChange={(e) => set('customerAuditorium')(e.target.value)}
                                                             placeholder="Enter auditorium name"
                                                             className={`${addMoviePageStyles.input} mt-2`}
                                                         />
@@ -554,7 +424,7 @@ const AddPage = () => {
                                                     <Play className="absolute left-3 size-4 opacity-70 pointer-events-none" />
                                                     <input
                                                         value={trailerUrl}
-                                                        onChange={(e) => setTrailerUrl(e.target.value)}
+                                                        onChange={(e) => set('trailerUrl')(e.target.value)}
                                                         placeholder="https://"
                                                         className={`${addMoviePageStyles.input} pl-9`}
                                                     />
@@ -570,7 +440,7 @@ const AddPage = () => {
                                                         min="0"
                                                         max="10"
                                                         value={rating}
-                                                        onChange={(e) => setRating(e.target.value)}
+                                                        onChange={(e) => set('rating')(e.target.value)}
                                                         className={`${addMoviePageStyles.input} pl-9`}
                                                     />
                                                 </div>
@@ -586,7 +456,10 @@ const AddPage = () => {
                                                         type="number"
                                                         min="0"
                                                         value={durationHours}
-                                                        onChange={(e) => setDurationHours(e.target.value)}
+                                                        onChange={(e) => {
+                                                            const val = Math.max(0, Number(e.target.value) || 0);
+                                                            set('durationHours')(val);
+                                                        }}
                                                         className={`${addMoviePageStyles.input} pl-9`}
                                                     />
                                                 </div>
@@ -600,7 +473,12 @@ const AddPage = () => {
                                                         min="0"
                                                         max="59"
                                                         value={durationMinutes}
-                                                        onChange={(e) => setDurationMinutes(e.target.value)}
+                                                        onChange={(e) => {
+                                                            // Clamp so someone can't type e.g. 95 and silently
+                                                            // corrupt the total-minutes calculation.
+                                                            const val = Math.min(59, Math.max(0, Number(e.target.value) || 0));
+                                                            set('durationMinutes')(val);
+                                                        }}
                                                         className={`${addMoviePageStyles.input} pl-9`}
                                                     />
                                                 </div>
@@ -662,25 +540,25 @@ const AddPage = () => {
                                         title="Cast Photos"
                                         icon={<Users className="size-4" />}
                                         items={castImages}
-                                        onFiles={(e) => handleMultipleFiles(e, setCastImages, 'nameRole')}
-                                        remove={(idx) => removePreview(idx, setCastImages)}
-                                        updateMeta={(idx, field, value) => updateMetaField(idx, setCastImages, field, value)}
+                                        onFiles={(e) => handleMultipleFiles(e, 'castImages', 'nameRole')}
+                                        remove={(idx) => removePreview(idx, 'castImages')}
+                                        updateMeta={(idx, field, value) => updateMetaField(idx, 'castImages', field, value)}
                                     />
                                     <Uploader
                                         title="Director Photos"
                                         icon={<ImageIcon className="size-4" />}
                                         items={directorImages}
-                                        onFiles={(e) => handleMultipleFiles(e, setDirectorImages, 'name')}
-                                        remove={(idx) => removePreview(idx, setDirectorImages)}
-                                        updateMeta={(idx, field, value) => updateMetaField(idx, setDirectorImages, field, value)}
+                                        onFiles={(e) => handleMultipleFiles(e, 'directorImages', 'name')}
+                                        remove={(idx) => removePreview(idx, 'directorImages')}
+                                        updateMeta={(idx, field, value) => updateMetaField(idx, 'directorImages', field, value)}
                                     />
                                     <Uploader
                                         title="Producer Photos"
                                         icon={<ImageIcon className="size-4" />}
                                         items={producerImages}
-                                        onFiles={(e) => handleMultipleFiles(e, setProducerImages, 'name')}
-                                        remove={(idx) => removePreview(idx, setProducerImages)}
-                                        updateMeta={(idx, field, value) => updateMetaField(idx, setProducerImages, field, value)}
+                                        onFiles={(e) => handleMultipleFiles(e, 'producerImages', 'name')}
+                                        remove={(idx) => removePreview(idx, 'producerImages')}
+                                        updateMeta={(idx, field, value) => updateMetaField(idx, 'producerImages', field, value)}
                                     />
                                 </div>
                             )}
@@ -690,7 +568,7 @@ const AddPage = () => {
                                     <label className={addMoviePageStyles.label}>Story</label>
                                     <textarea
                                         value={story}
-                                        onChange={(e) => setStory(e.target.value)}
+                                        onChange={(e) => set('story')(e.target.value)}
                                         rows={5}
                                         placeholder="Write the movie story here..."
                                         className={addMoviePageStyles.textarea}
@@ -711,7 +589,7 @@ const AddPage = () => {
                                                 <img src={ltThumbnailPreview} alt="thumbnail preview" className={addMoviePageStyles.previewThumbnail} />
                                                 <button
                                                     type="button"
-                                                    onClick={() => { setLtThumbnail(null); setLtThumbnailPreview(null); }}
+                                                    onClick={() => dispatch({ type: 'SET_FIELDS', fields: { ltThumbnail: null, ltThumbnailPreview: null } })}
                                                     className={addMoviePageStyles.removeButton}
                                                 >
                                                     <X className={addMoviePageStyles.removeIcon} />
@@ -740,7 +618,7 @@ const AddPage = () => {
                                             <label className={addMoviePageStyles.label}>Title</label>
                                             <input
                                                 value={movieName}
-                                                onChange={(e) => setMovieName(e.target.value)}
+                                                onChange={(e) => set('movieName')(e.target.value)}
                                                 placeholder="Enter title"
                                                 className={addMoviePageStyles.input}
                                             />
@@ -772,7 +650,7 @@ const AddPage = () => {
                                                     type="number"
                                                     min="0"
                                                     value={ltDurationHours}
-                                                    onChange={(e) => setLtDurationHours(e.target.value)}
+                                                    onChange={(e) => set('ltDurationHours')(e.target.value)}
                                                     className={addMoviePageStyles.input}
                                                 />
                                             </div>
@@ -783,7 +661,10 @@ const AddPage = () => {
                                                     min="0"
                                                     max="59"
                                                     value={ltDurationMinutes}
-                                                    onChange={(e) => setLtDurationMinutes(e.target.value)}
+                                                    onChange={(e) => {
+                                                        const val = Math.min(59, Math.max(0, Number(e.target.value) || 0));
+                                                        set('ltDurationMinutes')(val);
+                                                    }}
                                                     className={addMoviePageStyles.input}
                                                 />
                                             </div>
@@ -792,7 +673,7 @@ const AddPage = () => {
                                                 <input
                                                     type="number"
                                                     value={ltYear}
-                                                    onChange={(e) => setLtYear(e.target.value)}
+                                                    onChange={(e) => set('ltYear')(e.target.value)}
                                                     className={addMoviePageStyles.input}
                                                 />
                                             </div>
@@ -803,7 +684,7 @@ const AddPage = () => {
                                                 <label className={addMoviePageStyles.label}>Video URL</label>
                                                 <input
                                                     value={ltVideoUrl}
-                                                    onChange={(e) => setLtVideoUrl(e.target.value)}
+                                                    onChange={(e) => set('ltVideoUrl')(e.target.value)}
                                                     placeholder="https://"
                                                     className={addMoviePageStyles.input}
                                                 />
@@ -816,7 +697,7 @@ const AddPage = () => {
                                                     min="0"
                                                     max="10"
                                                     value={rating}
-                                                    onChange={(e) => setRating(e.target.value)}
+                                                    onChange={(e) => set('rating')(e.target.value)}
                                                     className={addMoviePageStyles.input}
                                                 />
                                             </div>
@@ -829,7 +710,7 @@ const AddPage = () => {
                                 <label className={addMoviePageStyles.label}>Description</label>
                                 <textarea
                                     value={ltDescription}
-                                    onChange={(e) => setLtDescription(e.target.value)}
+                                    onChange={(e) => set('ltDescription')(e.target.value)}
                                     rows={4}
                                     placeholder="Write a short description..."
                                     className={addMoviePageStyles.textarea}
@@ -841,30 +722,29 @@ const AddPage = () => {
                                     title="Director Photos"
                                     icon={<ImageIcon className="size-4" />}
                                     items={ltDirectorImages}
-                                    onFiles={(e) => handleMultipleNamedFiles(e, setLtDirectorImages)}
-                                    remove={(idx) => removePreview(idx, setLtDirectorImages)}
-                                    updatName={(idx, value) => updateNamedItemName(idx, setLtDirectorImages, value)}
+                                    onFiles={(e) => handleMultipleNamedFiles(e, 'ltDirectorImages')}
+                                    remove={(idx) => removePreview(idx, 'ltDirectorImages')}
+                                    updatName={(idx, value) => updateNamedItemName(idx, 'ltDirectorImages', value)}
                                 />
                                 <NamedUploader
                                     title="Producer Photos"
                                     icon={<ImageIcon className="size-4" />}
                                     items={ltProducerImages}
-                                    onFiles={(e) => handleMultipleNamedFiles(e, setLtProducerImages)}
-                                    remove={(idx) => removePreview(idx, setLtProducerImages)}
-                                    updatName={(idx, value) => updateNamedItemName(idx, setLtProducerImages, value)}
+                                    onFiles={(e) => handleMultipleNamedFiles(e, 'ltProducerImages')}
+                                    remove={(idx) => removePreview(idx, 'ltProducerImages')}
+                                    updatName={(idx, value) => updateNamedItemName(idx, 'ltProducerImages', value)}
                                 />
                                 <NamedUploader
                                     title="Singer Photos"
                                     icon={<Users className="size-4" />}
                                     items={ltSingerImages}
-                                    onFiles={(e) => handleMultipleNamedFiles(e, setLtSingerImages)}
-                                    remove={(idx) => removePreview(idx, setLtSingerImages)}
-                                    updatName={(idx, value) => updateNamedItemName(idx, setLtSingerImages, value)}
+                                    onFiles={(e) => handleMultipleNamedFiles(e, 'ltSingerImages')}
+                                    remove={(idx) => removePreview(idx, 'ltSingerImages')}
+                                    updatName={(idx, value) => updateNamedItemName(idx, 'ltSingerImages', value)}
                                 />
                             </div>
                         </>
                     )}
-
                     <div className={addMoviePageStyles.actionsContainer}>
                         <button type="button" onClick={resetForm} className={addMoviePageStyles.resetButton}>
                             Reset
@@ -875,9 +755,13 @@ const AddPage = () => {
                     </div>
                 </form>
             </div>
-            <ToastContainer position='top-right' />
+            <ToastContainer
+            position='top-right'
+            theme='dark'
+            toastClassName='admin-toast'
+            progressClassName='admin-toast-progress'
+            />
         </div>
     )
 };
-
 export default AddPage

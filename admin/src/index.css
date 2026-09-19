@@ -1,1 +1,219 @@
+@import "./light-variables.css";
+@import "./dark-variables.css.txt";
 @import "tailwindcss";
+
+@theme {
+  --color-red-50: #eff0ff;
+  --color-red-100: #e7e8fe;
+  --color-red-200: #d9dbff;
+  --color-red-300: #bec2ff;
+  --color-red-400: #9298fb;
+  --color-red-500: #747bf9;
+  --color-red-600: #5961ea;
+  --color-red-700: #525ae3;
+  --color-red-800: #4247c2;
+  --color-red-900: #2d32a2;
+  --color-red-950: #12146b;
+
+  --color-gray-50: #f9faff;
+  --color-gray-100: #eef2fd;
+  --color-gray-200: #d7e0fa;
+  --color-gray-300: #bcc8e5;
+  --color-gray-400: #8491b6;
+  --color-gray-500: #657195;
+  --color-gray-600: #4b5572;
+  --color-gray-700: #303854;
+  --color-gray-800: #1e253d;
+  --color-gray-900: #141a2e;
+  --color-gray-950: #05091a;
+  --color-black: #05091a;
+
+  --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --admin-canvas: #05091a;
+  --admin-surface: #141a2e;
+  --admin-surface-raised: #1e253d;
+  --admin-border: #303854;
+  --admin-text: #eaeefb;
+  --admin-muted: #a0add0;
+  --admin-brand: #747bf9;
+  --admin-brand-strong: #5961ea;
+  --admin-ring: #999fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--admin-brand-strong) var(--admin-canvas);
+  scrollbar-width: thin;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 10% -10%, rgb(89 97 234 / 0.12), transparent 34rem),
+    radial-gradient(ellipse at 92% 4%, rgb(116 123 249 / 0.06), transparent 28rem),
+    var(--admin-canvas);
+  color: var(--admin-text);
+}
+
+#root {
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+::selection {
+  background: rgb(116 123 249 / 0.34);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--admin-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--admin-canvas);
+  border-radius: 999px;
+  background: var(--admin-brand-strong);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+[style*="Cinzel"],
+.font-cinzel {
+  font-family: var(--font-sans) !important;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 180ms;
+  transition-timing-function: ease-out;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--admin-ring);
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--admin-brand);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8491b6;
+  opacity: 1;
+}
+
+button:disabled {
+  box-shadow: none;
+  transform: none;
+}
+
+/* Keep admin notifications aligned with the indigo interface. */
+.admin-toast.Toastify__toast {
+  min-height: 60px;
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  background: rgb(20 26 46 / 0.96);
+  color: var(--admin-text);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.24);
+  backdrop-filter: blur(14px);
+}
+
+.admin-toast.Toastify__toast--error {
+  --toastify-icon-color-error: var(--admin-brand);
+  --toastify-color-progress-error: var(--admin-brand);
+}
+
+.admin-toast.Toastify__toast--error .Toastify__toast-icon,
+.admin-toast.Toastify__toast--info .Toastify__toast-icon {
+  color: var(--admin-brand);
+}
+
+.admin-toast.Toastify__toast--success .Toastify__toast-icon {
+  color: #31bc77;
+}
+
+.admin-toast .Toastify__close-button {
+  color: var(--admin-muted);
+  opacity: 0.85;
+}
+
+.admin-toast-progress.Toastify__progress-bar {
+  background: linear-gradient(90deg, var(--admin-brand-strong), var(--admin-ring));
+}
+
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: 0 14px 34px rgb(0 0 0 / 0.18) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

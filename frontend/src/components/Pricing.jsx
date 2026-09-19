@@ -44,5 +44,4 @@ const Pricing = ({standardPaise, reclinerPaise}) => {
               </div>
   )
 }
-
 export default Pricing

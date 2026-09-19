@@ -29,5 +29,4 @@ function PersonGrid({list = [], roleLabel = ""}){
         </div>
     );
 }
-
 export default PersonGrid;

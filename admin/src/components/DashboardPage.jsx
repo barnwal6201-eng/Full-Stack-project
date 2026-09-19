@@ -9,7 +9,6 @@ const fmtINR = (num) =>
     ? `₹${num.toLocaleString('en-IN', {maximumFractionDigits: 0})}`
     : '₹0';
 
-
 const DashboardPage = () => {
     const [movies, setMovies] = useState([]);
     const [bookings, setBookings] = useState([]);
@@ -245,7 +244,6 @@ const DashboardPage = () => {
                 </table>
             </div>
 
-
             <div className={styles3.mobileList}>
                 {summary.movieStats.map((m) => {
                     const avg = m.bookings ? Math.round(m.earnings / m.bookings) : 0;
@@ -282,5 +280,4 @@ const DashboardPage = () => {
     </div>
   )
 }
-
 export default DashboardPage

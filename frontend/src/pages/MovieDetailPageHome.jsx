@@ -34,11 +34,9 @@ const MovieDetailPageHome = () => {
     const [fetchError, setFetchError] = useState(null);
     const [bookedCounts, setBookedCounts] = useState({});
     const [posterFailed, setPosterFailed] = useState(false);
-    
     const [showTrailer, setShowTrailer] = useState(false);
     const [selectedTrailerId, setSelectedTrailerId] = useState(null);
     const [selectedMovie, setSelectedMovie] = useState(null);
-    
     const [selectedDay, setSelectedDay] = useState(0);
     const [selectedTime, setSelectedTime] = useState(null);
 

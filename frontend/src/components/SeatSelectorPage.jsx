@@ -11,7 +11,6 @@ import Loading from "./Loading"
 import Pricing from './Pricing'
 
 const API_BASE = import.meta.env.VITE_API_BASE;
-
 const seatId = (r, n) => `${r}${n}`;
 
 const getAuthToken = () => 
@@ -21,7 +20,6 @@ const getAuthToken = () =>
     localStorage.getItem("jwt") || null;
 
 const normalizedSeatId = (s) => (s ? String(s).trim().toUpperCase() : "");
-
 
 export default function SeatSelectorPage()  {
     const {id, slot} = useParams();
@@ -149,7 +147,6 @@ export default function SeatSelectorPage()  {
         return "Audi 1";
     }, [slotObj, movie]);
 
-    //Validate showTime
     useEffect(() => {
         if(!slotKey) {
             toast.error("Missing showtime. Select a time from the movie page.");
@@ -158,14 +155,12 @@ export default function SeatSelectorPage()  {
             );
             return;
         }
-        
     }, [slotKey, movie, slotObj]);
 
     const mid = movie ? movie._id || movie.id || movieIdParam : movieIdParam;
     const storageKey = `bookings_${mid}_${slotKey}_${audiName}`;
     const legacyKey = `bookings_${mid}_${slotKey}`;
 
-    //fetched booked seats (paid only)
     useEffect(() => {
         let cancelled = false;
 
@@ -526,12 +521,9 @@ const showtimeLabel = (() => {
             </div>
     }
 
-
    <div className={seatSelectorStyles.pageContainer}>
     <style>{seatSelectorStyles.customCSS}</style>
     <div className={seatSelectorStyles.mainContainer}>
-
-      {/* Header */}
       <div className={seatSelectorStyles.headerContainer}>
         <button
           onClick={() => navigate(-1)}
@@ -562,8 +554,7 @@ const showtimeLabel = (() => {
             fontSize: 13,
             cursor: "pointer",
         }}
-        onClick={() => setShowTickets(true)}
-        >
+        onClick={() => setShowTickets(true)}>
             Tickets: 
           <span>{ticketCount}</span>
         </div>
@@ -576,14 +567,12 @@ const showtimeLabel = (() => {
             transform: "perspective(120px) rotateX(6deg)",
             maxWidth: 900,
             boxShadow: "0 18px 40px rgba(0, 0, 0, 0.18), 0 0 28px rgba(89, 97, 234, 0.08)",
-        }}
-        >
+        }}>
             <div className={seatSelectorStyles.screenText}>CURVED SCREEN</div>
             <div className={seatSelectorStyles.screenSubtext}>Please face the screen -- enjoy the show</div>
         </div>
       </div>
 
-      {/* Main content */}
       <div className={seatSelectorStyles.mainContent}>
         <div className={seatSelectorStyles.sectionHeader}>
           <div className={seatSelectorStyles.sectionTitleContainer}>
@@ -595,7 +584,6 @@ const showtimeLabel = (() => {
           </div>
         </div>
 
-        {/* Seat grid */}
         <div className={seatSelectorStyles.seatGridContainer}>
           {ROWS.map((row) => (
             <div key={row.id} className={seatSelectorStyles.rowContainer}
@@ -655,9 +643,7 @@ const showtimeLabel = (() => {
         {/* Legend */}
         <Legend />
 
-        {/* Summary */}
         <div className={seatSelectorStyles.summaryGrid}>
-          {/* Left: selection + actions */}
           <div className={seatSelectorStyles.summaryContainer}>
             <h3 className={seatSelectorStyles.summaryTitle}>
               <Rows size={18} />

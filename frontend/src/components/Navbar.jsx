@@ -36,26 +36,28 @@ useEffect(() => {
       setUserEmail(email || "");
       return;
     }
-
     if(email){
       setIsLoggedIn(true);
       setUserEmail(email);
       return;
     }
-
     setIsLoggedIn(false);
     setUserEmail("");
   }
-
+    console.log("Logged in")
     readAuthFromStorage();
     const onStorage = (e) => {
       if(["cine_auth", "isLoggedIn", "userEmail", "cine_user_email"]. includes(e.key)){
         readAuthFromStorage();
       }
     };
-  
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("auth-changed", readAuthFromStorage);
+  
+  return () =>{
+    window.addEventListener("storage", onStorage);
+    window.removeEventListener("storage", readAuthFromStorage);
+  }
 }, []);
 
 useEffect(() => {

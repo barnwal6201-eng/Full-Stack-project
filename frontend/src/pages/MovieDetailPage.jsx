@@ -555,11 +555,9 @@ const MovieDetailPage = () => {
                         </div>
                     </div>
                 </div>
-
                 <style>{movieDetailCSS}</style>
             </div>
         </div>
     )
 }
-
 export default MovieDetailPage

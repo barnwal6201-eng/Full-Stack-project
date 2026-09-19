@@ -1,0 +1,394 @@
+:root:not([data-theme="dark"]), [data-theme="light"] {
+  --font-family: "Inter", sans-serif, serif;
+  --font-size: 1.4rem;
+  --font-thin: 100;
+  --font-light: 300;
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semi-bold: 600;
+  --font-bold: 700;
+  --font-extra-bold: 800;
+  --font-black: 900;
+
+  --monaco-editor-font-size: 14px;
+
+  --workload-status-card-title-font-size: 14px;
+  --workload-status-card-label-font-size: 16px;
+
+  --bg-color-1: #fff;
+  --bg-color-2: #182c60;
+  --bg-color-3: #def7eb;
+  --bg-color-4: #ff303066;
+  --bg-color-5: #5961ea1a;
+  --bg-color-6: #d840db;
+  --bg-color-7: #eff0ff;
+  --bg-color-8: #f9faff;
+  --bg-color-9: #eae9ff;
+  --bg-color-10: #d8f3f5;
+  --bg-color-11: #d9dbff;
+  --bg-color-12: #fef3f2;
+  --bg-color-13: #e7e8fe;
+  --bg-color-14: #fafbff;
+  --bg-color-15: #eef2fd;
+  --bg-color-16: #e8e9ff;
+  --bg-color-17: #f2f0ff;
+  --bg-color-18: #daf8f2;
+  --bg-color-19: #edf8ff;
+  --bg-color-20: #f3f6ff;
+  --bg-color-21: #f5f6ff;
+  --bg-color-chip-success: #cff5dc;
+  --bg-color-chip-error: #fee4e2;
+  --bg-color-chip: #434def29;
+  --bg-success-bar: #31bc77;
+  --bg-error-bar: #ff7f76;
+
+  --primary: #5961ea;
+  --secondary: #ecedfd;
+  --secondary-1: #e0c2f0;
+
+  --text-1: #1e253d;
+  --text-2: #a3b1e0;
+  --text-3: #182c60;
+  --text-4: #7384b6;
+  --text-5: #30447c;
+  --text-6: #5961ea;
+  --text-7: #eaeefc;
+  --text-8: #d7e0fa;
+  --text-9: #f4f6fe;
+  --text-10: #51649c;
+  --text-11: #21366c;
+  --text-12: #8898cb;
+  --text-13: #40548b;
+  --text-14: #fafbff;
+  --text-15: #1e253d;
+  --text-16: #657195;
+  --text-17: #8491b6;
+  --text-18: #7885aa;
+  --text-19: #4b5572;
+  --text-20: #1e253d;
+  --text-21: #434d69;
+  --text-22: #5865f6;
+  --text-23: #1e253d;
+  --text-24: #ce2418;
+  --text-25: #525ae3;
+  --text-26: #7581a6;
+  --text-27: #464e6d;
+  --text-28: #a9b5d6;
+  --text-29: #4b5575;
+  --text-30: #919ec2;
+  --text-31: #a0add0;
+  --text-32: #6e7ba0;
+  --text-33: #344054;
+  --text-34: #6938ef;
+  --text-35: #278f7b;
+  --text-36: #017dbc;
+  --text-37: #414b69;
+  --text-38: #ced7ef;
+  --text-39: #0aa45c;
+  --text-disabled: #616c8e;
+  --text-disabled-2: #BCC8E5;
+  --text-gray: #596485;
+  --text-success: #027a48;
+  --text-error: #7a0202;
+  --text-light-gray: #434f54;
+
+  --sidebar-default-text: #1B253F;
+  --sidebar-hover-text: #596485;
+  --sidebar-hover-bg: #F4F6FE;
+  --sidebar-active-bg: #EFF0FF;
+  --sidebar-active-text: #5961EA;
+
+
+
+  --border-1: #eaeefc;
+  --border-2: #dee4f5;
+  --border-3: #3e4664;
+  --border-4: #999fff;
+  --border-5: #bec7e3;
+  --border-6: #eaeefb;
+  --border-7: #dde4f6;
+  --border-8: #e0e6fa;
+  --border-9: #e4eafb;
+  --border-10: #dee4f5;
+  --border-11: #dee4f5;
+  --border-12: #ffdddb;
+  --border-13: #e4ccca;
+  --border-active: #868ff7;
+  --chart-1: #8c81ff;
+  --chart-2: #3d96ff;
+  --chart-3: #ac54e0;
+
+  --primary-background: #fff;
+  --primary-background2: whitesmoke;
+
+  --link: #5961ea;
+  --success: #04ae5d;
+  --warning: #fa852f;
+  --warning-1: #f56700;
+  --error: #ff3030;
+  --info: #e0edff;
+  --color-1: #2b93f6;
+  --service-map-node-highlight: #039855;
+  --service-map-issue-count-text: #ffffff;
+
+  --table-header: #fff;
+  --table-body: #fdfdfd;
+  --th-color: #455457;
+  --td-color: #35353d;
+  --odd-tr: #fafbff;
+  --tr-hover: #fafbff;
+  --lite-th: #eaeefc;
+
+  --c-lite-1: #daedfa;
+  --c-dark-1: #2c77a7;
+  --c-lite-2: #d8e0ff;
+  --c-dark-2: #384987;
+  --c-lite-3: #e8ccfd;
+  --c-dark-3: #7f45ac;
+  --c-lite-4: #fee2c9;
+  --c-dark-4: #8b5726;
+  --c-lite-5: #ddd6fa;
+  --c-dark-5: #5c4aa6;
+  --c-lite-6: #f8ceee;
+  --c-dark-6: #8b3578;
+  --c-lite-7: #d1f5d9;
+  --c-dark-7: #1f7d34;
+  --graph-2: #12b1b1;
+
+  --warn-text: #f79009;
+  --warn-background: #f790091a;
+
+  --shadow-1: 0px 4px 24px #061745;
+
+  --http-status-bg-get: #7a5af8;
+  --http-status-bg-post: #4aad5a;
+  --http-status-bg-put: #0ba5ec;
+  --http-status-bg-patch: #fb6514;
+  --http-status-bg-delete: #f04438;
+  --http-status-bg-head: #6172f3;
+  --http-status-bg-connect: #bd4a6b;
+  --http-status-bg-options: #cd2ca0;
+
+  --http-status-bg-get-1: #d9d6fe;
+  --http-status-bg-post-1: #bef0c6;
+  --http-status-bg-put-1: #b9e6fe;
+  --http-status-bg-patch-1: #fddcab;
+  --http-status-bg-delete-1: #fecdca;
+  --http-status-bg-head-1: #e0eaff;
+  --http-status-bg-connect-1: #ffd4e0;
+  --http-status-bg-options-1: #ffd4f3;
+
+  --http-status-code-1xx-bg: #ebeaff;
+  --http-status-code-2xx-bg: #dafbe0;
+  --http-status-code-3xx-bg: #e1f5ff;
+  --http-status-code-4xx-bg: #fff0db;
+  --http-status-code-5xx-bg: #ffefee;
+  --http-status-code-6xx-bg: #ffeef3;
+
+  --http-status-code-1xx: #5925dc;
+  --http-status-code-2xx: #1e762b;
+  --http-status-code-3xx: #026aa2;
+  --http-status-code-4xx: #c4320a;
+  --http-status-code-5xx: #c3281d;
+  --http-status-code-6xx: #8e2c58;
+
+  --color_celeste_approx: #ccc;
+  --color_gray_nurse_approx: #e8e8e8;
+  --color_gallery_approx: #f0f0f0;
+  --color_bon_jour_approx: #e0e0e0;
+  --color_desert_storm_approx: #f8f8f8;
+  --color_log_cabin_approx: #1e253d;
+  --color_suva_gray_approx: #888888;
+  --primary-background: #ffffff;
+  --color_silver_chalice_approx: #b0b0b0;
+  --black: #1e253d;
+  --hover_item_color: #00f;
+  --color_nobel_approx: #b3b3b3;
+  --color_matisse_approx: #216ba5;
+  --color-icon-bg: #f6f8ff;
+
+  --ace-editor-sidebar: #f9faff;
+  --sidenav-width: 22rem;
+  --sidenav-collapsed-width: 5.6rem;
+
+  /* chart variables */
+  --p50-line-fill: #6155e5;
+  --p99-line-fill: #d45aff;
+  --p95-line-fill: #0493ff;
+
+  --chip-default-background: #f4f6fe;
+  --chip-default-foreground: #1e253d;
+  --chip-default-border: transparent;
+  --chip-secondary-background: #EAEEFB;
+  --chip-secondary-foreground: #1E253D;
+  --timeframe-tag-bg: var(--border-1);
+  --timeframe-tag-color: var(--text-19);
+  --card-title-color: var(--text-1);
+  --card-divider-bg: #DDE4F6;
+  --running-pods-color: #6938EF;
+  --cpu-data-color: #20a7db;
+  --cpu-pod-bg: #EFF0FF;
+  --cpu-pod-text: #5961EA;
+  --memory-data-color: #5961EA;
+  --memory-pod-color: #117745;
+  --memory-pod-bg: #E5FEEA;
+  --total-requests-color: #1890ff;
+  --user-errors-color: #EE4B2B;
+  --restarts-color: #1570EF;
+  --total-issues-color: #C11574;
+  --k8s-warnings-color: #0096C7;
+  --status-default-indicator: #1e253d;
+
+  --chip-primary-background: #eff0ff;
+  --chip-primary-foreground: #5961ea;
+  --status-primary-indicator: #5960ea99;
+
+  --chip-success-background: #c5f0d4;
+  --chip-success-foreground: #018348;
+  --status-success-indicator: #018349d2;
+
+  --chip-error-background: #fef3f2;
+  --chip-error-foreground: #d92d20;
+  --status-error-indicator: #d92c20c8;
+
+  --chip-warning-background: #fff5d8;
+  --chip-warning-foreground: #ca6003;
+  --status-warning-indicator: #ca6003ce;
+
+  --chip-get-background: #d9d6fe;
+  --chip-get-foreground: #1e253d;
+  --chip-post-background: #bef0c6;
+  --chip-post-foreground: #1e253d;
+  --chip-put-background: #b9e6fe;
+  --chip-put-foreground: #1e253d;
+  --chip-patch-background: #fddcab;
+  --chip-patch-foreground: #1e253d;
+  --chip-delete-background: #fecdca;
+  --chip-delete-foreground: #1e253d;
+  --chip-head-background: #e0eaff;
+  --chip-head-foreground: #1e253d;
+  --chip-connect-background: #ffd4e0;
+  --chip-connect-foreground: #1e253d;
+
+  /* $primary: #5961EA; */
+  /* $secondary: #ECEDFD; */
+  /* $secondary-1: #E0C2F0; */
+  /* var(--primary-background): #fff; */
+  /* var(--primary-background2): whitesmoke; */
+
+  /* :export { */
+  /*   primary: $primary; */
+  /*   secondary: $secondary; */
+  /* } */
+
+  /* METRIC GRAPHS */
+  --cpu-usage-line: #7a5af8;
+  --memory-usage-line: #1570ef;
+
+  --request-line: #ffb900;
+  --limit-line: #ff7600;
+
+  /* SKELETON COLORS */
+  --skeleton-base-color: #f5f5f5;
+  --skeleton-highlight-color: #f0f0f0;
+
+  --progress-primary: #5961ea;
+  --progress-warning: #ff9914;
+  --progress-error: #f54e42;
+
+  --filter-panel-width: 232px;
+  --scrollbar-track-color: #a6abb8;
+  --scrollbar-thumb-color: #7b818f;
+
+  /* border-radius variants */
+  --rounded-sm: 2px;
+  --rounded: 4px;
+  --rounded-md: 6px;
+  --rounded-lg: 8px;
+  --rounded-xl: 12px;
+  --rounded-2xl: 16px;
+  --rounded-3xl: 24px;
+
+  /* ai colors */
+  --ai-gradient-btn-start-color: hsla(288, 100%, 69%, 90%);
+  --ai-gradient-btn-end-color: hsla(239, 83%, 70%, 90%);
+  --ai-gradient-content-start-color: hsla(288, 100%, 69%, 10%);
+  --ai-gradient-content-end-color: hsla(239, 83%, 70%, 10%);
+  --ai-gradient-border-color: #be9fff;
+
+  --color-error-message: #d92d20;
+
+  --button-danger-bg: #e0392d;
+  --agent-video-filter: none;
+  --agent-video-blend: normal;
+  --skeleton-base: #ebebeb;
+  --skeleton-highlight: #f5f5f5;
+  --rbac-card-bg: #fafbff;
+  --input-bg: #ffffff;
+  --input-border: #DDE4F6;
+  --input-placeholder: #BCC8E5;
+  /* hover — same as normal */
+  --input-hover-border: #DDE4F6;
+  --input-hover-placeholder: #BCC8E5;
+  /* active / focused */
+  --input-active-text: #1E253D;
+  --input-active-border: #5961EA;
+  /* disabled */
+  --input-disabled-bg: #F4F6FE;
+  --input-disabled-border: #EAEEFB;
+  --input-disabled-text: #AFBBDA;
+  /* error */
+  --input-error-border: #E0392D;
+  --input-error-text: #1E253D;
+  --input-icon-color: #8491B6;
+  --input-icon-disabled-color: #AFBBDA;
+  --button-default-bg: #ffffff;
+  --card-bg: #ffffff;
+  --tag-bg: #eff0ff;
+  --tag-border: #d7e0fa;
+  --tag-text: #5961ea;
+  --select-option-selected-bg: #eeefff;
+  --select-option-active-bg: #f5f6ff;
+  --radio-default: #5961EA;
+  --radio-hover: #4C53D3;
+  --radio-pressed: #4247C2;
+  --radio-disabled-checked: #d9d9d9;
+  --radio-disabled-bg: #f5f5f5;
+
+  /* Primary Button */
+  --btn-primary-bg: #5961EA;
+  --btn-primary-hover-bg: #4247C2;
+  --btn-primary-active-bg: #2D32A2;
+  --btn-primary-focus-bg: #5961EA;
+  --btn-primary-disabled-bg: #F4F6FE;
+  --btn-primary-disabled-text: #BCC8E5;
+
+  /* Light Button */
+  --btn-light-bg: #E7E8FE;
+  --btn-light-text: #525AE3;
+  --btn-light-hover-bg: #BEC2FF;
+  --btn-light-hover-text: #3A3FB8;
+  --btn-light-active-bg: #999FFF;
+  --btn-light-active-text: #232893;
+  --btn-light-focus-bg: #E7E8FE;
+  --btn-light-focus-text: #525AE3;
+  --btn-light-disabled-bg: #F4F6FE;
+  --btn-light-disabled-text: #BCC8E5;
+  --empty-img-path-fill: #FAFBFF;
+  --empty-img-path-stroke: #CED7EF;
+  --empty-img-ellipse-fill: #EFF0FF;
+
+  --sidebar-popup-hover-bg: #F4F6FE;
+  --sidebar-popup-hover-text: #1E253D;
+  --sidebar-popup-selected-bg: #F8F8FF;
+  --sidebar-popup-selected-text: #5961EA;
+
+  --bg-query-builder-color: var(--input-disabled-bg);
+  --text-query-builder-label: var(--text-20);
+
+  /* Table column colors for light mode (all same) */
+  --table-primary-col-color: var(--text-1);
+  --table-secondary-col-color: var(--text-1);
+  --highlighted-column-color: var(--primary);
+  --switch-checked-bg: var(--primary);
+}

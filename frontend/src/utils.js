@@ -1,7 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_BASE;
 const PLACEHOLDER = import.meta.env.VITE_PLACEHOLDER_IMG;
 
-const ROWS = [
+export const ROWS = [
   { id: "A", type: "Standard", count: 8 },
   { id: "B", type: "Standard", count: 8 },
   { id: "C", type: "Standard", count: 8 },

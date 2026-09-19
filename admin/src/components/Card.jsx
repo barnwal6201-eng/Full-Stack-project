@@ -18,33 +18,40 @@ function Card({item, onOpen, onDelete}) {
 
     return (
         <div className={styles5.card} onClick={onOpen}>
-            <button
-            onClick={(e) => {e.stopPropagation();
-                if(typeof onDelete === 'function') onDelete();
-            }}
-            title='Delete'
-            aria-label={`Delete ${item.movieName || item.title}`}
-            className={styles5.cardDeleteButton}
-            >
-            <X size={14} />
-            </button>
-
-            <div className='relative'>
+            <div className={styles5.cardMedia}>
+                <img src={posterOrThumb} alt="" aria-hidden="true"
+                className={styles5.cardImageBackdrop}
+                />
                 <img src={posterOrThumb} alt={item.movieName || item.title || item.directors}
                 className={styles5.cardImage}
                 />
+                <div className={styles5.cardImageOverlay} />
+
+                <button
+                onClick={(e) => {e.stopPropagation();
+                    if(typeof onDelete === 'function') onDelete();
+                }}
+                title='Delete'
+                aria-label={`Delete ${item.movieName || item.title}`}
+                className={styles5.cardDeleteButton}
+                >
+                <X size={16} />
+                </button>
             </div>
 
             <div className={styles5.cardContent}>
                 <div className={styles5.cardHeader}>
                     <div className='flex-1 min-w-0'>
                         <h3 className={styles5.cardTitle}>
+                            {item.displayTitle || item.movieName || item.title || 'Untitled'}
+                        </h3>
+                        <div className={styles5.cardCategories}>
                             {(item.categories || item.genres || []).map((cat, index) => (
                                 <span key={index} className={styles5.cardCategory}>
                                     {cat}
                                 </span>
                             ))}
-                        </h3>
+                        </div>
                     </div>
                 </div>
 
@@ -70,15 +77,13 @@ function Card({item, onOpen, onDelete}) {
                         </>
                     )}
                 </div>
-            </div>
 
-            <p className={styles5.cardDescription}>
-                {(item.story || item.description || item.excerpt || "").slice(0, 150)}
-                {(item.story || item.description || item.excerpt || "").length > 150 && "..."}
-            </p>
+                <p className={styles5.cardDescription}>
+                    {(item.story || item.description || item.excerpt || "").slice(0, 150)}
+                    {(item.story || item.description || item.excerpt || "").length > 150 && "..."}
+                </p>
 
-            <div className={styles5.cardActions}>
-                <div className='flex items-center gap-3'>
+                <div className={styles5.cardActions}>
                     <button className={styles5.cardViewButton} 
                     onClick={(e) => {e.stopPropagation(); onOpen();}}
                     >
@@ -89,7 +94,7 @@ function Card({item, onOpen, onDelete}) {
                     {item.trailerUrl && item.type !== 'comingSoon' && (
                         <a href={item.trailerUrl} target='_blank' rel='noreferrer' onClick={(e) => e.stopPropagation()}
                         className={styles5.cardTrailerButton}>
-                            <PlayIcon className={styles5.cardTrailerButton} /> Trailer 
+                            <PlayIcon className={styles5.cardTrailerIcon} /> Trailer
                         </a>
                     )}
                 </div>

@@ -36,10 +36,9 @@ const SignupPage = () => {
     }
   };
 
-  //functions to validate all fields
   const validateForm = () => {
     const newErrors = {};
-
+    
     if(!formData.fullName.trim()){
         newErrors.fullName = "Full name is required";
     }else if(formData.fullName.length < 2){

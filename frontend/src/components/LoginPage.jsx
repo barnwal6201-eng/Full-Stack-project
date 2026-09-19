@@ -15,7 +15,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleChange = (e) => {
     const {name, value} = e.target;
     setFormData((prevState) => ({
@@ -204,5 +203,4 @@ const LoginPage = () => {
     </div>
   )
 }
-
 export default LoginPage
