@@ -1,5 +1,3 @@
-@import './design-tokens.scss';
-
 [data-theme="dark"] {
   --font-family: "Inter", sans-serif, serif;
   --font-size: 1.4rem;
@@ -208,7 +206,7 @@
   --color_desert_storm_approx: #f8f8f8;
   --color_log_cabin_approx: #222;
   --color_suva_gray_approx: #888888;
-  // --primary-background: #ffffff;
+  /* --primary-background: #ffffff; */
   --color_silver_chalice_approx: #b0b0b0;
   --black: #000;
   --hover_item_color: #00f;
@@ -221,15 +219,15 @@
   --sidenav-width: 22rem;
   --sidenav-collapsed-width: 5.6rem;
 
-  // chart variables
+  /* Chart variables */
   --p50-line-fill: #6155e5;
   --p99-line-fill: #d45aff;
   --p95-line-fill: #0493ff;
 
-  // rum
+  /* RUM */
   --warm: #ec8a0a;
 
-  // spl
+  /* SPL */
   --spl-success-icon: #1e762b;
   --spl-warning-icon: #a84003;
   --spl-error-icon: #a71c11;
@@ -349,12 +347,3 @@
 
 
 
-
-$primary: #5961ea;
-$secondary: #ecedfd;
-$secondary-1: #e0c2f0;
-
-:export {
-  primary: $primary;
-  secondary: $secondary;
-}

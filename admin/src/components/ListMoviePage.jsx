@@ -57,7 +57,6 @@ export const ListMoviePage = () => {
 
             const normalized = items.map(normalizeMovie);
             setMovies(normalized);
-            console.log('Movies:', normalized);
 
         } catch (err) {
             console.error('FetchMovies Error:', err);

@@ -32,7 +32,6 @@ const LoginPage = () => {
         toast.error("Password must be atleast 6 characters long");
         return;
     }
-   
     try {
         const payload = {
             email: formData.email.trim(),
@@ -49,14 +48,12 @@ const LoginPage = () => {
             if(data.token) {
                 localStorage.setItem('token', data.token);
             }
-
             try {
                 const userToStore = data.user || {email: formData.email};
-
                 localStorage.setItem(
                     "cine_auth",
                     JSON.stringify({
-                        isLoogedIn: true,
+                        isLoggedIn: true,
                         email: userToStore.email || formData.email,
                     })
                 );
@@ -95,10 +92,8 @@ const LoginPage = () => {
     window.location.href = '/';
   };
   
-
   return (
     <div className={loginStyles.pageContainer}>
-
       <div className='relative w-full max-w-md z-10'>
       <div className={loginStyles.backButtonContainer}>
         <button onClick={goBack} className={loginStyles.backButton}>
@@ -152,6 +147,7 @@ const LoginPage = () => {
                          type={showPassword ? "text" : 'password'}
                          name="password"
                          id="password"
+                         autoComplete="current-password"
                          required value={formData.password}
                          className={loginStyles.inputWithIcon}
                          onChange={handleChange} 
@@ -189,7 +185,6 @@ const LoginPage = () => {
             </form>
         </div>
       </div>
-
       <div className={loginStyles.footerContainer}>
         <p className={loginStyles.footerText}>
             Don't have an account ? {" "}
@@ -198,7 +193,6 @@ const LoginPage = () => {
         </p>
       </div>
       </div>
-
       <style>{loginStyles.customCSS}</style>
     </div>
   )

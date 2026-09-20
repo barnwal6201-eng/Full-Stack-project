@@ -1,5 +1,5 @@
 @import "./light-variables.css";
-@import "./dark-variables.css.txt";
+@import "./dark-variables.css";
 @import "tailwindcss";
 
 @theme {

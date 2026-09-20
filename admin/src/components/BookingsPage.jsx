@@ -34,16 +34,13 @@ const BookingsPage = () => {
                 const headers = token ? {Authorization: `Bearer ${token}`} : {};
                 const params = {paymentStatus: "paid", limit: 1000};
                 let res;
-                try {
-                    res = await axios.get(`${API_BASE}/api/bookings/my`, {
+                try{
+                 res = await axios.get(`${API_BASE}/api/bookings`, {
                         headers,
                         params,
                     });
-                }catch (err) {
-                    res = await axios.get(`${API_BASE}/api/bookings`, {
-                        headers,
-                        params,
-                    });
+                }catch(err){
+                    console.error(err);
                 }
 
                 const data = res?.data;

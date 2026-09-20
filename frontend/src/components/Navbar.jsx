@@ -26,11 +26,13 @@ useEffect(() => {
         setIsLoggedIn(Boolean(parsed?.isLoggedIn));
         setUserEmail(parsed?.email|| "");
         return;
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     const simpleFlag = localStorage.getItem("isLoggedIn");
-    const email = localStorage.getItem("userEmail") || localStorage.getItem("cine_user_email");
+    const email = localStorage.getItem("UserEmail") || localStorage.getItem("cine_user_email");
     if(simpleFlag === "true"){
       setIsLoggedIn(true);
       setUserEmail(email || "");
@@ -44,10 +46,9 @@ useEffect(() => {
     setIsLoggedIn(false);
     setUserEmail("");
   }
-    console.log("Logged in")
     readAuthFromStorage();
     const onStorage = (e) => {
-      if(["cine_auth", "isLoggedIn", "userEmail", "cine_user_email"]. includes(e.key)){
+      if(["cine_auth", "isLoggedIn", "UserEmail", "cine_user_email"]. includes(e.key)){
         readAuthFromStorage();
       }
     };
@@ -55,7 +56,7 @@ useEffect(() => {
     window.addEventListener("auth-changed", readAuthFromStorage);
   
   return () =>{
-    window.addEventListener("storage", onStorage);
+    window.removeEventListener("storage", onStorage);
     window.removeEventListener("storage", readAuthFromStorage);
   }
 }, []);
@@ -101,7 +102,6 @@ const navItems = [
     <nav className={`${navbarStyles.nav.base} ${
       isScrolled ? navbarStyles.nav.scrolled : navbarStyles.nav.notScrolled
     }`}>
-     
      <div className={navbarStyles.container}>
         <div className={navbarStyles.logoContainer}>
           <div className={navbarStyles.logoIconContainer}>

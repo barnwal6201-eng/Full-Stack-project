@@ -397,7 +397,7 @@ export async function deleteBooking(req, res) {
     if(!b) return res.status(404).json({
         success: false, message: 'Booking not found'
     });
-
+    
     return res.json({
         success: true,
         message: 'Booking Deleted.'

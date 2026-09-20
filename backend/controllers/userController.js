@@ -127,7 +127,6 @@ export const registerUser = async (req, res) => {
     }
 }
 
-
 //LOGIN FUNCTION
 export async function login(req, res) {
     try {
@@ -139,19 +138,16 @@ export async function login(req, res) {
                 message: 'All field are required.'
             })
         }
-
         const user = await User.findOne({ email: email.toLowerCase().trim() });
         if(!user) return res.status(401).json({
             success: false,
             message: 'Invalid email and password'
         });
-
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch) return res.status(401).json({
             success: false,
             message: 'Invalid email and password'
         });
-
         const token = mkToken({id: user._id.toString() });
         return res.status(200).json({
             success: true,
@@ -163,8 +159,6 @@ export async function login(req, res) {
                 email: user.email
             }
         });
-
-
     } catch (err) {
         console.error('Login error:', err);
         return res.status(500).json({
