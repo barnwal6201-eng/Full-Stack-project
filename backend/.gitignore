@@ -13,6 +13,13 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
+# Build output (frontend - Vite)
+dist
+dist-ssr
+
+# Testing / coverage
+coverage
+
 # Editor
 .vscode/*
 !.vscode/extensions.json
