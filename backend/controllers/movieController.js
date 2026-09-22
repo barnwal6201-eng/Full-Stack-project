@@ -3,7 +3,7 @@ import Movie from "../models/movieModels.js";
 import path from 'path';
 import fs from 'fs';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = process.env.API_BASE_URL;
 
 /*---------------helpers---------- */
 //Builds a full upload URL from a filename or return null if invalid
