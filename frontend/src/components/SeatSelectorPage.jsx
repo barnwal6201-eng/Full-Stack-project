@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { seatSelectorStyles } from '../assets/dummyStyles'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CreditCard, Film, RockingChair, Rows, Sofa, Ticket } from 'lucide-react'
+import { ArrowLeft, CreditCard, RockingChair, Rows, Sofa, Ticket } from 'lucide-react'
 import { toast } from 'react-toastify'
 import Tickets from './Tickets'
 import axios from 'axios'
-import ROWS, {to24Hour, slotToISO, sameMinute} from "../utils"
+import ROWS, { slotToISO, sameMinute} from "../utils"
 import Legend from "./Legend";
 import Loading from "./Loading"
 import Pricing from './Pricing'
@@ -28,7 +28,6 @@ export default function SeatSelectorPage()  {
     const navigate = useNavigate();
 
     const [showTickets, setShowTickets] = useState(false);
-    const [bgColor, setBgColor] = useState(true);
     const [ticketCount, SetTicketCount] = useState(1);
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -39,9 +38,7 @@ export default function SeatSelectorPage()  {
     );
     const [bookingLoading, setBookingLoading] = useState(false);
 
-    useEffect(() => {
-        setIsAuthenticated(Boolean(getAuthToken()));
-    }, []);
+    const bgColor = true;
 
     useEffect(() => {
         const onStorage = (e) => {
@@ -86,11 +83,14 @@ export default function SeatSelectorPage()  {
                 if(mounted) setLoading(false);
             }
         };
+
+        const clearMovie = () => {
+        setLoading(false);
+        setMovie(null);
+        };
+
         if(movieIdParam) fetchMovie();
-        else {
-            setLoading(false);
-            setMovie(null);
-        }
+        else clearMovie();
         return () => {
             mounted = false;
         };
@@ -131,7 +131,7 @@ export default function SeatSelectorPage()  {
                     if(!isNaN(ts) && ts === providedTs) return { ...s, _iso: iso};
                 }
             }
-        } catch (e) {}
+        } catch (e) {console.error(e)}
         return null;
     }, [movie, slotKey]);
 
@@ -180,7 +180,7 @@ export default function SeatSelectorPage()  {
           });
           try {
             localStorage.setItem(storageKey, JSON.stringify([...set]));
-          } catch (e) {}
+          } catch (e) {console.error(e)}
         };
 
         const fetchBooked = async () => {
@@ -235,7 +235,7 @@ export default function SeatSelectorPage()  {
                         setBooked(new Set());
                         try {
                             localStorage.setItem(storageKey, JSON.stringify([]));
-                        } catch (e) {}
+                        } catch (e) {console.error(e)}
                     }
                 }
                 return;
@@ -284,7 +284,7 @@ export default function SeatSelectorPage()  {
                         setBooked(s);
                         try {
                             localStorage.setItem(storageKey, JSON.stringify([...s]));
-                        } catch (e) {}
+                        } catch (e) { console.error(e)}
                         return;
                     }
                 } catch (e) {
@@ -298,7 +298,7 @@ export default function SeatSelectorPage()  {
         return () => {
             cancelled = true;
         };
-    }, [movieIdParam, slotKey, audiName, slotObj]);
+    }, [movieIdParam, slotKey, audiName, slotObj, legacyKey, mid, storageKey]);
 
     useEffect(() => {
         if(!loading && !movie){
@@ -323,24 +323,24 @@ export default function SeatSelectorPage()  {
         const num = Number(nid.slice(1));
         
         setSelected((prev) => {
-            const next = new Set(prev);
-            if(next.has(nid)){
-                next.delete(nid);
-                return next;
+           const next = new Set(prev); // 3 
+           if(next.has(nid) ) {
+             next.delete(nid)
+             return next;
             }
 
-            let added = 0;
-            let i = 0;
-            while(added < ticketCount && next.size < ticketCount && (num + 1) <= 8){
-              const seatId = `${row}${num + i}`;
-              i++;
+         let added = 0;
+         let i = 0;
+         while (added < ticketCount && next.size < ticketCount && (num + i) <= 8 ) {
+          const seatId = `${row}${num + i}`;
+           i++;
 
-            if (booked.has(seatId) || next.has(seatId)) continue;
-
-            next.add(seatId);
-            added++;
-            }
-            return next;
+          if (booked.has(seatId) || next.has(seatId)) break;
+      
+           next.add(seatId);
+           added++;
+         }
+          return next;
         });
     };
     const clearSection = () => setSelected(new Set());
@@ -402,7 +402,7 @@ export default function SeatSelectorPage()  {
                     ]);
                     try {
                         localStorage.setItem(storageKey, JSON.stringify([...newBooked]));
-                    } catch (e) {}
+                    } catch (e) {console.error(e)}
                         window.location.href = data.checkout.url;
                         return; 
                 }
@@ -415,7 +415,7 @@ export default function SeatSelectorPage()  {
                 setSelected(new Set());
                 try {
                     localStorage.setItem(storageKey, JSON.stringify([...newBooked]));
-                } catch (e) {}
+                } catch (e) {console.error(e)}
                 toast.success(
                     `${seatsArr.length} seat(s) reserved - proceed to payment`
                 );
@@ -451,7 +451,7 @@ export default function SeatSelectorPage()  {
                         occupied.forEach((s) => next.add(normalizedSeatId(s)));
                         try {
                             localStorage.setItem(storageKey, JSON.stringify([...next]));
-                        } catch (e) {}
+                        } catch (e) {console.error(e)}
                         return next;
                     });
                     setSelected((prev) => {
@@ -706,6 +706,11 @@ const showtimeLabel = (() => {
                   {bookingLoading ? "Processing…" : "Confirm & Pay"}
                 </span>
               </button>
+              {!isAuthenticated && selectedCount > 0 && (
+               <p className="text-sm text-yellow-400 mt-2 text-center">
+                 You&apos;ll need to log in to complete this booking.
+               </p>
+                 )}
             </div>
           </div>
 

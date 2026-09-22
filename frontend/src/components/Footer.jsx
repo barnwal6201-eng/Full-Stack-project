@@ -5,7 +5,6 @@ import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
 
-    const currentYear = new Date().getFullYear();
     const [isVisible, setIsVisible] = useState(false);
 
     const scrollToTop = () => {

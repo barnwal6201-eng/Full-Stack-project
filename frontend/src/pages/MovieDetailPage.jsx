@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { movieDetailCSS, movieDetailStyles } from '../assets/dummyStyles'
 import { toast } from 'react-toastify'
-import { ArrowLeft, Calendar, Clock, Film, ImageOff, Play, Star, User, X } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, ImageOff, Play, Star, User, X } from 'lucide-react'
 import axios from 'axios'
-import ROWS, { slotToISO, getInitialAvatar, to24Hour, formatDuration, cleanImageUrl, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId } from '../utils';
+import ROWS, { slotToISO, getInitialAvatar, formatDuration, cleanImageUrl, formatTimeInTZ, formatDateKey, extractYouTubeId } from '../utils';
 import Loading from '../components/Loading';
 import MovieError from '../components/MovieError';
 import FallbackAvatar from '../components/FallbackAvatar';
@@ -26,23 +26,19 @@ const MovieDetailPage = () => {
     const { id } = useParams();
     const movieId = id;
     const navigate = useNavigate();
-
-    // use  usereducer 
-
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState(null);
     const [bookedCounts, setBookedCounts] = useState({});
     const [posterFailed, setPosterFailed] = useState(false);
-
+    const [prevPoster, setPrevPoster] = useState(movie?.poster);
     const [showTrailer, setShowTrailer] = useState(false);
     const [selectedTrailerId, setSelectedTrailerId] = useState(null);
     const [selectedMovie, setSelectedMovie] = useState(null);
-
+    
     const [selectedDay, setSelectedDay] = useState(0);
     const [selectedTime, setSelectedTime] = useState(null);
 
-    // Fetch movie from backend
     useEffect(() => {
         let mounted = true;
         const fetchMovie = async () => {
@@ -85,20 +81,22 @@ const MovieDetailPage = () => {
                 if (mounted) setLoading(false);
             }
         };
-
-        if (movieId) fetchMovie();
-        else {
+        const clearMovie = () => {
             setLoading(false);
             setMovie(null);
             setFetchError("No movie id was provided in the URL.");
-        }
+        };
+
+        if (movieId) fetchMovie();
+        else clearMovie();
 
         return () => { mounted = false; };
     }, [movieId]);
 
-    useEffect(() => {
-        setPosterFailed(false);
-    }, [movie?.poster]);
+     if (movie?.poster !== prevPoster) {
+    setPrevPoster(movie?.poster);
+    setPosterFailed(false);
+     }
 
     /** Group slots ({date,time,ampm} objects) into days */
     const showTimeDays = useMemo(() => {
@@ -119,7 +117,7 @@ const MovieDetailPage = () => {
                 if (!slotsByDate[dateKey]) slotsByDate[dateKey] = [];
                 slotsByDate[dateKey].push({ iso, audi: movie.auditorium || null });
             } catch (error) {
-                // ignore invalid slot
+                console.error(error);
             }
         });
 
@@ -146,15 +144,17 @@ const MovieDetailPage = () => {
         });
     }, [movie]);
 
-    useEffect(() => {
-        if (showTimeDays.length === 0) {
-            setSelectedDay(0);
-            setSelectedTime(null);
-            return;
-        }
+    const [prevShowTimeDays, setPrevShowTimeDays] = useState(showTimeDays);
+    if (showTimeDays !== prevShowTimeDays) {
+    setPrevShowTimeDays(showTimeDays);
+    if (showTimeDays.length === 0) {
+        setSelectedDay(0);
+        setSelectedTime(null);
+    } else {
         setSelectedDay((curr) => (curr >= 0 && curr < showTimeDays.length ? curr : 0));
         setSelectedTime(null);
-    }, [showTimeDays]);
+    }
+   }
 
     // Fetch real booked-seat counts per showtime (paid bookings only)
     useEffect(() => {

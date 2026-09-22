@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { seatSelectorHStyles } from "../assets/dummyStyles";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CreditCard, Film, RockingChair, Rows, Sofa, Ticket } from "lucide-react";
+import { ArrowLeft, CreditCard, RockingChair, Rows, Sofa, Ticket } from "lucide-react";
 import { toast } from "react-toastify";
 import Tickets from "./Tickets";
 import axios from "axios";
-import ROWS, {to24Hour, slotToISO, sameMinute} from "../utils"
+import ROWS, { slotToISO, sameMinute} from "../utils"
 import Legend from "./Legend"
 import Pricing from "./Pricing";
 import Loading from "./Loading";
@@ -30,7 +30,6 @@ export default function SeatSelectorPageHome() {
   const navigate = useNavigate();
 
   const [showTickets, setShowTickets] = useState(false);
-  const [bgColor, setBgColor] = useState(true);
   const [ticketCount, SetTicketCount] = useState(1);
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,9 +40,7 @@ export default function SeatSelectorPageHome() {
   );
   const [bookingLoading, setBookingLoading] = useState(false);
 
-  useEffect(() => {
-    setIsAuthenticated(Boolean(getAuthToken()));
-  }, []);
+  const bgColor = true;
 
   useEffect(() => {
     const onStorage = (e) => {
@@ -89,11 +86,15 @@ export default function SeatSelectorPageHome() {
         if (mounted) setLoading(false);
       }
     };
-    if (movieIdParam) fetchMovie();
-    else {
+
+  const clearMovie = () => {
       setLoading(false);
       setMovie(null);
-    }
+    };
+
+    if (movieIdParam) fetchMovie();
+    else clearMovie();
+
     return () => {
       mounted = false;
     };
@@ -159,7 +160,7 @@ export default function SeatSelectorPageHome() {
       );
       return;
     }
-  }, [slotKey, movie, slotObj]);
+  }, [slotKey, movie, slotObj, movieIdParam, navigate]);
 
   const mid = movie ? movie._id || movie.id || movieIdParam : movieIdParam;
   const storageKey = `bookings_${mid}_${slotKey}_${audiName}`;
@@ -185,7 +186,7 @@ export default function SeatSelectorPageHome() {
       });
       try {
         localStorage.setItem(storageKey, JSON.stringify([...set]));
-      } catch (e) {}
+      } catch (e) {console.error(e)}
     };
 
     const fetchBooked = async () => {
@@ -245,7 +246,7 @@ export default function SeatSelectorPageHome() {
             setBooked(new Set());
             try {
               localStorage.setItem(storageKey, JSON.stringify([]));
-            } catch (e) {}
+            } catch (e) {console.error(e)}
           }
         }
         return;
@@ -298,7 +299,7 @@ export default function SeatSelectorPageHome() {
             setBooked(s);
             try {
               localStorage.setItem(storageKey, JSON.stringify([...s]));
-            } catch (e) {}
+            } catch (e) {console.error(e)}
             return;
           }
         } catch (e) {
@@ -419,7 +420,7 @@ export default function SeatSelectorPageHome() {
           ]);
           try {
             localStorage.setItem(storageKey, JSON.stringify([...newBooked]));
-          } catch (e) {}
+          } catch (e) {console.error(e)}
           window.location.href = data.checkout.url;
           return;
         }
@@ -432,7 +433,7 @@ export default function SeatSelectorPageHome() {
         setSelected(new Set());
         try {
           localStorage.setItem(storageKey, JSON.stringify([...newBooked]));
-        } catch (e) {}
+        } catch (e) {console.error(e)}
         toast.success(
           `${seatsArr.length} seat(s) reserved - proceed to payment`,
         );
@@ -468,7 +469,7 @@ export default function SeatSelectorPageHome() {
             occupied.forEach((s) => next.add(normalizedSeatId(s)));
             try {
               localStorage.setItem(storageKey, JSON.stringify([...next]));
-            } catch (e) {}
+            } catch (e) {console.error(e)}
             return next;
           });
           setSelected((prev) => {
@@ -728,6 +729,11 @@ export default function SeatSelectorPageHome() {
                       {bookingLoading ? "Processing…" : "Confirm & Pay"}
                     </span>
                   </button>
+                  {!isAuthenticated && selectedCount > 0 && (
+               <p className="text-sm text-yellow-400 mt-2 text-center">
+                 You&apos;ll need to log in to complete this booking.
+               </p>
+                 )}
                 </div>
               </div>
               {/* Right: pricing info */}

@@ -1,6 +1,7 @@
 import React from 'react'
 import { movieDetailHStyles } from '../assets/dummyStyles'
 import { Film } from 'lucide-react'
+import PropTypes from 'prop-types'
 
 const Loading = ({loading}) => {
   return (
@@ -12,5 +13,9 @@ const Loading = ({loading}) => {
      </div>
   )
 }
+
+Loading.propTypes = {
+  loading: PropTypes.bool.isRequired,
+};
 
 export default Loading

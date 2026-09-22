@@ -117,13 +117,13 @@ const AddPage = () => {
     };
 
     function addSlot() {
-        dispatch({ type: 'ADD_SLOT' });
+        dispatch({ type: 'ADD_SLOTS' });
     }
     function removeSlot(id) {
-        dispatch({ type: 'REMOVE_SLOT', id });
+        dispatch({ type: 'REMOVE_SLOTS', id });
     }
     function updateSlot(id, field, value) {
-        dispatch({ type: 'UPDATE_SLOT', id, field, value });
+        dispatch({ type: 'UPDATE_SLOTS', id, field, value });
     }
 
     function resetForm() {
@@ -457,7 +457,10 @@ const AddPage = () => {
                                                         min="0"
                                                         value={durationHours}
                                                         onChange={(e) => {
-                                                            const val = Math.max(0, Number(e.target.value) || 0);
+                                                        set('durationHours')(e.target.value); 
+                                                         }}
+                                                        onBlur={(e) => {
+                                                            const val = Math.max(0, Number(e.target.value) || 2);
                                                             set('durationHours')(val);
                                                         }}
                                                         className={`${addMoviePageStyles.input} pl-9`}
@@ -470,15 +473,15 @@ const AddPage = () => {
                                                     <Clock className="absolute left-3 size-4 opacity-70 pointer-events-none" />
                                                     <input
                                                         type="number"
-                                                        min="0"
                                                         max="59"
                                                         value={durationMinutes}
                                                         onChange={(e) => {
-                                                            // Clamp so someone can't type e.g. 95 and silently
-                                                            // corrupt the total-minutes calculation.
-                                                            const val = Math.min(59, Math.max(0, Number(e.target.value) || 0));
-                                                            set('durationMinutes')(val);
-                                                        }}
+                                                        set('durationMinutes')(e.target.value); 
+                                                         }}
+                                                        onBlur={(e) => {
+                                                        const val = Math.min(59, Math.max(0, Number(e.target.value) || 0));
+                                                        set('durationMinutes')(val); // convert + clamp only when they're done editing
+                                                         }}
                                                         className={`${addMoviePageStyles.input} pl-9`}
                                                     />
                                                 </div>

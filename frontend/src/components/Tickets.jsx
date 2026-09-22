@@ -1,7 +1,8 @@
 import { Ticket, X } from 'lucide-react'
 import React, { useState } from 'react'
+import PropTypes from 'prop-types';
 
-const Tickets = ({showTickets, setShowTickets,ticketCount, SetTicketCount}) => {
+const Tickets = ({setShowTickets,ticketCount, SetTicketCount}) => {
 
    const [select, setSelect] = useState(null);
 
@@ -82,5 +83,11 @@ const Tickets = ({showTickets, setShowTickets,ticketCount, SetTicketCount}) => {
 </div>
   )
 }
+
+Tickets.propTypes = {
+  setShowTickets: PropTypes.func.isRequired,
+  ticketCount: PropTypes.number.isRequired,
+  SetTicketCount: PropTypes.func.isRequired,
+};
 
 export default Tickets

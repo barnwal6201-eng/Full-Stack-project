@@ -62,7 +62,7 @@ const LoginPage = () => {
                 localStorage.setItem("cine_user_email", userToStore.email || formData.email || "");
                 localStorage.setItem("user", JSON.stringify(userToStore));
             } catch (err) {
-                console.warn("Failed to persist full user obj");
+                console.warn("Failed to persist full user obj", err);
             }
 
             setTimeout(() => {
@@ -187,7 +187,7 @@ const LoginPage = () => {
       </div>
       <div className={loginStyles.footerContainer}>
         <p className={loginStyles.footerText}>
-            Don't have an account ? {" "}
+            Don&apos;t have an account ? {" "}
             <a href="/signup" className={loginStyles.footerLink}>
             Create one now</a>
         </p>

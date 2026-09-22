@@ -78,20 +78,20 @@ const Trailer = () => {
 
 const [featuredTrailer, setFeaturedTrailer] = useState(null);
 const [isPlaying, setIsPlaying] = useState(false);
-const [isMuted, setIsMuted] = useState(false);
 const videoRef = useRef(null);
 const carouselRef = useRef(null);
 const [trailers, setTrailers] = useState([]);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState(null);
 
+const isMuted = false;
 
 useEffect(() => {
   const ac = new AbortController();
-  setLoading(true);
-  setError(null);
 
   async function load() {
+    setLoading(true);
+    setError(null);
     try {
       const url = `${API_BASE}/api/movies?type=latestTrailers&limit=50`;
       const res = await fetch(url, {signal: ac.signal});
@@ -200,7 +200,7 @@ const getEmbedBaseUrl = (videoUrl) => {
     return videoUrl;
 
    } catch (e) {
-    //if URL construct fails , return as-is
+    console.error(e);
     return videoUrl || "";
    }
 };

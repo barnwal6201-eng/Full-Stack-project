@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { moviesPageStyles } from '../assets/dummyStyles'
 import {Link} from 'react-router-dom'
-import { getUploadUrl, categoriesList, mapBackendMovie } from '../utils';
+import { categoriesList, mapBackendMovie } from '../utils';
 import Loading from '../components/Loading';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -41,7 +41,9 @@ const MoviesPage = () => {
 
         try {
           const res2 = await fetch(`${API_BASE}/api/movies?limit=200`);
-          if(!res2.ok) throw new Error(`Fallback HTTP ${res2.status}`);
+          if(!res2.ok) {
+            throw new Error(`Fallback HTTP ${res2.status}`, { cause: err });
+          }
           const json2 = await res2.json();
           const items2 = Array.isArray(json2.items) ? json2.items : [];
           const mapped2 = items2.map(mapBackendMovie);
@@ -73,10 +75,6 @@ const MoviesPage = () => {
       (m) => String(m.category || "").toLowerCase() === String(activeCategory || "").toLowerCase()
     );
    },[movies, activeCategory]);
-
-    useEffect(()=>{
-        setShowAll(false);
-    },[activeCategory]);
 
     const visibleMovies = showAll ? filteredMovies : filteredMovies.slice(0, COLLAPSE_COUNT);
 
@@ -139,7 +137,7 @@ const MoviesPage = () => {
           
           {filteredMovies.length > COLLAPSE_COUNT && (
             <div className={moviesPageStyles.showMoreContainer}>
-              <button type='button' onClick={()=>setShowAll((prev) => !prev)} className={moviesPageStyles.showMoreButton}>
+              <button type='button' onClick={() => setShowAll((prev) => !prev)} className={moviesPageStyles.showMoreButton}>
                 {showAll ? 'Show Less' : `Show More (${filteredMovies.length - COLLAPSE_COUNT}) More`}
               </button>
             </div>

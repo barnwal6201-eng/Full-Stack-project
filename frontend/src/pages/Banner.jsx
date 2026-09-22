@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { bannerStyles } from '../assets/dummyStyles'
 import { Info, Star, Tickets } from 'lucide-react'
 import Rating from '../components/Rating'
 import VideoComponent from '../components/VideoComponent'
 
 const Banner = () => {
-    const[isEdit, setIsEdit] = useState(true);
-
   return (
     <div className={bannerStyles.container}>
       <VideoComponent />
@@ -17,7 +15,7 @@ const Banner = () => {
             <h1 className={bannerStyles.title} style={{
                 fontFamily: "'Dancing Script', cursive",
             }}>
-                Oceans's Legacy
+                Oceans&apos;s Legacy
             </h1>
 
             <p className={bannerStyles.description}>

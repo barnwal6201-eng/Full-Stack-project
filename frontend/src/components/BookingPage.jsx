@@ -93,7 +93,12 @@ const BookingPage = () => {
           timeout: 15000,
         });
       } catch (e) {
-        console.log(e);
+        if(e.response?.status === 401){
+          localStorage.removeItem(token);
+          navigate('/login');
+          return;
+        }
+       
         res = await axios.get(`${API_BASE}/api/bookings`, {
           headers: {Authorization: `Bearer ${token}`},
           timeout: 15000,
@@ -117,7 +122,6 @@ const BookingPage = () => {
       items = [data];
     }
       const normalized = items.map((b) => {
-        console.log("Raw data", b);
       const id = b._id || b.id || b.bookingId || String(b.id || "");
       const movie = b.movie || {};
       const title = movie.title || movie.name || b.movieName || b.title || "Untitled";
@@ -188,7 +192,7 @@ const BookingPage = () => {
     return () => {
       mounted = false;
     };
-  },[]);
+  },[navigate]);
 
   //QR
   useEffect(() => {

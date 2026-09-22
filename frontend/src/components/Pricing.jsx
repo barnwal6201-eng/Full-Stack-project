@@ -1,6 +1,7 @@
 import React from 'react'
 import { seatSelectorHStyles } from '../assets/dummyStyles'
 import { Ticket } from 'lucide-react'
+import PropTypes from 'prop-types'
 
 const Pricing = ({standardPaise, reclinerPaise}) => {
   return (
@@ -43,5 +44,10 @@ const Pricing = ({standardPaise, reclinerPaise}) => {
                 </div>
               </div>
   )
+}
+
+Pricing.propTypes = {
+    standardPaise: PropTypes.number.isRequired,
+    reclinerPaise: PropTypes.number.isRequired,
 }
 export default Pricing

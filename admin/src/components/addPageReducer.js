@@ -62,13 +62,13 @@ function addPageReducer(state, action) {
             ],
         };
 
-    case REMOVE_SLOTS:
+    case "REMOVE_SLOTS":
         return{
             ...state,
             slots: state.slots.filter((s) => s.id !== action.id),
         };
 
-    case UPDATE_SLOTS:
+    case "UPDATE_SLOTS":
         return{
             ...state,
             slots: state.slots.map((s)=>
@@ -100,7 +100,7 @@ function addPageReducer(state, action) {
 
     case "RESET":
       return {
-        ...initialAddPageState,
+        ...initialState,
         slots: [{ id: Date.now(), date: "", time: "", ampm: "AM" }],
         ltYear: new Date().getFullYear(),
       };

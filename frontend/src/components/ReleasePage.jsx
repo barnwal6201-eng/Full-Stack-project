@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { releasesStyles } from '../assets/dummyStyles'
+import Loading from '../components/Loading'
 
 const PLACEHOLDER_IMG = import.meta.env.VITE_PLACEHOLDER_IMG;
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -10,7 +11,6 @@ const getUploadUrl = (maybeFilmnameOrUrl) => {
   if(maybeFilmnameOrUrl.startsWith("http://") ||
      maybeFilmnameOrUrl.startsWith("https://"))
      return maybeFilmnameOrUrl;
-
      //assume it's a filename saved by multer
      return `${API_BASE}/uploads/${maybeFilmnameOrUrl.replace(/^uploads\//, "")}`;
 };
@@ -77,6 +77,13 @@ const ReleasePage = () => {
         </p>
       </div>
 
+       {
+        loading ? (
+          <Loading loading={"releases..."} />
+        ) : error ?(
+           <div className="text-red-400 py-12 text-center">{error}</div>
+        ): (
+       
       <div className={releasesStyles.movieGrid}>
        {movies.map((movie) => (
         <div
@@ -94,6 +101,7 @@ const ReleasePage = () => {
         </div>
        ))}
       </div>
+      )}
     </div>
   )
 }

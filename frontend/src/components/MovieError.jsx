@@ -1,5 +1,7 @@
 import React from 'react'
 import { movieDetailHStyles } from '../assets/dummyStyles'
+import PropTypes from 'prop-types'
+import { Link } from 'react-router-dom'
 
 const MovieError = ({message}) => {
   return (
@@ -13,5 +15,9 @@ const MovieError = ({message}) => {
             </div>
   )
 }
+
+MovieError.propTypes = {
+  message: PropTypes.bool.isRequired,
+};
 
 export default MovieError

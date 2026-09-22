@@ -11,8 +11,11 @@ const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+    useEffect(() => {
+    const ac = new AbortController();
 
-   async function loadFeaturedMovies(signal) {
+    async function loadFeaturedMovies(signal) {
         try {
             const url = `${API_BASE}/api/movies?featured=true&limit=6`;
             const res = await fetch(url, {signal});
@@ -29,26 +32,20 @@ const Movies = () => {
             );
 
             setMovies(featuredOnly.slice(0, 6));
-            setLoading(false);
         } catch (err) {
             if(err.name === 'AbortError') return;
             console.error('Movies load error:', err);
             setError('Failed to Load Movies');
+        } finally{
             setLoading(false);
         }
     }
-  
-    useEffect(() => {
-    const ac = new AbortController();
-    setLoading(true);
-    setError(null);
 
-   
-    loadFeaturedMovies();
+    loadFeaturedMovies(ac.signal);
     return () => ac.abort();
   },[]);
 
-  const visibleMovies = movies.slice(0, 6);
+ // const visibleMovies = movies.slice(0, 6);
 
   return (
     <section className={moviesStyles.container}>

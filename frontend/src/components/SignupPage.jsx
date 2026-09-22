@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { signUpStyles } from '../assets/dummyStyles'
 import { toast } from 'react-toastify'
 import { ArrowLeft, Clapperboard, Lock, Mail, Phone, Ticket, User, Eye, EyeOff, Film, Calendar } from 'lucide-react';
 import axios from 'axios'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const PARTICLE_COUNT = 30;
 
 const SignupPage = () => {
 
@@ -150,23 +151,31 @@ const SignupPage = () => {
     }
   };
 
+  const particles = useMemo(() => {
+  return Array.from({ length: PARTICLE_COUNT }, () => ({
+    left: Math.random() * 100,
+    top: Math.random() * 100,
+    delay: Math.random() * 5,
+    duration: Math.random() * 4,
+  }));
+}, []);
 
   return (
     <div className={signUpStyles.container}>
       <div className={signUpStyles.particlesContainer}>
-        {[...Array(15)].map((_,i) => (
-            <div
-             key={i}
-             className={signUpStyles.particle}
-             style={{
-                left: `${Math.random() *100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${Math.random() * 4}s`
-             }}
-             >
-            </div>
-        ))}
+        {particles.map((p, i) => (
+        <div
+          key={i}
+          className={signUpStyles.particle}
+           style={{
+            left: `${p.left}%`,
+            top: `${p.top}%`,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+           }}
+           >
+          </div>
+           ))}
       </div>
 
       <div className={signUpStyles.gradientOrbs}>
