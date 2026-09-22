@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useReducer } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { movieDetailCSS, movieDetailStyles } from '../assets/dummyStyles'
 import { toast } from 'react-toastify'
@@ -8,6 +8,7 @@ import ROWS, { slotToISO, getInitialAvatar, formatDuration, cleanImageUrl, forma
 import Loading from '../components/Loading';
 import MovieError from '../components/MovieError';
 import FallbackAvatar from '../components/FallbackAvatar';
+import { initialState, movieDetailReducer } from './movieReducer';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const TOTAL_SEATS = ROWS.reduce((s, r) => s + r.count, 0);
@@ -26,24 +27,25 @@ const MovieDetailPage = () => {
     const { id } = useParams();
     const movieId = id;
     const navigate = useNavigate();
-    const [movie, setMovie] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [fetchError, setFetchError] = useState(null);
-    const [bookedCounts, setBookedCounts] = useState({});
-    const [posterFailed, setPosterFailed] = useState(false);
-    const [prevPoster, setPrevPoster] = useState(movie?.poster);
-    const [showTrailer, setShowTrailer] = useState(false);
-    const [selectedTrailerId, setSelectedTrailerId] = useState(null);
-    const [selectedMovie, setSelectedMovie] = useState(null);
-    
-    const [selectedDay, setSelectedDay] = useState(0);
-    const [selectedTime, setSelectedTime] = useState(null);
+    const [state, dispatch] = useReducer(movieDetailReducer, initialState);
+    const {
+        movie,
+        loading,
+        fetchError,
+        bookedCounts,
+        posterFailed,
+        showTrailer,
+        selectedTrailerId,
+        selectedMovie,
+        selectedDay,
+        selectedTime,
+    } = state;
 
     useEffect(() => {
         let mounted = true;
         const fetchMovie = async () => {
-            setLoading(true);
-            setFetchError(null);
+            dispatch({type: 'FETCH_START'});
+
             try {
                 const res = await axios.get(
                     `${API_BASE}/api/movies/${encodeURIComponent(movieId)}`
@@ -53,9 +55,8 @@ const MovieDetailPage = () => {
 
                 if (!data || data.success === false) {
                     const msg = (data && data.message) || "Failed to load movie";
-                    setFetchError(msg);
+                    dispatch({type: 'FETCH_ERROR', error: msg});
                     toast.error(msg);
-                    setMovie(null);
                 } else {
                     const item =
                         data.item ||
@@ -64,39 +65,28 @@ const MovieDetailPage = () => {
                         (data.success ? data : null) ||
                         // some endpoints just return the raw document
                         (data._id ? data : null);
-                    if (!item) {
-                        setFetchError("Movie data was empty in the server response.");
-                    }
-                    setMovie(item || null);
+        
+                    dispatch({ type: 'FETCH_SUCCESS', movie: item || null });
                 }
             } catch (err) {
                 console.error("Failed to fetch movie:", err);
                 const msg = err?.response?.data?.message || "Failed to fetch movie from server";
                 if (mounted) {
-                    setFetchError(msg);
+                    dispatch({type: 'FETCH_ERROR', error: msg});
                     toast.error(msg);
-                    setMovie(null);
                 }
-            } finally {
-                if (mounted) setLoading(false);
             }
         };
-        const clearMovie = () => {
-            setLoading(false);
-            setMovie(null);
-            setFetchError("No movie id was provided in the URL.");
-        };
-
-        if (movieId) fetchMovie();
-        else clearMovie();
+        
+        if (movieId) {
+            fetchMovie();
+        }
+        else {
+            dispatch({ type: 'FETCH_ERROR', error: 'No movie id was provided in the URL.' });
+        }
 
         return () => { mounted = false; };
     }, [movieId]);
-
-     if (movie?.poster !== prevPoster) {
-    setPrevPoster(movie?.poster);
-    setPosterFailed(false);
-     }
 
     /** Group slots ({date,time,ampm} objects) into days */
     const showTimeDays = useMemo(() => {
@@ -144,17 +134,9 @@ const MovieDetailPage = () => {
         });
     }, [movie]);
 
-    const [prevShowTimeDays, setPrevShowTimeDays] = useState(showTimeDays);
-    if (showTimeDays !== prevShowTimeDays) {
-    setPrevShowTimeDays(showTimeDays);
-    if (showTimeDays.length === 0) {
-        setSelectedDay(0);
-        setSelectedTime(null);
-    } else {
-        setSelectedDay((curr) => (curr >= 0 && curr < showTimeDays.length ? curr : 0));
-        setSelectedTime(null);
-    }
-   }
+    useEffect(() => {
+        dispatch({ type: 'DAYS_CHANGED', count: showTimeDays.length });
+    }, [showTimeDays]);
 
     // Fetch real booked-seat counts per showtime (paid bookings only)
     useEffect(() => {
@@ -189,10 +171,10 @@ const MovieDetailPage = () => {
                     const seatCount = Array.isArray(b.seats) ? b.seats.length : Array.isArray(b.seatIds) ? b.seatIds.length : 0;
                     counts[key] = (counts[key] || 0) + seatCount;
                 }
-                if (!cancelled) setBookedCounts(counts);
+                if (!cancelled) dispatch({ type: 'SET_BOOKED_COUNTS', counts });
             } catch (err) {
                 console.warn("Failed to fetch booked counts:", err?.message || err);
-                if (!cancelled) setBookedCounts({});
+                if (!cancelled) dispatch({ type: 'SET_BOOKED_COUNTS', counts: {} });
             }
         };
         fetchBookedCounts();
@@ -205,19 +187,15 @@ const MovieDetailPage = () => {
             toast.info("Trailer not available for this movie");
             return;
         }
-        setSelectedMovie(movieObj);
-        setSelectedTrailerId(ytId);
-        setShowTrailer(true);
+        dispatch({ type: 'OPEN_TRAILER', movie: movieObj, trailerId: ytId });
     };
 
     const closeTrailer = () => {
-        setSelectedMovie(null);
-        setSelectedTrailerId(null);
-        setShowTrailer(false);
+        dispatch({ type: 'CLOSE_TRAILER' });
     };
 
     const handleTimeSelect = (datetime) => {
-        setSelectedTime(datetime);
+        dispatch({ type: 'SELECT_TIME', time: datetime });
         const key = encodeURIComponent(datetime);
         navigate(`/movie/${movie._id}/seat-selector/${key}`);
     };
@@ -246,7 +224,7 @@ const MovieDetailPage = () => {
 
     if (!movie) {
         return (
-            <MovieError message={fetchError || "Movie not found."} />
+            <MovieError message={fetchError || "Movie not found."}/>
         )
     }
 
@@ -337,7 +315,7 @@ const MovieDetailPage = () => {
                                     <img
                                         src={posterSrc}
                                         alt={title}
-                                        onError={() => setPosterFailed(true)}
+                                        onError={() => dispatch({ type: 'POSTER_ERROR' })}
                                         className={movieDetailStyles.posterImg}
                                     />
                                 ) : (
@@ -372,7 +350,7 @@ const MovieDetailPage = () => {
                                         {showTimeDays.map((day, index) => (
                                             <button
                                                 key={day.date}
-                                                onClick={() => { setSelectedDay(index); setSelectedTime(null); }}
+                                                onClick={() => dispatch({ type: 'SELECT_DAY', day: index })}
                                                 className={`${movieDetailStyles.dayButton.base} ${
                                                     selectedDay === index
                                                         ? movieDetailStyles.dayButton.active
