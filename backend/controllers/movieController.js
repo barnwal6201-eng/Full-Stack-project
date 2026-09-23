@@ -210,6 +210,7 @@ export async function createMovie(req, res) {
 
     } catch (err) {
         console.error('CreateMovie Error:', err);
+        console.error('Stack:', err.stack);
         return res.status(500).json({
             success: false,
             message: 'Server Error'
