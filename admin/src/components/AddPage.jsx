@@ -164,7 +164,7 @@ const AddPage = () => {
                 return 'Please enter a valid recliner seat price.';
 
             const finalAuditorium =
-                auditorium === 'other' ? (customerAuditorium || "").trim() : auditorium;
+                auditorium === 'other' ? (customerAuditorium || "").trim() : "Audi 1";
             if (!finalAuditorium) return 'Please select auditorium.';
 
             const badCast = castImages.find((c) => {
