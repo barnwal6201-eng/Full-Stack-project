@@ -209,7 +209,7 @@ export async function createMovie(req, res) {
         });
 
     } catch (err) {
-        console.error("CreateMovie Error:", JSON.parse(err.message));
+        console.error("CreateMovie Error:", JSON.stringify(err.message));
         return res.status(500).json({
             success: false,
             message: 'Server Error'
