@@ -22,7 +22,7 @@ const AddPage = () => {
         auditorium, customerAuditorium, isUploading,
     } = state;
 
-    const fileInputRef = useRef();
+    //const fileInputRef = useRef();
     const availableAuditoriums = ["Audi 1", "Audi 2", "Audi 3"];
     const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
 
@@ -270,6 +270,7 @@ const AddPage = () => {
             }
         } catch (error) {
             console.error('submit error: ', error);
+            console.log('Submit error:', error.response?.data);
             const msg = error?.response?.data?.message || error.message || 'Failed to upload.';
             toast.error(msg);
         } finally {

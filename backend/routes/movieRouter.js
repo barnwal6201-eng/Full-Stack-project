@@ -27,7 +27,19 @@ const upload = multer({ storage }).fields([
     {name: "ltSingerFiles", maxCount: 20},
 ]);
 
-movieRouter.post('/', upload, createMovie);
+movieRouter.post('/', (req, res, next) => {
+    upload(req, res, (err) => {
+        if (err) {
+            console.error('UPLOAD MIDDLEWARE ERROR:', err.message, err.stack);
+            return res.status(400).json({
+                success: false,
+                message: err.message || 'File upload failed'
+            });
+        }
+        next();
+    });
+}, createMovie);
+
 movieRouter.get('/', getMovies);
 movieRouter.get('/:id', getMovieById);
 movieRouter.delete('/:id', deleteMovie);

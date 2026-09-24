@@ -121,6 +121,7 @@ const normalizeItemForOutput = (it = {}) => {
 }
 
 export async function createMovie(req, res) {
+    console.log('>>> createMovie HIT, files:', req.files ? Object.keys(req.files) : 'NO FILES');
     try {
         const body = req.body || {};
 
