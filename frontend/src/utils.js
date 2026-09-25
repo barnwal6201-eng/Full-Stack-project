@@ -140,12 +140,5 @@ const extractFilenameFromUrl = (u) => {
     return (!u.includes('/') && u.includes('.') && !u.endsWith('.')) ? u : null;
 };
 
- const cleanImageUrl = (url) => {
-    if (!url || typeof url !== 'string') return null;
-    const filename = extractFilenameFromUrl(url); 
-    if (!filename) return null;
-    return `${API_BASE}/uploads/${filename}`;
-};
-
 export default ROWS;
-export {to24Hour, slotToISO, sameMinute, getUploadUrl, formatDuration, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId, categoriesList, mapBackendMovie, getInitialAvatar, cleanImageUrl};
+export {to24Hour, slotToISO, sameMinute, getUploadUrl, formatDuration, formatTimeInTZ, getParts, formatDateKey, extractYouTubeId, categoriesList, mapBackendMovie, getInitialAvatar};

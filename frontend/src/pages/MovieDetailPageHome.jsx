@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { movieDetailHStyles } from '../assets/dummyStyles';
 import { ArrowLeft, Calendar, Clock, Play, Star, User, X, ImageOff } from 'lucide-react'
 import axios from 'axios'
-import ROWS, { slotToISO, getInitialAvatar, formatDuration, cleanImageUrl, formatTimeInTZ, formatDateKey, extractYouTubeId } from '../utils';
+import ROWS, { slotToISO, getInitialAvatar, formatDuration, formatTimeInTZ, formatDateKey, extractYouTubeId, getUploadUrl } from '../utils';
 import Loading from '../components/Loading';
 import MovieError from '../components/MovieError';
 import FallbackAvatar from '../components/FallbackAvatar';
@@ -412,7 +412,7 @@ const MovieDetailPageHome = () => {
                                             <div className={movieDetailHStyles.castImageContainer}>
                                                 {c.preview ? (
                                                     <img
-                                                        src={cleanImageUrl(c.preview)}
+                                                        src={getUploadUrl(c.preview)}
                                                         alt={c.name}
                                                         className={movieDetailHStyles.castImage}
                                                         onError={(e) => {
@@ -458,7 +458,7 @@ const MovieDetailPageHome = () => {
                                         <div key={i} className='flex flex-col items-center'>
                                             {d?.preview ? (
                                                 <img
-                                                    src={cleanImageUrl(d.preview)}
+                                                    src={getUploadUrl(d.preview)}
                                                     alt={d.name || `Director ${i + 1}`}
                                                     className={movieDetailHStyles.crewImage}
                                                     onError={(e) => {
@@ -495,7 +495,7 @@ const MovieDetailPageHome = () => {
                                         <div key={i} className='flex flex-col items-center'>
                                             {p?.preview ? (
                                                 <img
-                                                    src={cleanImageUrl(p.preview)}
+                                                    src={getUploadUrl(p.preview)}
                                                     alt={p.name || `Producer ${i + 1}`}
                                                     className={movieDetailHStyles.crewImage}
                                                     onError={(e) => {
