@@ -22,7 +22,6 @@ const AddPage = () => {
         auditorium, customerAuditorium, isUploading,
     } = state;
 
-    //const fileInputRef = useRef();
     const availableAuditoriums = ["Audi 1", "Audi 2", "Audi 3"];
     const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
 
@@ -419,7 +418,7 @@ const AddPage = () => {
                                         )}
 
                                         <div className={addMoviePageStyles.gridCols2}>
-                                            <div className={addMoviePageStyles.inputContainer}>
+                                           {!isComingSoon && <div className={addMoviePageStyles.inputContainer}>
                                                 <label className={addMoviePageStyles.label}>Trailer URL</label>
                                                 <div className="relative flex items-center">
                                                     <Play className="absolute left-3 size-4 opacity-70 pointer-events-none" />
@@ -431,6 +430,7 @@ const AddPage = () => {
                                                     />
                                                 </div>
                                             </div>
+                                            }
                                             <div className={addMoviePageStyles.inputContainer}>
                                                 <label className={addMoviePageStyles.label}>Rating</label>
                                                 <div className="relative flex items-center">
@@ -666,8 +666,7 @@ const AddPage = () => {
                                                     max="59"
                                                     value={ltDurationMinutes}
                                                     onChange={(e) => {
-                                                        const val = Math.min(59, Math.max(0, Number(e.target.value) || 0));
-                                                        set('ltDurationMinutes')(val);
+                                                        set('ltDurationMinutes')(e.target.value);
                                                     }}
                                                     className={addMoviePageStyles.input}
                                                 />
