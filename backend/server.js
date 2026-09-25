@@ -8,7 +8,7 @@ import movieRouter from './routes/movieRouter.js';
 import bookingRouter from './routes/bookingRouter.js';
 
 const app = express();
-const port = 5000;
+const port = process.env.API_BASE_URL || 5000;
 
 //Middlewares
 app.use(cors());
@@ -30,5 +30,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server Started on http://localhost:${port}`);
+    console.log(`Server Started on ${port}`);
 });
