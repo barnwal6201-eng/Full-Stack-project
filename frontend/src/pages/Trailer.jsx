@@ -12,7 +12,6 @@ const mapMovieToTrailerItem = (movie) => {
   const title = lt.title || movie.movieName || movie.title || "Untitled";
   const thumbnail = getUploadUrl(lt.thumbnail) || getUploadUrl(movie.poster) || PLACEHOLDER_THUMB;
 
-  //const videoUrl = lt.videoId || lt.videoUrl || movie.trailerUrl || movie.videoUrl || "";
   const videoUrl =
   lt.videoUrl ||
   movie.trailerUrl ||
@@ -104,7 +103,6 @@ useEffect(() => {
         setTrailers(mapped);
         setFeaturedTrailer(mapped[0] || null);
         setLoading(false);
-
     } catch (err) {
       if(err.name === "AbortError") return;
       console.error("Failed to load trailers:", err);
@@ -198,13 +196,11 @@ const getEmbedBaseUrl = (videoUrl) => {
 
     //fallback : return original (could already be an embed URL)
     return videoUrl;
-
    } catch (e) {
     console.error(e);
     return videoUrl || "";
    }
 };
-
 
 const buildFrameSrc = (videoUrl) => {
   const base = getEmbedBaseUrl(videoUrl);
@@ -229,7 +225,7 @@ if(error) {
 }
 
 const dataToRender = trailers || [];
-
+console.log(dataToRender);
   return (
     <div className={trailersStyles.container}>
       <main className={trailersStyles.main}>
@@ -308,7 +304,6 @@ const dataToRender = trailers || [];
           </div>
 
           {/*Right side */}
-
           <div className={trailersStyles.rightSide}>
             <div className={trailersStyles.rightCard}>
               <div className={trailersStyles.videoContainer}>
