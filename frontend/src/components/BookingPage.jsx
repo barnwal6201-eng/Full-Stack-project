@@ -329,7 +329,7 @@ const BookingPage = () => {
 
                         <div className={bookingsPageStyles.locationContainer}>
                           <MapPin className={bookingsPageStyles.locationIcon} />
-                          <div className={bookingsPageStyles.locationText}>{b.auditorium}</div>
+                          <div className={bookingsPageStyles.locationText}>{b.auditorium == 'undefined' ? 'Audi 1' : b.auditorium}</div>
                         </div>
                       </div>
 
