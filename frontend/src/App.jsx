@@ -11,8 +11,8 @@ import MovieDetailPage from './pages/MovieDetailPage'
 import MovieDetailPageHome from './pages/MovieDetailPageHome'
 import SeatSelectorPageHome from './components/SeatSelectorPageHome'
 import SeatSelectorPage from './components/SeatSelectorPage'
+import VerifyPayementPage from './components/VerifyPayment'
 import { ToastContainer } from 'react-toastify'
-import VerifyPayementPage from '../VerifyPayementPage'
 import UserRating from './components/UserRating'
 
 

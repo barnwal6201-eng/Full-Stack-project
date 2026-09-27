@@ -131,7 +131,7 @@ export const styles2 = {
   // Grid and cards
   gridContainer: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4",
   messageContainer: "col-span-full text-center text-gray-400 py-10 border border-gray-700 rounded-2xl bg-gray-900/50 text-sm sm:text-base",
-  bookingCard: "bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-700/80 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-red-400/35 hover:shadow-md",
+  bookingCard: "bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-700/80 rounded-2xl p-4 sm:p-0 shadow-sm flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-red-400/35 hover:shadow-md",
   
   // Card content
   movieIconContainer: "w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-red-600/15 border border-red-500/25 flex-shrink-0 flex items-center justify-center text-red-300",
