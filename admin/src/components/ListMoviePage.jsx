@@ -168,7 +168,7 @@ export const ListMoviePage = () => {
             <div className='text-left'>
                 <h1 className={styles5.listMoviesTitle}>Movies</h1>
                 <div className={styles5.listMoviesSubtitle}>
-                    {loading ? "Loading..." : `${filtered.length}items`}
+                    {loading ? "Loading..." : `${filtered.length} items`}
                 </div>
             </div>
 
@@ -180,7 +180,7 @@ export const ListMoviePage = () => {
                     className={styles5.searchInput}
                     />
                     <div className={styles5.searchIcon}>
-                        <Search size={28} />
+                        <Search className="size-5 text-gray-400" />
                     </div>
                 </div>
             </div>
@@ -211,7 +211,7 @@ export const ListMoviePage = () => {
                 <div className={styles5.cardsGrid}>
                     {error && (
                         <div className={styles5.errorContainer}>
-                            <div className={styles5.errorMessage}>Erroe</div>
+                            <div className={styles5.errorMessage}>Error</div>
                             <div className='text-sm mt-2'>{error}</div>
                             <div className='mt-3'>
                                 <button
@@ -281,6 +281,15 @@ export const ListMoviePage = () => {
                 </div>
             </aside>
         </div>
+
+        {/* Mobile & Tablet Modal Sheet View */}
+        {selected && (
+            <div className={styles5.detailModalBackdrop} onClick={() => setSelected(null)}>
+                <div className={styles5.detailModalContainer} onClick={(e) => e.stopPropagation()}>
+                    <DetailView item={selected} onClose={() => setSelected(null)} />
+                </div>
+            </div>
+        )}
       </div>
     </div>
   )
