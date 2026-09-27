@@ -10,7 +10,7 @@ const storage = new CloudinaryStorage({
     cloudinary,
     params:{
         folder: 'movies',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'avif'],
     },
 })
 
