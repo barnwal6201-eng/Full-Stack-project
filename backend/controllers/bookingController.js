@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Booking from '../models/bookingModel.js';
 import Movie from "../models/movieModels.js";
+import { ltDurationToMins } from "./movieController.js";
 import dotenv from 'dotenv';
 dotenv.config();
 import Stripe from 'stripe'
@@ -220,7 +221,7 @@ export async function createBooking(req, res) {
         title: movie.movieName || movie.title || "",
         poster: movie.poster || movie.thumbnail || "",
         category: Array.isArray(movie.categories) ? movie.categories[0] || "" : movie.category || "",
-        durationMins: movie.duration || movie.runtime || 0,
+        durationMins: ltDurationToMins(movie.duration) || ltDurationToMins(movie.latestTrailers?.duration) || ltDurationToMins(movie.runtime) || 0,
         rating: movie.rating || null
     }
     : {
@@ -310,7 +311,7 @@ export async function createBooking(req, res) {
             error: String(err.message || err)
         })
     }
-};
+}
 
 //GET BOOKING
 export async function getBooking(req, res) {

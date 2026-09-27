@@ -53,10 +53,20 @@ const getUploadUrl = (maybe) => {
   return `${API_BASE}/uploads/${String(maybe).replace(/^uploads\//, "")}`;
 }
 
-/** duration arrives as minutes (NumberInt) e.g. 158 -> "2h 38m" */
+/** duration arrives as minutes (NumberInt) e.g. 158 -> "2h 38m"
+ *  latestTrailers.duration arrives as {hours, minutes} -> also handled here
+ */
     const formatDuration = (duration) => {
     if (duration === null || duration === undefined || duration === "") return null;
-    const mins = Number(duration);
+    let mins;
+    if (typeof duration === "object") {
+      const h = Number(duration.hours) || 0;
+      const m = Number(duration.minutes) || 0;
+      if (!h && !m) return null;
+      mins = h * 60 + m;
+    } else {
+      mins = Number(duration);
+    }
     if (Number.isNaN(mins)) return String(duration);
     const h = Math.floor(mins / 60);
     const m = mins % 60;

@@ -18,7 +18,8 @@ const mapMovieToTrailerItem = (movie) => {
   movie.videoUrl ||
   (lt.videoId ? `https://www.youtube.com/watch?v=${lt.videoId}` : "") ||
   "";
-  const duration = lt.duration ? formatDuration(lt.duration) : movie.duration ? formatDuration(movie.duration) : "";
+  //movie.duration is normalized to total minutes by the API, lt.duration may be {hours, minutes}
+  const duration = formatDuration(movie.duration) || formatDuration(lt.duration) || "";
   const year = lt.year || movie.year || "";
   const genre = lt.genres && lt.genres.length ?
      lt.genres.join(", ")
@@ -103,6 +104,7 @@ useEffect(() => {
         setTrailers(mapped);
         setFeaturedTrailer(mapped[0] || null);
         setLoading(false);
+        
     } catch (err) {
       if(err.name === "AbortError") return;
       console.error("Failed to load trailers:", err);
@@ -225,7 +227,7 @@ if(error) {
 }
 
 const dataToRender = trailers || [];
-console.log(dataToRender);
+
   return (
     <div className={trailersStyles.container}>
       <main className={trailersStyles.main}>
@@ -348,7 +350,7 @@ console.log(dataToRender);
                   <div className={trailersStyles.trailerMeta}>
                     <span className={trailersStyles.metaItem}>
                       <Clock size={16} className={trailersStyles.metaIcon} />
-                      {featuredTrailer.duration}
+                      {formatDuration(featuredTrailer.duration)}
                     </span>
                     <span className={trailersStyles.metaItem}>
                       <Calendar size={16} className={trailersStyles.metaIcon} />
