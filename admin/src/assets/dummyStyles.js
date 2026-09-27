@@ -131,24 +131,24 @@ export const styles2 = {
   // Grid and cards
   gridContainer: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4",
   messageContainer: "col-span-full text-center text-gray-400 py-10 border border-gray-700 rounded-2xl bg-gray-900/50 text-sm sm:text-base",
-  bookingCard: "bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-700/80 rounded-2xl p-4 sm:p-0 shadow-sm flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-red-400/35 hover:shadow-md",
+  bookingCard: "bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-700/80 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-red-400/35 hover:shadow-md",
   
   // Card content
   movieIconContainer: "w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-red-600/15 border border-red-500/25 flex-shrink-0 flex items-center justify-center text-red-300",
-  movieTitle: "text-base sm:text-lg font-semibold tracking-tight text-gray-100 line-clamp-1",
-  bookingId: "text-xs text-gray-400 truncate max-w-[140px] sm:max-w-none",
-  bookingIdValue: "font-mono ml-1 text-xs text-gray-200",
+  movieTitle: "text-base sm:text-lg font-semibold tracking-tight text-gray-100 break-words",
+  bookingId: "text-xs text-gray-400 break-all",
+  bookingIdValue: "font-mono ml-1 text-xs text-gray-200 break-all",
   bookedByLabel: "text-xs text-gray-400 mt-1",
-  bookedByValue: "text-xs sm:text-sm font-semibold text-gray-200 truncate max-w-[140px] sm:max-w-none",
+  bookedByValue: "text-xs sm:text-sm font-semibold text-gray-200 break-words",
   seatsLabel: "text-xs text-gray-400",
   seatsValue: "font-semibold text-gray-200 text-sm sm:text-base",
   
   // Details section
   detailContainer: "mt-3 text-xs sm:text-sm text-gray-300 space-y-2 pt-3 border-t border-gray-800/80",
-  detailItem: "flex items-center gap-2",
-  detailIcon: "w-4 h-4 text-red-400 flex-shrink-0",
+  detailItem: "flex items-start gap-2",
+  detailIcon: "w-4 h-4 text-red-400 flex-shrink-0 mt-0.5",
   auditoriumLabel: "text-xs text-gray-400 mr-2",
-  auditoriumValue: "font-semibold text-gray-200",
+  auditoriumValue: "font-semibold text-gray-200 break-words",
   
   // Amount section
   amountLabel: "text-xs text-gray-400",

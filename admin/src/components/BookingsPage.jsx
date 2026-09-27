@@ -184,7 +184,9 @@ const BookingsPage = () => {
 
             {bookingsToShow.map((b) => {
                 const amount = b.amount || 0;
-                const audiDisplay = b.auditorium && b.auditorium.trim() ? b.auditorium : "Audi 1";
+                const audiDisplay = b.auditorium && b.auditorium.trim() && b.auditorium !== "undefined" 
+                  ? b.auditorium 
+                  : "Audi 1";
 
                 return (
                     <article key={b.id} className={styles2.bookingCard}>
