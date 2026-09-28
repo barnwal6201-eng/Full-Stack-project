@@ -52,4 +52,7 @@ function formatSlots(s){
     }
 }
 
-export {formatSlot, getImageUrl, displayDuration, formatSlots};
+const availableAuditoriums = ["Audi 1", "Audi 2", "Audi 3"];
+    const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
+
+export {formatSlot, getImageUrl, displayDuration, formatSlots , availableAuditoriums, availableCategories};

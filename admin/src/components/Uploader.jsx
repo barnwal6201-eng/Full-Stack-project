@@ -1,7 +1,10 @@
 import { addMoviePageStyles } from "../assets/dummyStyles";
 import { X } from 'lucide-react';
 
-function Uploader({ title, onFiles, items, remove, icon, updateMeta }) {
+function Uploader({ title, onFiles, items, remove, icon, updateMeta, errors }) {
+    const inputClass = (idx, key) =>
+        `${addMoviePageStyles.uploaderItemInput} ${errors?.[idx]?.[key] ? addMoviePageStyles.inputError : ''}`;
+
     return (
         <div className={addMoviePageStyles.uploaderContainer}>
             <div className={addMoviePageStyles.uploaderHeader}>
@@ -31,8 +34,11 @@ function Uploader({ title, onFiles, items, remove, icon, updateMeta }) {
                                         value={it.name}
                                         onChange={(e) => updateMeta && updateMeta(idx, 'name', e.target.value)}
                                         placeholder='Name'
-                                        className={addMoviePageStyles.uploaderItemInput}
+                                        className={inputClass(idx, 'name')}
                                     />
+                                    {errors?.[idx]?.name && (
+                                        <p className={addMoviePageStyles.errorText}>{errors[idx].name}</p>
+                                    )}
                                 </div>
                             )}
 
@@ -42,8 +48,11 @@ function Uploader({ title, onFiles, items, remove, icon, updateMeta }) {
                                         value={it.role}
                                         onChange={(e) => updateMeta && updateMeta(idx, 'role', e.target.value)}
                                         placeholder='Role'
-                                        className={addMoviePageStyles.uploaderItemInput}
+                                        className={inputClass(idx, 'role')}
                                     />
+                                    {errors?.[idx]?.role && (
+                                        <p className={addMoviePageStyles.errorText}>{errors[idx].role}</p>
+                                    )}
                                 </div>
                             )}
                         </div>

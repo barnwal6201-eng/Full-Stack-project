@@ -1,8 +1,7 @@
 import { addMoviePageStyles } from "../assets/dummyStyles";
 import { X } from 'lucide-react';
 
-
-function NamedUploader({ title, onFiles, items, remove, updatName, icon }) {
+function NamedUploader({ title, onFiles, items, remove, updatName, icon, errors }) {
     return (
         <div className={addMoviePageStyles.uploaderContainer}>
             <div className={addMoviePageStyles.uploaderHeader}>
@@ -28,8 +27,11 @@ function NamedUploader({ title, onFiles, items, remove, updatName, icon }) {
                                     value={it.name}
                                     onChange={(e) => updatName(idx, e.target.value)}
                                     placeholder='Name'
-                                    className={addMoviePageStyles.namedUploaderInput}
+                                    className={`${addMoviePageStyles.namedUploaderInput} ${errors?.[idx]?.name ? addMoviePageStyles.inputError : ''}`}
                                 />
+                                {errors?.[idx]?.name && (
+                                    <p className={addMoviePageStyles.errorText}>{errors[idx].name}</p>
+                                )}
                                 <div className={addMoviePageStyles.namedUploaderFileName}>
                                     File: {it.file?.name}
                                 </div>

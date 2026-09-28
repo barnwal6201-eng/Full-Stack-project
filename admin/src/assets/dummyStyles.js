@@ -15,20 +15,25 @@ export const addMoviePageStyles = {
   form: "space-y-5 sm:space-y-6",
   radioContainer: "grid grid-cols-2 sm:flex sm:flex-row sm:flex-wrap gap-2.5 sm:gap-3 lg:gap-4",
   radioLabel: "flex min-h-11 items-center justify-center sm:justify-start gap-2 rounded-xl border border-gray-700 bg-gray-950/50 px-3 py-2 text-xs sm:text-sm text-gray-200 cursor-pointer transition-colors hover:border-gray-600",
-  radioInput: "accent-red-600",
+  radioInput: "appearance-none h-4 w-4 shrink-0 rounded-full border-2 border-gray-600 bg-gray-950 cursor-pointer transition-colors checked:border-red-600 checked:bg-red-600 checked:shadow-[inset_0_0_0_3px_theme(colors.gray.950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40",
+ 
   
   // Sections
   section: "bg-gray-950/45 p-3.5 sm:p-5 rounded-2xl border border-gray-700/80 space-y-4",
   sectionGrid: "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4",
   sectionTitle: "font-semibold text-sm sm:text-base text-gray-100",
+
+  //errors
+  errorText: "mt-1 text-xs text-red-500",
+  inputError: "!border-red-500",
   
   // Input fields
   inputContainer: "w-full",
   label: "block text-xs font-semibold uppercase tracking-[0.08em] text-gray-300 mb-1.5",
-  input: "w-full min-h-11 sm:min-h-12 rounded-xl px-3.5 py-2.5 bg-gray-950/70 border border-gray-700 text-sm text-gray-100 placeholder-gray-500 outline-none hover:border-gray-600 focus:border-red-400 focus:ring-2 focus:ring-red-500/25 transition-all",
-  textarea: "w-full rounded-xl p-3 bg-gray-950/70 border border-gray-700 text-sm text-gray-100 outline-none hover:border-gray-600 focus:border-red-400 focus:ring-2 focus:ring-red-500/25 transition-all",
-  numberInput: "w-full sm:w-32 min-h-11 rounded-xl p-2 bg-gray-950/70 border border-gray-700 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/25",
-  select: "w-full min-h-11 rounded-xl px-3 py-2 bg-gray-950/70 border border-gray-700 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-500/25",
+  input: "w-full min-h-11 sm:min-h-12 rounded-xl px-3.5 py-2.5 bg-gray-950/70 border border-gray-700 text-sm text-gray-100 placeholder-gray-500 outline-none hover:border-gray-600 focus:ring-red-500 transition-all",
+  textarea: "w-full rounded-xl p-3 bg-gray-950/70 border border-gray-700 text-sm text-gray-100 outline-none hover:border-gray-600 focus:ring-red-500 transition-all",
+  numberInput: "w-full sm:w-32 min-h-11 rounded-xl p-2 bg-gray-950/70 border border-gray-700 text-sm outline-none focus:ring-red-500",
+  select: "w-full min-h-11 cursor-pointer rounded-xl px-3 py-2 bg-gray-950/70 border border-gray-700 text-sm text-gray-200 outline-none focus:ring-red-500 [color-scheme:dark]",
   
   // Category buttons
   categoryContainer: "flex gap-2 sm:gap-3 flex-wrap",
@@ -67,7 +72,7 @@ export const addMoviePageStyles = {
   addSlotIcon: "size-4",
   slotItem: "flex gap-2.5 items-center flex-col sm:flex-row bg-gray-950/40 p-3 sm:p-0 rounded-xl border border-gray-800 sm:border-none",
   slotGrid: "flex-1 grid grid-cols-3 gap-2 w-full",
-  slotInput: "p-2 rounded-xl bg-gray-950/80 border border-gray-700 text-xs sm:text-sm text-gray-200 w-full outline-none focus:border-red-500",
+  slotInput: "p-2 rounded-xl bg-gray-950/80 border border-gray-700 text-xs sm:text-sm text-gray-200 w-full outline-none focus:border-red-500 [color-scheme: dark]",
   slotRemoveButton: "p-2 rounded-xl bg-red-600/80 hover:bg-red-600 text-white self-end sm:self-center transition-colors cursor-pointer",
   
   // Uploader components
