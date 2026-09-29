@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { styles5, customStyles } from '../assets/dummyStyles'
 import axios from 'axios'
 import { Calendar, Clock,  Film, Play as PlayIcon, Search, Star, Ticket, X } from 'lucide-react';
-import { getImageUrl, displayDuration, formatSlot } from '../utils';
+import { getImageUrl, } from '../utils';
 import Card from './Card';
 import DetailView from './DetailView';
 

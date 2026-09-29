@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js';
 import userRouter from './routes/userRouter.js';
 import movieRouter from './routes/movieRouter.js';
 import bookingRouter from './routes/bookingRouter.js';
+import adminRouter from './routes/adminRouter.js'
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/api/auth', userRouter);
 app.use('/api/movies', movieRouter);
 app.use('/api/bookings', bookingRouter);
+app.use('/api', adminRouter);
 
 
 app.get('/', (req, res) => {

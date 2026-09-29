@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 const formatSlot = (date) => {
     if(!(date instanceof Date)) date = new Date(date);
     return new Intl.DateTimeFormat("en-US", {
@@ -52,7 +54,18 @@ function formatSlots(s){
     }
 }
 
+const api = axios.create({
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
+api.interceptors.request.use((config) => {
+    const token = sessionStorage.getItem("adminToken");
+    if(token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+});
+
 const availableAuditoriums = ["Audi 1", "Audi 2", "Audi 3"];
     const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
 
+export default api;
 export {formatSlot, getImageUrl, displayDuration, formatSlots , availableAuditoriums, availableCategories};
