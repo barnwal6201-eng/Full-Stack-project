@@ -2,7 +2,7 @@ import { Ticket, X } from 'lucide-react'
 import React, { useState } from 'react'
 import PropTypes from 'prop-types';
 
-const Tickets = ({setShowTickets,ticketCount, SetTicketCount}) => {
+const Tickets = ({setShowTickets,ticketCount, SetTicketCount, standardPaise, reclinerPaise}) => {
 
    const [select, setSelect] = useState(null);
 
@@ -51,12 +51,12 @@ const Tickets = ({setShowTickets,ticketCount, SetTicketCount}) => {
       <div className='grid grid-cols-2 gap-3 text-center'>
         <div className='rounded-2xl bg-gray-950/60 border border-gray-800 px-3 py-4'>
           <p className='text-xs text-gray-400 tracking-[0.12em] font-semibold'>RECLINER</p>
-          <p className='text-lg font-bold text-white mt-1.5'>₹270</p>
+          <p className='text-lg font-bold text-white mt-1.5'>₹{reclinerPaise/100}</p>
           <p className='text-[11px] text-green-400 font-medium mt-1'>AVAILABLE</p>
         </div>
         <div className='rounded-2xl bg-gray-950/60 border border-gray-800 px-3 py-4'>
           <p className='text-xs text-gray-400 tracking-[0.12em] font-semibold'>STANDARD</p>
-          <p className='text-lg font-bold text-white mt-1.5'>₹180</p>
+          <p className='text-lg font-bold text-white mt-1.5'>₹{standardPaise/100}</p>
           <p className='text-[11px] text-green-400 font-medium mt-1'>AVAILABLE</p>
         </div>
       </div>

@@ -517,6 +517,8 @@ const showtimeLabel = (() => {
             SetTicketCount={SetTicketCount}
             showTickets={showTickets}
             setShowTickets={setShowTickets}
+            standardPaise={standardPaise}
+            reclinerPaise={reclinerPaise}
             />
             </div>
     }

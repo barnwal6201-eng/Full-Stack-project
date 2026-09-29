@@ -536,6 +536,8 @@ export default function SeatSelectorPageHome() {
             SetTicketCount={SetTicketCount}
             showTickets={showTickets}
             setShowTickets={setShowTickets}
+            standardPaise={standardPaise}
+            reclinerPaise={reclinerPaise}
             />
             </div>
     }
