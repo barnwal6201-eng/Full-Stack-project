@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
@@ -14,12 +14,19 @@ const LoginPage = () => {
   const [errors, setErrors] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const btnTextRef = useRef(null);
 
   if (isLoggedIn) return <Navigate to={from} replace />
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
+
+    const timer = setTimeout(() => {
+      if(btnTextRef.current){
+        btnTextRef.current.textContent = "Server is starting up...";
+      }
+    }, 3000);
 
     if (!email.trim() || !password.trim()) {
     setErrors('Please enter both email and password.');
@@ -28,6 +35,7 @@ const LoginPage = () => {
 
     setLoading(true);
     const result = await login(email, password);
+    clearTimeout(timer);
     setLoading(false);
 
     if (result.ok) {
@@ -82,7 +90,7 @@ const LoginPage = () => {
           disabled={loading}
           className="w-full min-h-11 rounded-xl bg-red-600 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-60"
         >
-          {loading ? "Logging in..." : "Login"}
+          <span ref={btnTextRef} >{loading ? "Logging in..." : "Login"}</span>
         </button>
       </form>
     </div>
