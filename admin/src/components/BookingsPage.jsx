@@ -162,13 +162,13 @@ const BookingsPage = () => {
                      >
                         <option value="">All movies</option>
                         {movies.map((m) => (
-                            <option value={m} key={m}>{m}</option>
+                            <option value={m} key={m} className="bg-gray-950 text-gray-200">{m}</option>
                         ))}
                      </select>
                      <button type='button' onClick={clearFilter} 
                      title='Clear movie' className={styles2.clearButton}
                      >
-                        <X className='w-4 h-4 inline-block' />
+                        Reset
                      </button>
                 </form>
         </header>
