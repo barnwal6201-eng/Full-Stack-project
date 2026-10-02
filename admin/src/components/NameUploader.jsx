@@ -20,7 +20,7 @@ function NamedUploader({ title, onFiles, items, remove, updatName, icon, errors 
                 {items && items.length ? (
                     items.map((it, idx) => (
                         <div key={idx} className={addMoviePageStyles.namedUploaderItem}>
-                            <img src={it.preview} alt="preview" className={addMoviePageStyles.namedUploaderImage} />
+                            <img loading="lazy" src={it.preview} alt="preview" className={addMoviePageStyles.namedUploaderImage} />
 
                             <div className='flex-1'>
                                 <input

@@ -46,7 +46,7 @@ function DetailView({item, onClose}){
                     <>
                     {item.thumbnail && (
                         <div className={styles5.detailThumbnail}>
-                            <img src={item.thumbnail} alt={item.title} className={styles5.detailThumbnailImage} />
+                            <img loading="lazy" src={item.thumbnail} alt={item.title} className={styles5.detailThumbnailImage} />
                         </div>
                     )}
 
@@ -107,7 +107,7 @@ function DetailView({item, onClose}){
                     <>
                     <div className='grid grid-cols-1 gap-6'>
                         <div className={styles5.detailThumbnail}>
-                            <img src={item.poster} alt={item.movieName} className={styles5.detailPoster} />
+                            <img loading="lazy" src={item.poster} alt={item.movieName} className={styles5.detailPoster} />
                         </div>
 
                         <div className={styles5.detailInfoGrid}>
@@ -202,7 +202,7 @@ function DetailView({item, onClose}){
                 {item.type === 'comingSoon' && (
                     <div className={styles5.releaseSoonContainer}>
                         <div className={styles5.releaseSoonImage}>
-                            <img src={item.poster} alt={item.movieName} className={styles5.detailPoster} />
+                            <img loading="lazy" src={item.poster} alt={item.movieName} className={styles5.detailPoster} />
                         </div>
                         <div className={styles5.releaseSoonText}>Coming Soon</div>
                         <div className={styles5.releaseSoonCategories}>

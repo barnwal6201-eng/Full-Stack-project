@@ -14,7 +14,7 @@ function PersonGrid({list = [], roleLabel = ""}){
                 {list.map((p, i) => (
                     <div key={i} className={styles5.personItem}>
                         <div className='relative'>
-                            <img src={p.preview || p.file || p.image || p.url || ""}
+                            <img loading="lazy" src={p.preview || p.file || p.image || p.url || ""}
                              alt={p.name || `${roleLabel}-${i}`}
                              className={styles5.personAvatar}
                              />

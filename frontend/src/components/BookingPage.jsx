@@ -292,7 +292,7 @@ const BookingPage = () => {
                        <div>
                         <div className="flex flex-row items-start gap-6">
                     <div className={bookingsPageStyles.posterContainer}>
-                      <img src={b.poster || ""} alt={b.title} className={bookingsPageStyles.poster} />
+                      <img loading='lazy' src={b.poster || ""} alt={b.title} className={bookingsPageStyles.poster} />
                     </div>
                     
 
@@ -354,7 +354,7 @@ const BookingPage = () => {
                       </div>
                       <div className='ml-auto'>
                         {qrs[b.id] && qrs[b.id].url ? (
-                          <img src={qrs[b.id].url} alt={`${b.title} qr`} className={ bookingsPageStyles.qrImage}
+                          <img loading='lazy' src={qrs[b.id].url} alt={`${b.title} qr`} className={ bookingsPageStyles.qrImage}
                           role='button' tabIndex={0} onClick={ () => handleQrScan(b.id, bookingKey)}
                           onKeyDown={(e) => {
                             if(e.key === "Enter") handleQrScan(b.id, bookingKey);

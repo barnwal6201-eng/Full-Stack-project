@@ -19,10 +19,10 @@ function Card({item, onOpen, onDelete}) {
     return (
         <div className={styles5.card} onClick={onOpen}>
             <div className={styles5.cardMedia}>
-                <img src={posterOrThumb} alt="" aria-hidden="true"
+                <img loading="lazy" src={posterOrThumb} alt="" aria-hidden="true"
                 className={styles5.cardImageBackdrop}
                 />
-                <img src={posterOrThumb} alt={item.movieName || item.title || item.directors}
+                <img loading="lazy" src={posterOrThumb} alt={item.movieName || item.title || item.directors}
                 className={styles5.cardImage}
                 />
                 <div className={styles5.cardImageOverlay} />

@@ -23,7 +23,7 @@ function Uploader({ title, onFiles, items, remove, icon, updateMeta, errors }) {
                 {items && items.length ? (
                     items.map((it, idx) => (
                         <div key={idx} className={addMoviePageStyles.uploaderItem}>
-                            <img src={it.preview} alt="preview" className={addMoviePageStyles.uploaderItemImage} />
+                            <img loading="lazy" src={it.preview} alt="preview" className={addMoviePageStyles.uploaderItemImage} />
                             <button type='button' onClick={() => remove(idx)} className={addMoviePageStyles.uploaderItemRemove}>
                                 <X className={addMoviePageStyles.uploaderItemRemoveIcon} />
                             </button>

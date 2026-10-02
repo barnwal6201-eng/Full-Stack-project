@@ -4,7 +4,7 @@ import { ImageIcon, X } from "lucide-react";
 const RenderImageUpload = ({ preview, previewClass, onRemove, onChange, label }) =>
         preview ? (
             <div className={addMoviePageStyles.previewContainer}>
-                <img src={preview} alt="preview" className={previewClass} />
+                <img loading="lazy" src={preview} alt="preview" className={previewClass} />
                 <button type="button" onClick={onRemove} className={addMoviePageStyles.removeButton}>
                     <X className={addMoviePageStyles.removeIcon} />
                 </button>
