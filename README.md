@@ -1,13 +1,16 @@
 # 🎬 CineVerse — Full-Stack Movie Booking Platform
 
-A full-stack movie ticket booking application with a customer-facing site and a separate admin panel for managing movies, showtimes, and bookings.
+A full-stack movie ticket booking application with a customer-facing site and a separate admin panel for managing movies, showtimes, and bookings. Includes secure online payments with Stripe and cloud image storage with Cloudinary.
+
+🔗 **Live Demo:** [movie-booking-woad.vercel.app](https://movie-booking-woad.vercel.app/)
 
 ## ✨ Features
 
 ### Customer Site (`frontend/`)
 - Browse movies by category — Normal, Featured, Coming Soon, Latest Trailers
 - View movie details, trailers, cast, and showtimes
-- Seat selection and ticket booking
+- Interactive seat selection and ticket booking
+- Secure online payment at checkout with Stripe
 - User authentication (signup/login)
 - Booking history
 
@@ -19,7 +22,8 @@ A full-stack movie ticket booking application with a customer-facing site and a 
 
 ### Backend (`backend/`)
 - REST API built with Express and MongoDB
-- File uploads handled via Multer
+- Image uploads handled via Multer and stored on Cloudinary
+- Stripe integration for payment handling
 - Movie, booking, and user management endpoints
 
 ## 🛠️ Tech Stack
@@ -27,4 +31,6 @@ A full-stack movie ticket booking application with a customer-facing site and a 
 - **Frontend:** React, Vite, Tailwind CSS, Axios
 - **Admin Panel:** React, Vite, Tailwind CSS
 - **Backend:** Node.js, Express, MongoDB (Mongoose)
-- **File Uploads:** Multer
+- **Payments:** Stripe
+- **File Uploads & Storage:** Multer, Cloudinary
+- **Deployment:** Vercel
