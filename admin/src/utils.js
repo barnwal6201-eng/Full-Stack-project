@@ -65,7 +65,7 @@ api.interceptors.request.use((config) => {
 });
 
 const availableAuditoriums = ["Audi 1", "Audi 2", "Audi 3"];
-    const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
+const availableCategories = ["Action", "Horror", "Comedy", "Adventure"];
 
 export default api;
 export {formatSlot, getImageUrl, displayDuration, formatSlots , availableAuditoriums, availableCategories};

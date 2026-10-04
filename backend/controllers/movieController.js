@@ -160,7 +160,6 @@ const normalizeItemForOutput = (it = {}) => {
 };
 
 export async function createMovie(req, res) {
-  // console.log('>>> createMovie HIT, files:', req.files ? Object.keys(req.files) : 'NO FILES');
   try {
     const body = req.body || {};
 
@@ -251,26 +250,66 @@ export async function createMovie(req, res) {
       typeof body.auditorium === "string" && body.auditorium.trim()
         ? String(body.auditorium).trim()
         : "Audi 1";
+         
+    const ALLOWED_TYPES = ["normal", "featured", "comingSoon", "latestTrailers"];
+    const type = body.type;
 
-    const doc = new Movie({
-      _id: new mongoose.Types.ObjectId(),
-      type: body.type || "normal",
-      movieName: body.movieName || body.title || "",
-      categories,
-      poster: posterUrl,
-      trailerUrl,
-      videoUrl,
-      rating: Number(body.rating) || 0,
-      duration: Number(body.duration) || 0,
-      slots,
-      seatPrices,
-      cast,
-      directors,
-      producers,
-      story: body.story || "",
-      latestTrailers: latestTrailerBody,
-      auditorium: auditoriumValue,
-    });
+    const movieName = String(body.movieName || body.title || "").trim();
+    const rating = body.rating === undefined || body.rating === "" ? 0 : Number(body.rating);
+    const duration = Number(body.duration) || 0;
+
+    const errors = [];
+
+    if (!ALLOWED_TYPES.includes(type)) errors.push("Invalid movie type.");
+    if (!movieName) errors.push("Movie name is required.");
+    if (Number.isNaN(rating) || rating < 0 || rating > 10)
+      errors.push("Rating must be a number between 0 and 10.");
+
+    if (type === "latestTrailers") {
+      if (!latestTrailerBody.thumbnail) errors.push("Thumbnail is required.");
+      if (!latestTrailerBody.videoId) errors.push("Video URL is required.");
+      if (!latestTrailerBody.description) errors.push("Description is required.");
+      if (!latestTrailerBody.genres?.length) errors.push("At least one genre is required.");
+    } else {
+      if (!posterUrl) errors.push("Poster is required.");
+
+    if (type === "normal" || type === "featured") {
+       if (!categories.length) errors.push("At least one category is required.");
+       if (duration <= 0) errors.push("Duration must be greater than 0 minutes.");
+       if (!body.story?.trim()) errors.push("Story is required.");
+       if (!Array.isArray(slots) || !slots.length) errors.push("At least one show slot is required.");
+       if (!(seatPrices.standard > 0) || !(seatPrices.recliner > 0))
+          errors.push("Seat prices must be greater than 0.");
+       if (!cast.length || !directors.length || !producers.length)
+          errors.push("Cast, directors and producers are required.");
+     }
+   }
+
+  if (errors.length) {
+    // remove files multer already saved
+     Object.values(req.files || {}).flat().forEach((f) => tryUnlinkUploadUrl(f.path));
+    return res.status(400).json({ success: false, message: "Validation failed", errors });
+   }
+
+const doc = new Movie({
+  _id: new mongoose.Types.ObjectId(),
+  type,
+  movieName,
+  categories,
+  poster: posterUrl,
+  trailerUrl,
+  videoUrl,
+  rating,
+  duration,
+  slots,
+  seatPrices,
+  cast,
+  directors,
+  producers,
+  story: body.story || "",
+  latestTrailers: latestTrailerBody,
+  auditorium: auditoriumValue,
+});
 
     const saved = await doc.save();
     return res.status(201).json({
@@ -279,13 +318,17 @@ export async function createMovie(req, res) {
       data: saved,
     });
   } catch (err) {
-    console.error("CreateMovie Error:", JSON.stringify(err.message));
-    return res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: Object.values(err.errors).map((e) => e.message),
+      });
+    }
+    console.error("CreateMovie Error:", err);
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
-}
+  }
 
 //GET ALL MOVIES
 export async function getMovies(req, res) {

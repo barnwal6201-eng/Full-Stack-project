@@ -11,6 +11,7 @@ import { availableAuditoriums, availableCategories } from '../utils'
 import RenderImageUpload from './RenderImageUpload'
 
 const API_HOST = import.meta.env.VITE_API_BASE_URL;
+const VALID_TYPES = ['normal', 'featured', 'comingSoon', 'latestTrailers'];
 
 const FieldError = ({ msg }) =>
     msg ? <p className={addMoviePageStyles.errorText}>{msg}</p> : null;
@@ -200,6 +201,10 @@ const AddPage = () => {
                 .getElementById(`field-${keys[0].replace('Empty', '')}`)
                 ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
+        }
+
+        if (!VALID_TYPES.includes(movieType)) {
+         toast.error("Please select one movie type.");
         }
 
         dispatch({ type: 'SET_FIELD', field: 'isUploading', value: true });
