@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config';
-import path from 'path';
 import { connectDB } from './config/db.js';
 import userRouter from './routes/userRouter.js';
 import movieRouter from './routes/movieRouter.js';
