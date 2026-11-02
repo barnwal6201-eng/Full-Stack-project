@@ -55,7 +55,6 @@ function getVideoLength(file) {
 
 // Main function: takes the uploaded trailer URL and returns the master playlist URL
 export async function buildHlsFromUrl(sourceUrl, movieId, segmentCount) {
-  console.log("BUILD START, segments:", segmentCount);
 
   // A temporary folder for working files
   const workDir = await fs.mkdtemp(path.join(os.tmpdir(), "hls-"));
