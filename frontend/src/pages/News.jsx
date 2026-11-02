@@ -2,6 +2,7 @@ import React from 'react'
 import { newsCSS, newsStyles } from '../assets/dummyStyles'
 import { Calendar, Clock, ImageIcon, Sparkles } from 'lucide-react'
 import {sampleNews} from '../assets/newdummydata'
+import { toast } from 'react-toastify'
 
 const News = () => {
   return (
@@ -138,7 +139,7 @@ const News = () => {
                         className={newsStyles.subscribeInput}
                         placeholder='Email address'
                         />
-                        <button className={newsStyles.subscribeButton}>Subscribe</button>
+                        <button onClick={() => toast.success("Thank you for Subscribe.")} className={newsStyles.subscribeButton}>Subscribe</button>
                     </div>
                 </div>
             </aside>

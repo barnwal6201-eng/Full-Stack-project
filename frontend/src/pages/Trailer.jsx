@@ -1,71 +1,59 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { trailersCSS, trailersStyles } from '../assets/dummyStyles'
-import { Calendar, ChevronLeft, ChevronRight, Clapperboard, Clock, Play, X } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight, Clapperboard, Clock, Play } from 'lucide-react'
 import { getUploadUrl, formatDuration } from '../utils'
-import Loading from '../components/Loading';
+import Loading from '../components/Loading'
+import TrailerPlayer from '../components/TrailerPlayer'
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const PLACEHOLDER_THUMB = import.meta.env.VITE_PLACEHOLDER_THUMB;
 
+const resolveImage = (file) => {
+  const url = typeof file === 'string' ? file : file?.url;
+  return url ? getUploadUrl(url) : null;
+};
+
 const mapMovieToTrailerItem = (movie) => {
   const lt = movie.latestTrailers || {};
-  const title = lt.title || movie.movieName || movie.title || "Untitled";
-  const thumbnail = getUploadUrl(lt.thumbnail) || getUploadUrl(movie.poster) || PLACEHOLDER_THUMB;
+  const title = lt.title || movie.movieName || "Untitled";
+  const thumbnail =
+    resolveImage(lt.thumbnail) || resolveImage(movie.poster) || PLACEHOLDER_THUMB;
 
-  const videoUrl =
-  lt.videoUrl ||
-  movie.trailerUrl ||
-  movie.videoUrl ||
-  (lt.videoId ? `https://www.youtube.com/watch?v=${lt.videoId}` : "") ||
-  "";
-  //movie.duration is normalized to total minutes by the API, lt.duration may be {hours, minutes}
-  const duration = formatDuration(movie.duration) || formatDuration(lt.duration) || "";
+  const duration =
+    formatDuration(movie.duration) || formatDuration(lt.duration) || "";
   const year = lt.year || movie.year || "";
-  const genre = lt.genres && lt.genres.length ?
-     lt.genres.join(", ")
-     : movie.categories && movie.categories.length 
-     ? movie.categories.join(", ")
-     : "";
+
+  const genres = lt.genres?.length ? lt.genres : movie.categories || [];
+  const genre = genres.join(", ");
+
   const description = lt.description || movie.story || "";
 
-  const credits = {};
-  const firstDirector = (lt.directors || movie.directors || []).find(Boolean);
-  const firstProducer = (lt.producers || movie.producers || []).find(Boolean);
-  const firstSinger = (lt.singers || movie.singers || []).find(Boolean);
+  const streamUrl = movie.trailerVideo?.streamUrl || "";
 
-  if(firstDirector) {
-    credits["Director"] = {
-      name: firstDirector.name || "Unknown",
-      image: getUploadUrl(firstDirector.file) ||
-             getUploadUrl(firstDirector.image) ||
-             getUploadUrl(firstDirector.photo) ||
-             PLACEHOLDER_THUMB,
-    };
+  const credits = {};
+  const pickFirst = (list) => (list || []).find(Boolean);
+  const firstDirector = pickFirst(lt.directors?.length ? lt.directors : movie.directors);
+  const firstProducer = pickFirst(lt.producers?.length ? lt.producers : movie.producers);
+  const firstSinger = pickFirst(lt.singers?.length ? lt.singers : movie.singers);
+
+  const personImage = (p) =>
+    resolveImage(p?.file) || resolveImage(p?.image) || resolveImage(p?.photo) || PLACEHOLDER_THUMB;
+
+  if (firstDirector) {
+    credits.Director = { name: firstDirector.name || "Unknown", image: personImage(firstDirector) };
   }
-  if(firstProducer) {
-    credits["Producer"] = {
-      name: firstProducer.name || "Unknown",
-      image: getUploadUrl(firstProducer.file) ||
-             getUploadUrl(firstProducer.image) ||
-             getUploadUrl(firstProducer.photo) ||
-             PLACEHOLDER_THUMB,
-    };
+  if (firstProducer) {
+    credits.Producer = { name: firstProducer.name || "Unknown", image: personImage(firstProducer) };
   }
-  if(firstSinger) {
-    credits["Singer"] = {
-      name: firstSinger.name || "Unknown",
-      image: getUploadUrl(firstSinger.file) ||
-             getUploadUrl(firstSinger.image) ||
-             getUploadUrl(firstSinger.photo) ||
-             PLACEHOLDER_THUMB,
-    };
+  if (firstSinger) {
+    credits.Singer = { name: firstSinger.name || "Unknown", image: personImage(firstSinger) };
   }
 
   return {
     id: movie._id || movie.id,
     title,
     thumbnail,
-    videoUrl,
+    streamUrl,
     duration,
     year,
     genre,
@@ -75,224 +63,177 @@ const mapMovieToTrailerItem = (movie) => {
 };
 
 const Trailer = () => {
+  const [trailers, setTrailers] = useState([]);
+  const [featuredTrailer, setFeaturedTrailer] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const carouselRef = useRef(null);
 
-const [featuredTrailer, setFeaturedTrailer] = useState(null);
-const [isPlaying, setIsPlaying] = useState(false);
-const videoRef = useRef(null);
-const carouselRef = useRef(null);
-const [trailers, setTrailers] = useState([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState(null);
+  useEffect(() => {
+    const ac = new AbortController();
 
-const isMuted = false;
-
-useEffect(() => {
-  const ac = new AbortController();
-
-  async function load() {
-    setLoading(true);
-    setError(null);
-    try {
-      const url = `${API_BASE}/api/movies?type=latestTrailers&limit=50`;
-      const res = await fetch(url, {signal: ac.signal});
-        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE}/api/movies?type=latestTrailers&limit=50`, {
+          signal: ac.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const json = await res.json();
         const items = Array.isArray(json.items) ? json.items : [];
-
         const mapped = items.map(mapMovieToTrailerItem);
+
         setTrailers(mapped);
         setFeaturedTrailer(mapped[0] || null);
-        setLoading(false);
-        
-    } catch (err) {
-      if(err.name === "AbortError") return;
-      console.error("Failed to load trailers:", err);
-      setError("Failed to load from server");
-      setLoading(false);
-    }
-  }
-
-  load();
-  return () => ac.abort();
-}, []);
-
-useEffect(()=> {
-  const handleScroll = () => {};
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-},[]);
-
-const scrollLeft = () => {
-  if(carouselRef.current){
-    carouselRef.current.scrollBy({left: -280, behavior: "smooth"});
-  }
-};
-
-const scrollRight = () => {
-  if(carouselRef.current){
-    carouselRef.current.scrollBy({left: 280, behavior: "smooth"});
-  }
-};
-
-const selectTrailer = (trailer) => {
-  setFeaturedTrailer(trailer);
-  setIsPlaying(false);
-  try {
-    if(videoRef.current){
-      videoRef.current.currentTime = 0;
-    }
-  } catch (e) {
-    console.log(e);
-  }
-
-  //center selected item in carousel
-  try {
-    if(carouselRef.current){
-      const el = carouselRef.current.querySelector(`[data-id="${trailer.id}"]`);
-      if(el){
-        const rect =el.getBoundingClientRect();
-        const parentRect = carouselRef.current.getBoundingClientRect();
-        const offset = rect.left - parentRect.left - parentRect.width / 2 + rect.width / 2;
-        carouselRef.current.scrollBy({left: offset, behavior: "smooth"});
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        console.error("Failed to load trailers:", err);
+        setError("Failed to load from server");
+      } finally {
+        if (!ac.signal.aborted) setLoading(false);
       }
     }
-  } catch (error) {
-    console.error(error);
+
+    load();
+    return () => ac.abort();
+  }, []);
+
+  const scrollBy = (amount) => {
+    carouselRef.current?.scrollBy({ left: amount, behavior: "smooth" });
+  };
+
+  const selectTrailer = (trailer) => {
+    setFeaturedTrailer(trailer);
+    setIsPlaying(false);
+
+    // Center the selected card in the carousel
+    const container = carouselRef.current;
+    const el = container?.querySelector(`[data-id="${trailer.id}"]`);
+    if (container && el) {
+      const rect = el.getBoundingClientRect();
+      const parentRect = container.getBoundingClientRect();
+      const offset = rect.left - parentRect.left - parentRect.width / 2 + rect.width / 2;
+      container.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
+
+  if (loading) {
+    return <Loading loading={"trailer..."} />;
   }
-};
 
-const togglePlay = () => {
-  setIsPlaying((prev) => !prev);
-};
+  if (error) {
+    return (
+      <div className={trailersStyles.container}>
+        <div className="py-12 text-center text-red-400">{error}</div>
+      </div>
+    );
+  }
 
-//helper to build embed URL for common providers(You Tube / youtu.be / Vimeo)
-const getEmbedBaseUrl = (videoUrl) => {
-   if(!videoUrl) return "";
+  if (trailers.length === 0 || !featuredTrailer) {
+    return (
+      <div className={trailersStyles.container}>
+        <div className="py-12 text-center text-gray-400">No latest trailers yet.</div>
+      </div>
+    );
+  }
 
-   try {
-    const url = new URL(videoUrl);
-    const host = url.hostname.replace("www.", "").toLowerCase();
-
-    //Youtube standard watch URL : youtube.com/watch?v=ID
-    if(host.includes("youtube.com")){
-      const vid = url.searchParams.get("v");
-      //if already embeded path , return that
-      if(url.pathname.includes("/embed")) return `https://www.youtube.com${url.pathname}`;
-      if (vid) return `https://www.youtube.com/embed/${vid}`;
-    }
-
-    //short youtu.be links
-    if(host === "youtu.be"){
-      const vid = url.pathname.replace("/", "");
-      if(vid) return `https://www.youtube.com/embed/${vid}`;
-    }
-
-    //Vimeo
-    if(host.includes("vimeo.com")){
-      //path like /12345678 or /channels/.../12345678
-      const parts = url.pathname.split("/").filter(Boolean);
-      const id = parts.pop();
-      if(id) return `https://player.vimeo.com/video/${id}`;
-    }
-
-    //fallback : return original (could already be an embed URL)
-    return videoUrl;
-   } catch (e) {
-    console.error(e);
-    return videoUrl || "";
-   }
-};
-
-const buildFrameSrc = (videoUrl) => {
-  const base = getEmbedBaseUrl(videoUrl);
-  if(!base) return null;
-  const sep = base.includes("?") ? "&" : "?";
-  return `${base}${sep}autoplay=1&mute=${isMuted ? 1 : 0}&rel=0`;
-};
-
-
-if(loading) {
-  return (
-    <Loading loading={"trailer..."} />
-  );
-}
-
-if(error) {
-  return (
-    <div className={trailersStyles.container}>
-      <div className='py-12 text-center text-red-400'>{error}</div>
-    </div>
-  );
-}
-
-const dataToRender = trailers || [];
+  const genres = (featuredTrailer.genre || "")
+    .split(",")
+    .map((g) => g.trim())
+    .filter(Boolean);
 
   return (
     <div className={trailersStyles.container}>
+      {featuredTrailer.streamUrl && (
+        <TrailerPlayer
+          src={featuredTrailer.streamUrl}
+          isOpen={isPlaying}
+          onClose={() => setIsPlaying(false)}
+        />
+      )}
+
       <main className={trailersStyles.main}>
         <div className={trailersStyles.layout}>
-          {/*Left side */}
+          {/* Left side: carousel and list */}
           <div className={trailersStyles.leftSide}>
             <div className={trailersStyles.leftCard}>
-              <h2 className={trailersStyles.leftTitle} style={{fontFamily: "Monoton, cursive"}}>
+              <h2 className={trailersStyles.leftTitle} style={{ fontFamily: "Monoton, cursive" }}>
                 <Clapperboard className={trailersStyles.titleIcon} />
                 Latest Trailers
               </h2>
 
               <div className={trailersStyles.carouselControls}>
                 <div className={trailersStyles.controlButtons}>
-                  <button onClick={scrollLeft} className={trailersStyles.controlButton}>
+                  <button onClick={() => scrollBy(-280)} className={trailersStyles.controlButton}>
                     <ChevronLeft size={18} />
                   </button>
-                  <button onClick={scrollRight} className={trailersStyles.controlButton }>
+                  <button onClick={() => scrollBy(280)} className={trailersStyles.controlButton}>
                     <ChevronRight size={18} />
                   </button>
                 </div>
-                <span className={trailersStyles.trailerCount}>{dataToRender.length} trailers</span>
+                <span className={trailersStyles.trailerCount}>{trailers.length} trailers</span>
               </div>
 
-              <div ref={carouselRef} className={trailersStyles.carousel} style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                {dataToRender.map((trailer) => (
+              <div
+                ref={carouselRef}
+                className={trailersStyles.carousel}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {trailers.map((trailer) => (
                   <div
-                  key={trailer.id}
-                  data-id={trailer.id}
-                  className={`${trailersStyles.carouselItem.base} ${
-                    featuredTrailer.id === trailer.id ? trailersStyles.carouselItem.active : trailersStyles.carouselItem.inactive
-                  }`}
-                  style={{width: "220px", height: "124px", minWidth: "220px"}}
-                  onClick={()=> selectTrailer(trailer)}
-                  role='button'
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if(e.key === "Enter" || e.key === " ") selectTrailer(trailer);
-                  }}
-                  aria-pressed={featuredTrailer.id === trailer.id}
+                    key={trailer.id}
+                    data-id={trailer.id}
+                    className={`${trailersStyles.carouselItem.base} ${
+                      featuredTrailer.id === trailer.id
+                        ? trailersStyles.carouselItem.active
+                        : trailersStyles.carouselItem.inactive
+                    }`}
+                    style={{ width: "220px", height: "124px", minWidth: "220px" }}
+                    onClick={() => selectTrailer(trailer)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") selectTrailer(trailer);
+                    }}
+                    aria-pressed={featuredTrailer.id === trailer.id}
                   >
-                   <img src={trailer.thumbnail || PLACEHOLDER_THUMB} alt={trailer.title} className={trailersStyles.carouselImage} loading='lazy' />
-                   <div className={trailersStyles.carouselOverlay}>
-                    <h3 className={trailersStyles.carouselTitle}>{trailer.title}</h3>
-                    <p className={trailersStyles.carouselGenre}>{trailer.genre}</p>
-                   </div>
+                    <img
+                      src={trailer.thumbnail}
+                      alt={trailer.title}
+                      className={trailersStyles.carouselImage}
+                      loading="lazy"
+                    />
+                    <div className={trailersStyles.carouselOverlay}>
+                      <h3 className={trailersStyles.carouselTitle}>{trailer.title}</h3>
+                      <p className={trailersStyles.carouselGenre}>{trailer.genre}</p>
+                    </div>
                   </div>
                 ))}
               </div>
 
               <div className={trailersStyles.trendingSection}>
-                <h3 className={trailersStyles.trendingTitle}>
-                  {dataToRender.slice(0, 3).map((trailer) => (
+                <div className={trailersStyles.trendingTitle}>
+                  {trailers.slice(0, 3).map((trailer) => (
                     <div
-                    onClick={()=> selectTrailer(trailer)}
-                    role='button'
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                    if(e.key === "Enter" || e.key === " ") selectTrailer(trailer);
-                    }}
-                    key={trailer.id}
-                    className={trailersStyles.trendingItem}
+                      key={trailer.id}
+                      onClick={() => selectTrailer(trailer)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") selectTrailer(trailer);
+                      }}
+                      className={trailersStyles.trendingItem}
                     >
                       <div className={trailersStyles.trendingImage}>
-                        <img src={trailer.thumbnail || PLACEHOLDER_THUMB} alt={trailer.title} className={trailersStyles.trendingImageSrc} loading='lazy' />
+                        <img
+                          src={trailer.thumbnail}
+                          alt={trailer.title}
+                          className={trailersStyles.trendingImageSrc}
+                          loading="lazy"
+                        />
                       </div>
                       <div className={trailersStyles.trendingContent}>
                         <h4 className={trailersStyles.trendingItemTitle}>{trailer.title}</h4>
@@ -300,47 +241,32 @@ const dataToRender = trailers || [];
                       </div>
                     </div>
                   ))}
-                </h3>
+                </div>
               </div>
             </div>
           </div>
 
-          {/*Right side */}
           <div className={trailersStyles.rightSide}>
             <div className={trailersStyles.rightCard}>
               <div className={trailersStyles.videoContainer}>
-                {isPlaying ? (
-                  <div className={trailersStyles.videoWrapper}>
-                    <iframe 
-                    className={trailersStyles.videoIframe}
-                    src={buildFrameSrc(featuredTrailer.videoUrl)}
-                    title={featuredTrailer.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    ref={videoRef}
-                    />
-
-                    <div className={trailersStyles.closeButton}>
-                      <button title='Close' onClick={() => setIsPlaying(false)} className={trailersStyles.closeButtonInner}>
-                        <X size={28} />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className={trailersStyles.thumbnailContainer}>
-                    <img src={featuredTrailer.thumbnail} alt={featuredTrailer.title} className={trailersStyles.thumbnailImage} loading='eager' />
-
-                    <div className={trailersStyles.playButtonContainer}>
-                      <button 
-                      onClick={togglePlay}
+                <div className={trailersStyles.thumbnailContainer}>
+                  <img
+                    src={featuredTrailer.thumbnail}
+                    alt={featuredTrailer.title}
+                    className={trailersStyles.thumbnailImage}
+                    loading="eager"
+                  />
+                  <div className={trailersStyles.playButtonContainer}>
+                    <button
+                      onClick={() => setIsPlaying(true)}
+                      disabled={!featuredTrailer.streamUrl}
                       className={trailersStyles.playButton}
-                      >
-                        <Play size={32} fill='white' />
-                      </button>
-                    </div>
+                      title={featuredTrailer.streamUrl ? "Play trailer" : "Trailer is not ready yet"}
+                    >
+                      <Play size={32} fill="white" />
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
 
               <div className={trailersStyles.trailerInfo}>
@@ -348,45 +274,51 @@ const dataToRender = trailers || [];
                   <h2 className={trailersStyles.trailerTitle}>{featuredTrailer.title}</h2>
 
                   <div className={trailersStyles.trailerMeta}>
-                    <span className={trailersStyles.metaItem}>
-                      <Clock size={16} className={trailersStyles.metaIcon} />
-                      {formatDuration(featuredTrailer.duration)}
-                    </span>
-                    <span className={trailersStyles.metaItem}>
-                      <Calendar size={16} className={trailersStyles.metaIcon} />
-                      {featuredTrailer.year}
-                    </span>
+                    {featuredTrailer.duration && (
+                      <span className={trailersStyles.metaItem}>
+                        <Clock size={16} className={trailersStyles.metaIcon} />
+                        {featuredTrailer.duration}
+                      </span>
+                    )}
+                    {featuredTrailer.year && (
+                      <span className={trailersStyles.metaItem}>
+                        <Calendar size={16} className={trailersStyles.metaIcon} />
+                        {featuredTrailer.year}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 <div className={trailersStyles.genreContainer}>
-                  {featuredTrailer.genre.split(",").map((genre, index) => (
+                  {genres.map((genre, index) => (
                     <span key={index} className={trailersStyles.genreTag}>
-                      {genre.trim()}
+                      {genre}
                     </span>
                   ))}
                 </div>
-                 
-                 <p className={trailersStyles.description}>
-                  {featuredTrailer.description}
-                 </p>
 
-                 <div className={trailersStyles.credits}>
-                  <h3 className={trailersStyles.creditsTitle}> Credits</h3>
+                <p className={trailersStyles.description}>{featuredTrailer.description}</p>
+
+                <div className={trailersStyles.credits}>
+                  <h3 className={trailersStyles.creditsTitle}>Credits</h3>
 
                   <div className={trailersStyles.creditsGrid}>
-                    {featuredTrailer.credits && 
-                    Object.entries(featuredTrailer.credits).map(([role, person]) => (
+                    {Object.entries(featuredTrailer.credits || {}).map(([role, person]) => (
                       <div key={role} className={trailersStyles.creditItem}>
                         <div className={trailersStyles.creditImage}>
-                          <img src={person.image} alt={person.name} className={trailersStyles.creditImageSrc} loading='lazy' />
+                          <img
+                            src={person.image}
+                            alt={person.name}
+                            className={trailersStyles.creditImageSrc}
+                            loading="lazy"
+                          />
                         </div>
                         <div className={trailersStyles.creditName}>{person.name}</div>
                         <div className={trailersStyles.creditRole}>{role}</div>
                       </div>
                     ))}
                   </div>
-                 </div>
+                </div>
               </div>
             </div>
           </div>
@@ -394,7 +326,7 @@ const dataToRender = trailers || [];
       </main>
       <style>{trailersCSS}</style>
     </div>
-  )
-}
+  );
+};
 
-export default Trailer
+export default Trailer;
