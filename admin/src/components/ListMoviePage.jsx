@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { styles5, customStyles } from '../assets/dummyStyles'
 import axios from 'axios'
-import { Calendar, Clock,  Film, Play as PlayIcon, Search, Star, Ticket, X } from 'lucide-react';
-import { getImageUrl, } from '../utils';
+import { Calendar,  Film, Play as PlayIcon, Search, Star, Ticket } from 'lucide-react';
 import Card from './Card';
 import DetailView from './DetailView';
 
@@ -69,53 +68,43 @@ export const ListMoviePage = () => {
     };
 
     function normalizeMovie(item) {
-        const obj = {...item};
+    const lt = item.latestTrailers || null;
+    const isTrailer = item.type === 'latestTrailers' && lt;
 
-        obj.poster = getImageUrl(item.poster) || (item.poster ? item.poster : null);
-
-        const normalizeTopPeople = (arr = []) => 
+    const normalizePeople = (arr = []) =>
         (arr || []).map((p) => ({
             ...(p || {}),
-            preview: p?.preview || getImageUrl(p?.file) || p?.file || p?.image || p?.url || null,
+            preview: p?.preview || null,
         }));
 
-        obj.cast = normalizeTopPeople(item.cast);
-        obj.directors = normalizeTopPeople(item.directors);
-        obj.producers = normalizeTopPeople(item.producers);
+    const poster = item.poster || null;
+    const thumbnail = isTrailer ? (lt.thumbnail || poster) : poster;
 
-        if(
-            item.latestTrailer && 
-            (item.type === 'latestTrailers' || item.latestTrailer.title || item.latestTrailer.thumbnail || item.latestTrailer.videoId)
-        ){
-            const lt = item.latestTrailer || {};
-
-            obj.title = lt.title || item.title || item.movieName || null;
-            obj.thumbnail = getImageUrl(lt.thumbnail) || getImageUrl(item.thumbnail) || lt.thumbnail || null;
-            obj.genres = lt.genres || item.genres || [];
-            obj.year = lt.year || item.year || null;
-            obj.rating = lt.rating ?? item.rating ?? null;
-            obj.duration = lt.duration || item.duration || null;
-            obj.description = lt.description || item.description || item.story || null;
-
-            const normalizeLatestPeople = (arr = []) => 
-            (arr || []).map((p) => ({
-              ...(p || {}),
-              preview: p?.preview || getImageUrl(p?.file) || p?.file || p?.image || p?.url || null,
-            }));
-
-            obj.directors = normalizeLatestPeople(lt.directors || item.latestTrailer?.directors || item.directors || []);
-            obj.producers = normalizeLatestPeople(lt.producers || item.latestTrailer?.producers || item.producers || []);
-            obj.singers = normalizeLatestPeople(lt.singers || item.latestTrailer.singers || []);
-
-        } else{
-            //for non latest trailer
-            obj.thumbnail = getImageUrl(item.thumbnail) || obj.poster || null;
-
-        }
-            obj.type = obj.type || (obj.title && !obj.movieName ? 'latestTrailers' : "normal");
-            obj.displayTitle = obj.movieName || obj.title || obj.movieName || 'Untitled';
-            return obj;
-    }
+    return {
+        ...item,
+        displayTitle: item.movieName || lt?.title || 'Untitled',
+        type: item.type || 'normal',
+        poster,
+        thumbnail,
+        videoUrl: item.videoUrl || null,
+        trailerVideo: item.trailerVideo || null,
+        cast: normalizePeople(item.cast),
+        directors: normalizePeople(item.directors),
+        producers: normalizePeople(item.producers),
+        ...(isTrailer && {
+            title: lt.title || item.movieName || null,
+            genres: lt.genres || [],
+            year: lt.year || null,
+            rating: item.rating ?? null,
+            duration: lt.duration || null,
+            description: lt.description || '',
+            videoId: lt.videoId || null,
+            directors: normalizePeople(lt.directors),
+            producers: normalizePeople(lt.producers),
+            singers: normalizePeople(lt.singers),
+        }),
+    };
+}
 
     const types = useMemo(
         () => [
@@ -130,10 +119,6 @@ export const ListMoviePage = () => {
 
 
     const filtered = useMemo(() => {
-        /**
-         * already requested filtered data from backend, but keep a guard to
-         * exclude any cinenews entries if present in tne returned list
-         */
         return(movies || []).filter((item) => item.type !== 'cinenews');
     }, [movies]);
 
@@ -282,7 +267,6 @@ export const ListMoviePage = () => {
             </aside>
         </div>
 
-        {/* Mobile & Tablet Modal Sheet View */}
         {selected && (
             <div className={styles5.detailModalBackdrop} onClick={() => setSelected(null)}>
                 <div className={styles5.detailModalContainer} onClick={(e) => e.stopPropagation()}>

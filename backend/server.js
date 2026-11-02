@@ -6,6 +6,7 @@ import userRouter from './routes/userRouter.js';
 import movieRouter from './routes/movieRouter.js';
 import bookingRouter from './routes/bookingRouter.js';
 import adminRouter from './routes/adminRouter.js'
+import path from "path";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -14,6 +15,15 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+app.use(
+  "/hls",
+  (req, res, next) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    next();
+  },
+  express.static(path.resolve("public/hls"))
+);
 
 //DB
 connectDB();

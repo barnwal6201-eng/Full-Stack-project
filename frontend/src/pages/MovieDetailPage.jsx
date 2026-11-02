@@ -1,20 +1,18 @@
-import React, { useEffect, useMemo, useReducer } from 'react'
+import React, { useEffect, useMemo, useReducer, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { movieDetailCSS, movieDetailStyles } from '../assets/dummyStyles'
 import { toast } from 'react-toastify'
-import { ArrowLeft, Calendar, Clock, ImageOff, Play, Star, User, X } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, ImageOff, Play, Star, User } from 'lucide-react'
 import axios from 'axios'
-import ROWS, { slotToISO, getInitialAvatar, formatDuration, formatTimeInTZ, formatDateKey, extractYouTubeId, getUploadUrl } from '../utils';
+import ROWS, { slotToISO, getInitialAvatar, formatDuration, formatTimeInTZ, formatDateKey, getUploadUrl } from '../utils';
 import Loading from '../components/Loading';
 import MovieError from '../components/MovieError';
 import FallbackAvatar from '../components/FallbackAvatar';
+import TrailerPlayer from '../components/TrailerPlayer';
 import { initialState, movieDetailReducer } from './movieReducer';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 const TOTAL_SEATS = ROWS.reduce((s, r) => s + r.count, 0);
-
-const getEmbedUrl = (id) =>
-    id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1` : null;
 
 const getAuthToken = () =>
     localStorage.getItem("token") ||
@@ -34,17 +32,16 @@ const MovieDetailPage = () => {
         fetchError,
         bookedCounts,
         posterFailed,
-        showTrailer,
-        selectedTrailerId,
-        selectedMovie,
         selectedDay,
         selectedTime,
     } = state;
 
+    const [trailerOpen, setTrailerOpen] = useState(false);
+
     useEffect(() => {
         let mounted = true;
         const fetchMovie = async () => {
-            dispatch({type: 'FETCH_START'});
+            dispatch({ type: 'FETCH_START' });
 
             try {
                 const res = await axios.get(
@@ -55,7 +52,7 @@ const MovieDetailPage = () => {
 
                 if (!data || data.success === false) {
                     const msg = (data && data.message) || "Failed to load movie";
-                    dispatch({type: 'FETCH_ERROR', error: msg});
+                    dispatch({ type: 'FETCH_ERROR', error: msg });
                     toast.error(msg);
                 } else {
                     const item =
@@ -63,32 +60,29 @@ const MovieDetailPage = () => {
                         data.data ||
                         (data.success && data.movie) ||
                         (data.success ? data : null) ||
-                        // some endpoints just return the raw document
                         (data._id ? data : null);
-        
+
                     dispatch({ type: 'FETCH_SUCCESS', movie: item || null });
                 }
             } catch (err) {
                 console.error("Failed to fetch movie:", err);
                 const msg = err?.response?.data?.message || "Failed to fetch movie from server";
                 if (mounted) {
-                    dispatch({type: 'FETCH_ERROR', error: msg});
+                    dispatch({ type: 'FETCH_ERROR', error: msg });
                     toast.error(msg);
                 }
             }
         };
-        
+
         if (movieId) {
             fetchMovie();
-        }
-        else {
+        } else {
             dispatch({ type: 'FETCH_ERROR', error: 'No movie id was provided in the URL.' });
         }
 
         return () => { mounted = false; };
     }, [movieId]);
 
-    /** Group slots ({date,time,ampm} objects) into days */
     const showTimeDays = useMemo(() => {
         if (!movie) return [];
         const TZ = "Asia/Kolkata";
@@ -181,19 +175,6 @@ const MovieDetailPage = () => {
         return () => { cancelled = true; };
     }, [movie, movieId, showTimeDays]);
 
-    const openTrailer = (movieObj) => {
-        const ytId = extractYouTubeId(movieObj?.trailerUrl || movieObj?.trailer || "");
-        if (!ytId) {
-            toast.info("Trailer not available for this movie");
-            return;
-        }
-        dispatch({ type: 'OPEN_TRAILER', movie: movieObj, trailerId: ytId });
-    };
-
-    const closeTrailer = () => {
-        dispatch({ type: 'CLOSE_TRAILER' });
-    };
-
     const handleTimeSelect = (datetime) => {
         dispatch({ type: 'SELECT_TIME', time: datetime });
         const key = encodeURIComponent(datetime);
@@ -224,8 +205,8 @@ const MovieDetailPage = () => {
 
     if (!movie) {
         return (
-            <MovieError message={fetchError || "Movie not found."}/>
-        )
+            <MovieError message={fetchError || "Movie not found."} />
+        );
     }
 
     const title = movie.movieName || "Untitled";
@@ -239,31 +220,15 @@ const MovieDetailPage = () => {
     const producers = Array.isArray(movie.producers) ? movie.producers : [];
     const cast = Array.isArray(movie.cast) ? movie.cast : [];
     const story = movie.story;
+    const streamUrl = movie.trailerVideo?.streamUrl;
 
     return (
         <div className={movieDetailStyles.container}>
-            {showTrailer && selectedTrailerId && (
-                <div className={movieDetailStyles.modalOverlay}>
-                    <div className={movieDetailStyles.modalContainer}>
-                        <button onClick={closeTrailer} className={movieDetailStyles.closeButton}>
-                            <X size={36} />
-                        </button>
-                        <div className={movieDetailStyles.videoContainer}>
-                            <iframe
-                                key={selectedTrailerId}
-                                width="100%"
-                                height="100%"
-                                src={getEmbedUrl(selectedTrailerId)}
-                                title={`${selectedMovie?.movieName || "Trailer"} Trailer`}
-                                frameBorder="0"
-                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-                                allowFullScreen
-                                className={movieDetailStyles.videoIframe}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <TrailerPlayer
+                src={streamUrl}
+                isOpen={trailerOpen}
+                onClose={() => setTrailerOpen(false)}
+            />
 
             <div className={movieDetailStyles.wrapper}>
                 <div className={movieDetailStyles.header}>
@@ -306,7 +271,7 @@ const MovieDetailPage = () => {
 
                 <div className={movieDetailStyles.mainLayout}>
                     <div className={movieDetailStyles.leftColumn}>
-                         <div className={movieDetailStyles.posterCard}>
+                        <div className={movieDetailStyles.posterCard}>
                             <div
                                 className={movieDetailStyles.posterImage}
                                 style={{ maxWidth: '320px', aspectRatio: '2 / 3', background: 'rgba(255,255,255,0.03)' }}
@@ -326,10 +291,15 @@ const MovieDetailPage = () => {
                                 )}
                             </div>
 
-                            <button onClick={() => openTrailer(movie)} className={movieDetailStyles.trailerButton}>
-                                <Play size={18} />
-                                <span>Watch Trailer</span>
-                            </button>
+                            {streamUrl && (
+                                <button
+                                    onClick={() => setTrailerOpen(true)}
+                                    className={movieDetailStyles.trailerButton}
+                                >
+                                    <Play size={18} />
+                                    <span>Watch Trailer</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -394,7 +364,7 @@ const MovieDetailPage = () => {
                                                             <span className={movieDetailStyles.soldOutBadge}>Sold Out</span>
                                                         )}
                                                     </button>
-                                                )
+                                                );
                                             })
                                         )}
                                     </div>
@@ -536,6 +506,7 @@ const MovieDetailPage = () => {
                 <style>{movieDetailCSS}</style>
             </div>
         </div>
-    )
-}
-export default MovieDetailPage
+    );
+};
+
+export default MovieDetailPage;

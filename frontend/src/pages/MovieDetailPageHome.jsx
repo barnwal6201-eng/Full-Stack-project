@@ -1,52 +1,46 @@
-import React, { useEffect, useMemo, useReducer } from 'react'
+import React, { useEffect, useMemo, useReducer, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { movieDetailHStyles } from '../assets/dummyStyles';
-import { ArrowLeft, Calendar, Clock, Play, Star, User, X, ImageOff } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, Play, Star, User, ImageOff } from 'lucide-react'
 import axios from 'axios'
-import ROWS, { slotToISO, getInitialAvatar, formatDuration, formatTimeInTZ, formatDateKey, extractYouTubeId, getUploadUrl } from '../utils';
+import ROWS, { slotToISO, getInitialAvatar, formatDuration, formatTimeInTZ, formatDateKey, getUploadUrl } from '../utils';
 import Loading from '../components/Loading';
 import MovieError from '../components/MovieError';
 import FallbackAvatar from '../components/FallbackAvatar';
+import TrailerPlayer from '../components/TrailerPlayer';
 import { initialState, movieDetailReducer } from './movieReducer';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
-const TOTAL_SEATS = ROWS.reduce((s,r) => s + r.count, 0);
+const TOTAL_SEATS = ROWS.reduce((s, r) => s + r.count, 0);
 
-    const getEmbedUrl = (id) => 
-        id 
-    ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`
-    : null;
-
-    const getAuthToken = () =>
+const getAuthToken = () =>
     localStorage.getItem("token") ||
     localStorage.getItem("authToken") ||
     localStorage.getItem("accessToken") ||
     localStorage.getItem("jwt") || null;
 
 const MovieDetailPageHome = () => {
-
     const { id } = useParams();
     const movieId = id;
     const navigate = useNavigate();
     const [state, dispatch] = useReducer(movieDetailReducer, initialState);
-        const {
-            movie,
-            loading,
-            fetchError,
-            bookedCounts,
-            posterFailed,
-            showTrailer,
-            selectedTrailerId,
-            selectedMovie,
-            selectedDay,
-            selectedTime,
-        } = state;
+    const {
+        movie,
+        loading,
+        fetchError,
+        bookedCounts,
+        posterFailed,
+        selectedDay,
+        selectedTime,
+    } = state;
+
+    const [trailerOpen, setTrailerOpen] = useState(false);
 
     useEffect(() => {
         let mounted = true;
         const fetchMovie = async () => {
-            dispatch({type: 'FETCH_START'});
+            dispatch({ type: 'FETCH_START' });
             try {
                 const res = await axios.get(
                     `${API_BASE}/api/movies/${encodeURIComponent(movieId)}`
@@ -56,24 +50,23 @@ const MovieDetailPageHome = () => {
 
                 if (!data || data.success === false) {
                     const msg = (data && data.message) || "Failed to load movie";
-                    dispatch({type: 'FETCH_ERROR', error: msg});
-                    toast.error(msg);  
+                    dispatch({ type: 'FETCH_ERROR', error: msg });
+                    toast.error(msg);
                 } else {
                     const item =
                         data.item ||
                         data.data ||
                         (data.success && data.movie) ||
                         (data.success ? data : null) ||
-                        // some endpoints just return the raw document
                         (data._id ? data : null);
-                    
-                        dispatch({ type: 'FETCH_SUCCESS', movie: item || null });
+
+                    dispatch({ type: 'FETCH_SUCCESS', movie: item || null });
                 }
             } catch (err) {
                 console.error("Failed to fetch movie:", err);
                 const msg = err?.response?.data?.message || "Failed to fetch movie from server";
                 if (mounted) {
-                    dispatch({type: 'FETCH_ERROR', error: msg});
+                    dispatch({ type: 'FETCH_ERROR', error: msg });
                     toast.error(msg);
                 }
             }
@@ -81,8 +74,7 @@ const MovieDetailPageHome = () => {
 
         if (movieId) {
             fetchMovie();
-        }
-        else {
+        } else {
             dispatch({ type: 'FETCH_ERROR', error: 'No movie id was provided in the URL.' });
         }
 
@@ -92,8 +84,8 @@ const MovieDetailPageHome = () => {
     const showTimeDays = useMemo(() => {
         if (!movie) return [];
         const TZ = "Asia/Kolkata";
-         const slotsByDate = {};
-    
+        const slotsByDate = {};
+
         const slots = Array.isArray(movie.slots) ? movie.slots : [];
         slots.forEach((slot) => {
             try {
@@ -101,15 +93,15 @@ const MovieDetailPageHome = () => {
                 if (!iso) return;
                 const d = new Date(iso);
                 if (Number.isNaN(d.getTime())) return;
-    
+
                 const dateKey = formatDateKey(d, TZ);
                 if (!slotsByDate[dateKey]) slotsByDate[dateKey] = [];
                 slotsByDate[dateKey].push({ iso, audi: movie.auditorium || null });
             } catch (error) {
-                console.error(error)
+                console.error(error);
             }
-            });
-    
+        });
+
         const dateKeys = Object.keys(slotsByDate).sort();
 
         return dateKeys.map((key) => {
@@ -134,8 +126,8 @@ const MovieDetailPageHome = () => {
     }, [movie]);
 
     useEffect(() => {
-            dispatch({ type: 'DAYS_CHANGED', count: showTimeDays.length });
-        }, [showTimeDays]);
+        dispatch({ type: 'DAYS_CHANGED', count: showTimeDays.length });
+    }, [showTimeDays]);
 
     useEffect(() => {
         let cancelled = false;
@@ -179,18 +171,6 @@ const MovieDetailPageHome = () => {
         return () => { cancelled = true; };
     }, [movie, movieId, showTimeDays]);
 
-    const openTrailer = (movieObj) => {
-        const ytId = extractYouTubeId(movieObj?.trailerUrl || movieObj?.trailer || "");
-        if (!ytId) {
-            toast.info("Trailer not available for this movie");
-            return;
-        }
-        dispatch({ type: 'OPEN_TRAILER', movie: movieObj, trailerId: ytId });
-    };
-
-    const closeTrailer = () => {
-        dispatch({ type: 'CLOSE_TRAILER' });
-    };
     const handleTimeSelect = (datetime) => {
         dispatch({ type: 'SELECT_TIME', time: datetime });
     };
@@ -212,18 +192,13 @@ const MovieDetailPageHome = () => {
     };
 
     if (loading) {
-        return (
-            <Loading loading={"movie..."} />
-        );
+        return <Loading loading={"movie..."} />;
     }
 
     if (!movie) {
-        return (
-            <MovieError
-            message={fetchError || "Movie not found."}
-            />
-        )
+        return <MovieError message={fetchError || "Movie not found."} />;
     }
+
     const title = movie.movieName || "Untitled";
     const genre = Array.isArray(movie.categories) ? movie.categories.join(", ") : "";
     const durationLabel = formatDuration(movie.duration);
@@ -235,31 +210,15 @@ const MovieDetailPageHome = () => {
     const producers = Array.isArray(movie.producers) ? movie.producers : [];
     const cast = Array.isArray(movie.cast) ? movie.cast : [];
     const story = movie.story;
+    const streamUrl = movie.trailerVideo?.streamUrl;
 
-  return (
-     <div className={movieDetailHStyles.container}>
-            {showTrailer && selectedTrailerId && (
-                <div className={movieDetailHStyles.modalOverlay}>
-                    <div className={movieDetailHStyles.modalContainer}>
-                        <button onClick={closeTrailer} className={movieDetailHStyles.closeButton}>
-                            <X size={36} />
-                        </button>
-                        <div className={movieDetailHStyles.videoContainer}>
-                            <iframe
-                                key={selectedTrailerId}
-                                width="100%"
-                                height="100%"
-                                src={getEmbedUrl(selectedTrailerId)}
-                                title={`${selectedMovie?.movieName || "Trailer"} Trailer`}
-                                frameBorder="0"
-                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-                                allowFullScreen
-                                className={movieDetailHStyles.videoIframe}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+    return (
+        <div className={movieDetailHStyles.container}>
+            <TrailerPlayer
+                src={streamUrl}
+                isOpen={trailerOpen}
+                onClose={() => setTrailerOpen(false)}
+            />
 
             <div className={movieDetailHStyles.wrapper}>
                 <div className={movieDetailHStyles.header}>
@@ -270,8 +229,14 @@ const MovieDetailPageHome = () => {
                 </div>
 
                 <div className={movieDetailHStyles.titleContainer}>
-                    <h1 className={movieDetailHStyles.movieTitle}
-                    style={{ fontFamily: "'Cinzel', 'Times New Roman', serif", textShadow: "0 2px 14px rgba(0, 0, 0, 0.35)", letterSpacing: "0.035em",}}>
+                    <h1
+                        className={movieDetailHStyles.movieTitle}
+                        style={{
+                            fontFamily: "'Cinzel', 'Times New Roman', serif",
+                            textShadow: "0 2px 14px rgba(0, 0, 0, 0.35)",
+                            letterSpacing: "0.035em",
+                        }}
+                    >
                         {title}
                     </h1>
 
@@ -316,10 +281,15 @@ const MovieDetailPageHome = () => {
                                 )}
                             </div>
 
-                            <button onClick={() => openTrailer(movie)} className={movieDetailHStyles.trailerButton}>
-                                <Play size={18} />
-                                <span>Watch Trailer</span>
-                            </button>
+                            {streamUrl && (
+                                <button
+                                    onClick={() => setTrailerOpen(true)}
+                                    className={movieDetailHStyles.trailerButton}
+                                >
+                                    <Play size={18} />
+                                    <span>Watch Trailer</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -384,7 +354,7 @@ const MovieDetailPageHome = () => {
                                                             <span className={movieDetailHStyles.soldOutBadge}>Sold Out</span>
                                                         )}
                                                     </button>
-                                                )
+                                                );
                                             })
                                         )}
                                     </div>
@@ -407,7 +377,7 @@ const MovieDetailPageHome = () => {
                             </h3>
                             <div className={movieDetailHStyles.castGrid}>
                                 {cast.length ? (
-                                    cast.map((c, idx) => ( 
+                                    cast.map((c, idx) => (
                                         <div key={idx} className={movieDetailHStyles.castMember}>
                                             <div className={movieDetailHStyles.castImageContainer}>
                                                 {c.preview ? (
@@ -444,6 +414,7 @@ const MovieDetailPageHome = () => {
                         <p className={movieDetailHStyles.storyText}>{story}</p>
                     </div>
                 )}
+
                 <div className={movieDetailHStyles.crewGrid}>
                     <div className={movieDetailHStyles.crewCard}>
                         <div className={movieDetailHStyles.crewHeader}>
@@ -453,32 +424,31 @@ const MovieDetailPageHome = () => {
                             </h3>
                         </div>
                         <div className={movieDetailHStyles.crewContent}>
-                                {directors.length ? (
-                                    directors.slice(0, 2).map((d, i) => (
-                                        <div key={i} className='flex flex-col items-center'>
-                                            {d?.preview ? (
-                                                <img
-                                                    src={getUploadUrl(d.preview)}
-                                                    alt={d.name || `Director ${i + 1}`}
-                                                    className={movieDetailHStyles.crewImage}
-                                                    onError={(e) => {
-                                                        e.currentTarget.onerror = null;
-                                                        e.currentTarget.src = getInitialAvatar(d?.name, 96);
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className={movieDetailHStyles.fallbackAvatar}>?</div>
-                                            )}
-                                            <div className={movieDetailHStyles.crewName}>{d?.name ?? "N/A"}</div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className='flex flex-col items-center'>
-                                        <div className={movieDetailHStyles.fallbackAvatar}>?</div>
-                                        <div className={movieDetailHStyles.crewName}>N/A</div>
+                            {directors.length ? (
+                                directors.slice(0, 2).map((d, i) => (
+                                    <div key={i} className='flex flex-col items-center'>
+                                        {d?.preview ? (
+                                            <img
+                                                src={getUploadUrl(d.preview)}
+                                                alt={d.name || `Director ${i + 1}`}
+                                                className={movieDetailHStyles.crewImage}
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null;
+                                                    e.currentTarget.src = getInitialAvatar(d?.name, 96);
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className={movieDetailHStyles.fallbackAvatar}>?</div>
+                                        )}
+                                        <div className={movieDetailHStyles.crewName}>{d?.name ?? "N/A"}</div>
                                     </div>
-                                )}
-                            
+                                ))
+                            ) : (
+                                <div className='flex flex-col items-center'>
+                                    <div className={movieDetailHStyles.fallbackAvatar}>?</div>
+                                    <div className={movieDetailHStyles.crewName}>N/A</div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -490,36 +460,37 @@ const MovieDetailPageHome = () => {
                             </h3>
                         </div>
                         <div className={movieDetailHStyles.crewContent}>
-                                {producers.length ? (
-                                    producers.slice(0, 2).map((p, i) => (
-                                        <div key={i} className='flex flex-col items-center'>
-                                            {p?.preview ? (
-                                                <img
-                                                    src={getUploadUrl(p.preview)}
-                                                    alt={p.name || `Producer ${i + 1}`}
-                                                    className={movieDetailHStyles.crewImage}
-                                                    onError={(e) => {
-                                                        e.currentTarget.onerror = null;
-                                                        e.currentTarget.src = getInitialAvatar(p?.name, 96);
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className={movieDetailHStyles.fallbackAvatar}>?</div>
-                                            )}
-                                            <div className={movieDetailHStyles.crewName}>{p?.name ?? "N/A"}</div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className='flex flex-col items-center'>
-                                        <div className={movieDetailHStyles.fallbackAvatar}>?</div>
-                                        <div className={movieDetailHStyles.crewName}>N/A</div>
+                            {producers.length ? (
+                                producers.slice(0, 2).map((p, i) => (
+                                    <div key={i} className='flex flex-col items-center'>
+                                        {p?.preview ? (
+                                            <img
+                                                src={getUploadUrl(p.preview)}
+                                                alt={p.name || `Producer ${i + 1}`}
+                                                className={movieDetailHStyles.crewImage}
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null;
+                                                    e.currentTarget.src = getInitialAvatar(p?.name, 96);
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className={movieDetailHStyles.fallbackAvatar}>?</div>
+                                        )}
+                                        <div className={movieDetailHStyles.crewName}>{p?.name ?? "N/A"}</div>
                                     </div>
-                                )}
+                                ))
+                            ) : (
+                                <div className='flex flex-col items-center'>
+                                    <div className={movieDetailHStyles.fallbackAvatar}>?</div>
+                                    <div className={movieDetailHStyles.crewName}>N/A</div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-  )
-}
-export default MovieDetailPageHome
+    );
+};
+
+export default MovieDetailPageHome;

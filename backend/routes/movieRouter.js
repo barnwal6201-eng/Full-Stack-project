@@ -6,25 +6,50 @@ import { createMovie, deleteMovie, getMovieById, getMovies } from '../controller
 
 const movieRouter = express.Router();
 
-const storage = new CloudinaryStorage({
+const imageStorage = new CloudinaryStorage({
     cloudinary,
-    params:{
+    params: {
         folder: 'movies',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'avif'],
+        resource_type: 'image',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'avif', 'svg'],
     },
-})
+});
 
-const upload = multer({ storage }).fields([
-    {name: "poster", maxCount: 1},
-    {name: "trailerUrl", maxCount: 1},
-    {name: "videoUrl", maxCount: 1},
-    {name: "ltThumbnail", maxCount: 1},
-    {name: "castFiles", maxCount: 20},
-    {name: "directorFiles", maxCount: 20},
-    {name: "producersFiles", maxCount: 20},
-    {name: "ltDirectorFiles", maxCount: 20},
-    {name: "ltProducersFiles", maxCount: 20},
-    {name: "ltSingerFiles", maxCount: 20},
+const videoStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'movies/videos',
+        resource_type: 'video',
+        allowed_formats: ['mp4', 'mov', 'webm', 'mkv'],
+    },
+});
+
+const VIDEO_FIELDS = ['trailerFile'];
+const storageFor = (fieldname) =>
+    VIDEO_FIELDS.includes(fieldname) ? videoStorage : imageStorage;
+
+const upload = multer({
+    storage: {
+        _handleFile(req, file, cb) {
+            storageFor(file.fieldname)._handleFile(req, file, cb);
+        },
+        _removeFile(req, file, cb) {
+            storageFor(file.fieldname)._removeFile(req, file, cb);
+        },
+    },
+    limits: { fileSize: 500 * 1024 * 1024 },
+}).fields([
+    { name: "poster", maxCount: 1 },
+    { name: "trailerUrl", maxCount: 1 },
+    { name: "videoUrl", maxCount: 1 },
+    { name: "trailerFile", maxCount: 1 },
+    { name: "ltThumbnail", maxCount: 1 },
+    { name: "castFiles", maxCount: 20 },
+    { name: "directorFiles", maxCount: 20 },
+    { name: "producersFiles", maxCount: 20 },
+    { name: "ltDirectorFiles", maxCount: 20 },
+    { name: "ltProducersFiles", maxCount: 20 },
+    { name: "ltSingerFiles", maxCount: 20 },
 ]);
 
 movieRouter.post('/', (req, res, next) => {
