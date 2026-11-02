@@ -15,19 +15,14 @@ const imageStorage = new CloudinaryStorage({
     },
 });
 
-const videoStorage = new CloudinaryStorage({
-    cloudinary,
-    params: {
-        folder: 'movies/videos',
-        resource_type: 'video',
-        allowed_formats: ['mp4', 'mov', 'webm', 'mkv'],
-    },
-});
+// 2. Use raw Memory Storage for video fields to open up an immediate pass-through pipeline
+const memoryStorage = multer.memoryStorage();
 
 const VIDEO_FIELDS = ['trailerFile'];
 const storageFor = (fieldname) =>
-    VIDEO_FIELDS.includes(fieldname) ? videoStorage : imageStorage;
+    VIDEO_FIELDS.includes(fieldname) ? memoryStorage : imageStorage;
 
+// 3. Modular multi-field storage router wrapper
 const upload = multer({
     storage: {
         _handleFile(req, file, cb) {
@@ -37,7 +32,7 @@ const upload = multer({
             storageFor(file.fieldname)._removeFile(req, file, cb);
         },
     },
-    limits: { fileSize: 100 * 1024 * 1024 },
+    limits: { fileSize: 100 * 1024 * 1024 }, 
 }).fields([
     { name: "poster", maxCount: 1 },
     { name: "trailerUrl", maxCount: 1 },

@@ -3,22 +3,10 @@ import Hls from "hls.js";
 import Plyr from "plyr";
 import "plyr/dist/plyr.css";
 
-const CONTROLS = [
-  "play-large",
-  "restart",
-  "rewind",
-  "play",
-  "fast-forward",
-  "progress",
-  "current-time",
-  "duration",
-  "mute",
-  "volume",
-  "captions",
-  "settings",
-  "pip",
-  "airplay",
-  "fullscreen",
+const CONTROLS = [ 
+  "play-large", "restart", "rewind", "play", "fast-forward", "progress", 
+  "current-time", "duration", "mute", "volume", "captions", "settings",
+  "pip", "airplay", "fullscreen"
 ];
 
 export default function TrailerPlayer({ src, isOpen, onClose }) {
@@ -44,18 +32,33 @@ export default function TrailerPlayer({ src, isOpen, onClose }) {
         player = new Plyr(video, {
           controls: CONTROLS,
           quality: {
-            default: 240, //  Auto
+            default: 0, // Starts in Auto mode
             options: [0, ...heights],
             forced: true,
             onChange: (height) => {
-              // -1 lets hls.js choose the quality automatically
               hls.currentLevel =
                 height === 0
                   ? -1
                   : hls.levels.findIndex((l) => l.height === height);
             },
           },
+          i18n: {
+            quality: 'Quality',
+            settingQuality: 'Quality',
+            auto: 'Auto'
+          }
         });
+
+        // This automatically fixes the menu labels when the player loads
+        player.on('ready', () => {
+          const qualityItems = document.querySelectorAll('[data-plyr="quality"] span');
+          qualityItems.forEach((item) => {
+            if (item.textContent === '0p') {
+              item.textContent = 'Auto';
+            }
+          });
+        });
+
       });
     } else {
       video.src = src;

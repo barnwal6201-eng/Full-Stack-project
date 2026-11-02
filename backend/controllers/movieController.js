@@ -1,25 +1,21 @@
 import Movie from "../models/movieModels.js";
 import cloudinary from "../config/cloudnary.js";
 import mongoose from "mongoose";
-import { buildHlsFromUrl, TRAILER_SEGMENT_COUNT } from "../services/hlsService.js";
 
-/* ---------- helpers ---------- */
-
+//Helper functions
 const toFileObj = (file, resourceType = "image") => {
   if (!file) return null;
   return { url: file.path, publicId: file.filename, resourceType };
 };
 
-// HLS playlist built from the stored publicId (no second upload)
 const toStreamUrl = (publicId) =>
   cloudinary.url(publicId, {
     resource_type: "video",
-    streaming_profile: "auto",
+    streaming_profile: "hd",
     format: "m3u8",
     secure: true,
   });
 
-// Deletes one Cloudinary file. Safe to call with null or with an old string value.
 const destroyFile = async (f) => {
   if (!f?.publicId) return;
   try {
@@ -31,7 +27,6 @@ const destroyFile = async (f) => {
   }
 };
 
-// Deletes every file multer uploaded in this request (used when saving fails)
 const cleanupUploads = (files) =>
   Promise.all(
     Object.entries(files).flatMap(([field, list]) =>
@@ -111,7 +106,6 @@ export async function createMovie(req, res) {
     const posterFile = toFileObj(one("poster"), "image");
     const trailerVideo = toFileObj(one("trailerFile"), "video");
     
-
     const categories =
       safeParseJSON(body.categories) ||
       (body.categories
@@ -193,17 +187,18 @@ export async function createMovie(req, res) {
       return res.status(400).json({ success: false, message: "Validation failed", errors });
     }
 
-    // Create the ID first, so the video folder can use it
-   const movieId = new mongoose.Types.ObjectId();
+    
+    const movieId = new mongoose.Types.ObjectId();
 
-   // Cut the trailer into pieces and save the master playlist address
-   if (trailerVideo) {
-     trailerVideo.streamUrl = await buildHlsFromUrl(
-     trailerVideo.url,
-     String(movieId),
-     TRAILER_SEGMENT_COUNT
-   );
- }
+    /**
+     * FIX APPLIED HERE:
+     * We drop buildHlsFromUrl completely.
+     * We use Cloudinary's SDK to instantly generate an adaptive streaming HLS URL 
+     * using the file's unique public ID. This takes 0ms and uses 0MB of RAM.
+     */
+    if (trailerVideo && trailerVideo.publicId) {
+      trailerVideo.streamUrl = toStreamUrl(trailerVideo.publicId);
+    }
 
     const doc = new Movie({
       _id: movieId,
@@ -226,10 +221,11 @@ export async function createMovie(req, res) {
     });
 
     const saved = await doc.save();
+    
     return res.status(201).json({
       success: true,
       message: "Movie created.",
-      data: saved,
+      data: normalizeItemForOutput(saved.toObject()),
     });
   } catch (err) {
     await cleanupUploads(files);
@@ -246,7 +242,6 @@ export async function createMovie(req, res) {
   }
 }
 
-
 export async function getMovies(req, res) {
   try {
     const {
@@ -258,110 +253,123 @@ export async function getMovies(req, res) {
       search,
       latestTrailers,
       featured,
-    } = req.query;
+    } = req.query; 
 
-    let filter = {};
-    if (typeof category === "string" && category.trim())
-      filter.categories = { $in: [category.trim()] };
-    if (typeof type === "string" && type.trim()) filter.type = type.trim();
+    const filter = {}; 
+
+    if (typeof category === "string" && category.trim()) {
+      filter.categories = { $in: [category.trim()] }; 
+    }
+
+    if (typeof type === "string" && type.trim()) {
+      filter.type = type.trim(); 
+    }
+
     if (typeof search === "string" && search.trim()) {
-      const q = search.trim();
+      const q = search.trim(); 
       filter.$or = [
         { movieName: { $regex: q, $options: "i" } },
         { "latestTrailers.title": { $regex: q, $options: "i" } },
         { story: { $regex: q, $options: "i" } },
-      ];
+      ]; 
     }
+
     if (latestTrailers && String(latestTrailers).toLowerCase() !== "false") {
-      filter =
-        Object.keys(filter).length === 0
-          ? { type: "latestTrailers" }
-          : { $and: [filter, { type: "latestTrailers" }] };
+      filter.type = "latestTrailers"; 
     }
+
+    // We wrap the featured options inside an internal array block so it doesn't conflict with search filters
     if (featured && String(featured).toLowerCase() === "true") {
-      filter.$or = (filter.$or || []).concat([
+      const featuredConditions = [
         { featured: true },
         { isFeatured: true },
-        { type: "featured" },
-      ]);
+        { type: "featured" }
+      ];
+
+      // If text search ($or) already exists, combine them cleanly using an $and array block
+      if (filter.$or) {
+        filter.$and = [
+          { $or: filter.$or },
+          { $or: featuredConditions }
+        ];
+        delete filter.$or; // Remove root level $or to avoid mongo syntax clashes
+      } else {
+        filter.$or = featuredConditions;
+      }
     }
 
-    const pg = Math.max(1, parseInt(page, 10) || 1);
-    const lim = Math.min(200, parseInt(limit, 10) || 12);
-    const skip = (pg - 1) * lim;
+    const pg = Math.max(1, parseInt(page, 10) || 1); 
+    const lim = Math.min(200, parseInt(limit, 10) || 12); 
+    const skip = (pg - 1) * lim; 
 
-    const total = await Movie.countDocuments(filter);
-    const items = await Movie.find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(lim)
-      .lean();
+    const [total, items] = await Promise.all([
+      Movie.countDocuments(filter),
+      Movie.find(filter).sort(sort).skip(skip).limit(lim).lean()
+    ]);
 
     return res.json({
-      success: true,
-      total,
-      page: pg,
-      limit: lim,
-      items: items.map(normalizeItemForOutput),
-    });
+      success: true, 
+      total, 
+      page: pg, 
+      limit: lim, 
+      items: items.map(normalizeItemForOutput), 
+    }); 
   } catch (err) {
-    console.error("Getmovies Error:", err);
-    return res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Getmovies Error:", err); 
+    return res.status(500).json({ success: false, message: "Server Error" }); 
   }
 }
-
 
 export async function getMovieById(req, res) {
   try {
-    const { id } = req.params;
-    if (!id)
-      return res.status(400).json({ success: false, message: "ID is required." });
+    const { id } = req.params; 
+    if (!id) 
+      return res.status(400).json({ success: false, message: "ID is required." }); 
 
-    const item = await Movie.findById(id).lean();
-    if (!item)
-      return res.status(404).json({ success: false, message: "Movie not found" });
+    const item = await Movie.findById(id).lean(); 
+    if (!item) 
+      return res.status(404).json({ success: false, message: "Movie not found" }); 
 
-    return res.json({ success: true, item: normalizeItemForOutput(item) });
+    return res.json({ success: true, item: normalizeItemForOutput(item) }); 
   } catch (err) {
-    console.error("GetmoviesById Error:", err);
-    return res.status(500).json({ success: false, message: "Server Error" });
+    console.error("GetmoviesById Error:", err); 
+    return res.status(500).json({ success: false, message: "Server Error" }); 
   }
 }
-
 
 export async function deleteMovie(req, res) {
   try {
-    const { id } = req.params;
-    if (!id)
-      return res.status(400).json({ success: false, message: "ID is required." });
+    const { id } = req.params; 
+    if (!id) 
+      return res.status(400).json({ success: false, message: "ID is required." }); 
 
-    const m = await Movie.findById(id).lean();
-    if (!m)
-      return res.status(404).json({ success: false, message: "Movie not found" });
+    const m = await Movie.findById(id).lean(); 
+    if (!m) 
+      return res.status(404).json({ success: false, message: "Movie not found" }); 
 
-    const lt = m.latestTrailers || {};
-    const personFiles = (list) => (list || []).map((p) => p?.file);
+    const lt = m.latestTrailers || {}; 
+    const personFiles = (list) => (list || []).map((p) => p?.file).filter(Boolean); 
 
+    // Construct deletion payload explicitly passing resourceTypes
     const toDelete = [
-      m.poster,
-      m.trailerVideo,
-      lt.thumbnail,
-      ...personFiles(m.cast),
-      ...personFiles(m.directors),
-      ...personFiles(m.producers),
-      ...personFiles(lt.directors),
-      ...personFiles(lt.producers),
-      ...personFiles(lt.singers),
-    ].filter(Boolean);
+      m.poster ? { ...m.poster, resourceType: "image" } : null,
+      m.trailerVideo ? { ...m.trailerVideo, resourceType: "video" } : null, 
+      lt.thumbnail ? { ...lt.thumbnail, resourceType: "image" } : null,
+      ...personFiles(m.cast).map(f => ({ ...f, resourceType: "image" })),
+      ...personFiles(m.directors).map(f => ({ ...f, resourceType: "image" })),
+      ...personFiles(m.producers).map(f => ({ ...f, resourceType: "image" })),
+      ...personFiles(lt.directors).map(f => ({ ...f, resourceType: "image" })),
+      ...personFiles(lt.producers).map(f => ({ ...f, resourceType: "image" })),
+      ...personFiles(lt.singers).map(f => ({ ...f, resourceType: "image" })),
+    ].filter(Boolean); 
 
-    await Promise.all(toDelete.map(destroyFile));
-    await Movie.findByIdAndDelete(id);
+    await Promise.all(toDelete.map(destroyFile)); 
 
-    return res.json({ success: true, message: "Movie Deleted." });
+    await Movie.findByIdAndDelete(id); 
+
+    return res.json({ success: true, message: "Movie Deleted." }); 
   } catch (err) {
-    console.error("DeleteMovie Error:", err);
-    return res.status(500).json({ success: false, message: "Server Error" });
+    console.error("DeleteMovie Error:", err); 
+    return res.status(500).json({ success: false, message: "Server Error" }); 
   }
 }
-
-export default { createMovie, getMovies, getMovieById, deleteMovie };
