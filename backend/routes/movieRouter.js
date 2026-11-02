@@ -37,7 +37,7 @@ const upload = multer({
             storageFor(file.fieldname)._removeFile(req, file, cb);
         },
     },
-    limits: { fileSize: 500 * 1024 * 1024 },
+    limits: { fileSize: 100 * 1024 * 1024 },
 }).fields([
     { name: "poster", maxCount: 1 },
     { name: "trailerUrl", maxCount: 1 },
