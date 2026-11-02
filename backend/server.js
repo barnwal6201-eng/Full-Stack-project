@@ -6,10 +6,8 @@ import userRouter from './routes/userRouter.js';
 import movieRouter from './routes/movieRouter.js';
 import bookingRouter from './routes/bookingRouter.js';
 import adminRouter from './routes/adminRouter.js'
-import path from "path";
 
 const app = express();
-app.set("trust proxy", 1);
 const port = process.env.PORT || 5000;
 
 //Middlewares
