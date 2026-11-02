@@ -6,6 +6,7 @@ import { createMovie, deleteMovie, getMovieById, getMovies } from '../controller
 
 const movieRouter = express.Router();
 
+// Storage configuration for Images
 const imageStorage = new CloudinaryStorage({
     cloudinary,
     params: {
@@ -15,14 +16,22 @@ const imageStorage = new CloudinaryStorage({
     },
 });
 
-// 2. Use raw Memory Storage for video fields to open up an immediate pass-through pipeline
-const memoryStorage = multer.memoryStorage();
+// FIXED: Storage configuration for Videos (Pipes data directly to Cloudinary)
+const videoStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'movies/videos',
+        resource_type: 'video',
+        eager: [{ streaming_profile: 'hd', format: 'm3u8' }], // Generates HLS on Cloudinary's side
+        eager_async: true, // Process in the background so Render doesn't time out
+        chunk_size: 6000000, // Safe 6MB chunk transfers
+    },
+});
 
 const VIDEO_FIELDS = ['trailerFile'];
 const storageFor = (fieldname) =>
-    VIDEO_FIELDS.includes(fieldname) ? memoryStorage : imageStorage;
+    VIDEO_FIELDS.includes(fieldname) ? videoStorage : imageStorage;
 
-// 3. Modular multi-field storage router wrapper
 const upload = multer({
     storage: {
         _handleFile(req, file, cb) {

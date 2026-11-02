@@ -8,13 +8,18 @@ const toFileObj = (file, resourceType = "image") => {
   return { url: file.path, publicId: file.filename, resourceType };
 };
 
-const toStreamUrl = (publicId) =>
-  cloudinary.url(publicId, {
-    resource_type: "video",
-    streaming_profile: "hd",
-    format: "m3u8",
-    secure: true,
-  });
+const toStreamUrl = (publicId) => {
+  if (!publicId) return null;
+  
+  const cloudName = cloudinary.config().cloud_name;
+  
+  // Clean up any duplicate path prefixes applied automatically by the storage layer
+  const cleanId = publicId.replace(/^video\/upload\//, "");
+  
+  // Directly maps the explicit master playlist stream path layout
+  return `https://cloudinary.com{cloudName}/video/upload/sp_auto/${cleanId}.m3u8`;
+};
+
 
 const destroyFile = async (f) => {
   if (!f?.publicId) return;
