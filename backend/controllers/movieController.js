@@ -17,7 +17,7 @@ const toStreamUrl = (publicId) => {
   const cleanId = publicId.replace(/^video\/upload\//, "");
   
   // Directly maps the explicit master playlist stream path layout
-  return `https://cloudinary.com{cloudName}/video/upload/sp_auto/${cleanId}.m3u8`;
+  return `https://cloudinary.com${cloudName}/video/upload/sp_auto/${cleanId}.m3u8`;
 };
 
 
