@@ -6,7 +6,6 @@ import { createMovie, deleteMovie, getMovieById, getMovies } from '../controller
 
 const movieRouter = express.Router();
 
-// Storage configuration for Images
 const imageStorage = new CloudinaryStorage({
     cloudinary,
     params: {
@@ -16,15 +15,15 @@ const imageStorage = new CloudinaryStorage({
     },
 });
 
-// FIXED: Storage configuration for Videos (Pipes data directly to Cloudinary)
+// Storage configuration for Videos (streams directly to Cloudinary)
 const videoStorage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: 'movies/videos',
         resource_type: 'video',
-        eager: [{ streaming_profile: 'hd', format: 'm3u8' }], // Generates HLS on Cloudinary's side
-        eager_async: true, // Process in the background so Render doesn't time out
-        chunk_size: 6000000, // Safe 6MB chunk transfers
+        eager: [{ streaming_profile: 'hd', format: 'm3u8' }],
+        eager_async: true,
+        chunk_size: 6000000,
     },
 });
 
@@ -41,19 +40,17 @@ const upload = multer({
             storageFor(file.fieldname)._removeFile(req, file, cb);
         },
     },
-    limits: { fileSize: 100 * 1024 * 1024 }, 
+    limits: { fileSize: 100 * 1024 * 1024 },
 }).fields([
-    { name: "poster", maxCount: 1 },
-    { name: "trailerUrl", maxCount: 1 },
-    { name: "videoUrl", maxCount: 1 },
-    { name: "trailerFile", maxCount: 1 },
-    { name: "ltThumbnail", maxCount: 1 },
-    { name: "castFiles", maxCount: 20 },
-    { name: "directorFiles", maxCount: 20 },
-    { name: "producersFiles", maxCount: 20 },
-    { name: "ltDirectorFiles", maxCount: 20 },
-    { name: "ltProducersFiles", maxCount: 20 },
-    { name: "ltSingerFiles", maxCount: 20 },
+    { name: 'poster', maxCount: 1 },
+    { name: 'trailerFile', maxCount: 1 },
+    { name: 'ltThumbnail', maxCount: 1 },
+    { name: 'castFiles', maxCount: 20 },
+    { name: 'directorFiles', maxCount: 20 },
+    { name: 'producersFiles', maxCount: 20 },
+    { name: 'ltDirectorFiles', maxCount: 20 },
+    { name: 'ltProducersFiles', maxCount: 20 },
+    { name: 'ltSingerFiles', maxCount: 20 },
 ]);
 
 movieRouter.post('/', (req, res, next) => {
@@ -62,7 +59,7 @@ movieRouter.post('/', (req, res, next) => {
             console.error('UPLOAD MIDDLEWARE ERROR:', err.message, err.stack);
             return res.status(400).json({
                 success: false,
-                message: err.message || 'File upload failed'
+                message: err.message || 'File upload failed',
             });
         }
         next();

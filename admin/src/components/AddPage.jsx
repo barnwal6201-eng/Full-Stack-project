@@ -208,8 +208,9 @@ const AddPage = () => {
             return;
         }
 
-        if (!VALID_TYPES.includes(movieType)) {
-         toast.error("Please select one movie type.");
+         if (!VALID_TYPES.includes(movieType)) {
+            toast.error("Please select one movie type.");
+            return;
         }
 
         dispatch({ type: 'SET_FIELD', field: 'isUploading', value: true });
@@ -235,8 +236,8 @@ const AddPage = () => {
             };
 
             form.append('movieName', movieName);
+            form.append('rating', String(Number(rating) || 0));
             form.append('latestTrailers', JSON.stringify(latestTrailerObj));
-            if (ltThumbnail) form.append('ltThumbnail', ltThumbnail);
 
             appendFilesToForm(form, 'ltDirectorFiles', ltDirectorImages);
             appendFilesToForm(form, 'ltProducersFiles', ltProducerImages);
