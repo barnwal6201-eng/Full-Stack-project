@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import axios from 'axios'
 import { addMoviePageCustomStyles, addMoviePageStyles } from '../assets/dummyStyles'
-import { Film, X, Image as ImageIcon, Users, Clock, Star, Play, Plus } from 'lucide-react'
+import { Film, X, Image as ImageIcon, Users, Clock, Star, Plus } from 'lucide-react'
 import Uploader from './Uploader'
 import NamedUploader from './NameUploader'
 import { initialState, addPageReducer } from './addPageReducer'
@@ -28,19 +28,13 @@ const AddPage = () => {
         castImages, directorImages, producerImages, story, movieType,
         standardSeatPrice, reclinerSeatPrice,
         ltDurationHours, ltDurationMinutes, ltYear, ltDescription,
-        ltThumbnail, ltThumbnailPreview, ltVideoUrl,
+        ltThumbnail, ltThumbnailPreview,
         ltDirectorImages, ltProducerImages, ltSingerImages,
         auditorium, customerAuditorium, isUploading,
     } = state;
 
     const cls = (base, key) =>
         `${base} ${errors[key] ? addMoviePageStyles.inputError : ''}`;
-
-    const handleVideoFile = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    dispatch({ type: 'SET_FIELD', field: 'trailerFile', value: file });
-};
 
     const dispatch = (action) => {
         rawDispatch(action);
@@ -65,6 +59,12 @@ const AddPage = () => {
         } else if (map[action.type]) {
             clearError(map[action.type]);
         }
+    };
+
+    const handleVideoFile = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        dispatch({ type: 'SET_FIELD', field: 'trailerFile', value: file });
     };
 
     useEffect(() => {
@@ -139,7 +139,7 @@ const AddPage = () => {
             if (!movieName.trim()) e.movieName = 'Please enter a title.';
             if (!categories.length) e.categories = 'Choose at least one genre.';
             if (!ltThumbnail) e.ltThumbnail = 'Please select a thumbnail image.';
-            if (!ltVideoUrl.trim()) e.ltVideoUrl = 'Please provide the video URL.';
+            if (!trailerFile) e.trailerFile = 'Please select a trailer video file.';
             if (!ltDescription.trim()) e.ltDescription = 'Please add a description.';
             if (!ltYear) e.ltYear = 'Please enter the year.';
             checkList(ltDirectorImages, 'ltDirectorImages');
@@ -179,7 +179,7 @@ const AddPage = () => {
             if (auditorium === 'other' && !customerAuditorium.trim())
                 e.auditorium = 'Please enter the auditorium name.';
 
-             if (!trailerFile) e.trailerFile = 'Please select a trailer video file.';
+            if (!trailerFile) e.trailerFile = 'Please select a trailer video file.';
 
             checkList(castImages, 'castImages', true);
             checkList(directorImages, 'directorImages');
@@ -208,8 +208,8 @@ const AddPage = () => {
             return;
         }
 
-         if (!VALID_TYPES.includes(movieType)) {
-            toast.error("Please select one movie type.");
+        if (!VALID_TYPES.includes(movieType)) {
+            toast.error('Please select one movie type.');
             return;
         }
 
@@ -226,10 +226,7 @@ const AddPage = () => {
                     minutes: Number(ltDurationMinutes) || 0,
                 },
                 year: Number(ltYear) || new Date().getFullYear(),
-                rating: Number(rating) || 0,
                 description: ltDescription,
-                thumbnail: ltThumbnail,
-                videoId: ltVideoUrl,
                 directors: ltDirectorImages.map((d) => ({ name: d.name || '', file: d.file ? d.file.name : null })),
                 producers: ltProducerImages.map((p) => ({ name: p.name || '', file: p.file ? p.file.name : null })),
                 singers: ltSingerImages.map((s) => ({ name: s.name || '', file: s.file ? s.file.name : null })),
@@ -238,6 +235,8 @@ const AddPage = () => {
             form.append('movieName', movieName);
             form.append('rating', String(Number(rating) || 0));
             form.append('latestTrailers', JSON.stringify(latestTrailerObj));
+            if (ltThumbnail) form.append('ltThumbnail', ltThumbnail);
+            if (trailerFile) form.append('trailerFile', trailerFile);
 
             appendFilesToForm(form, 'ltDirectorFiles', ltDirectorImages);
             appendFilesToForm(form, 'ltProducersFiles', ltProducerImages);
@@ -289,8 +288,9 @@ const AddPage = () => {
             }
         } catch (error) {
             console.error('submit error: ', error);
-            const msg = error?.response?.data?.message || error.message || 'Failed to upload.';
-            toast.error(msg);
+            const data = error?.response?.data;
+            const detail = Array.isArray(data?.errors) ? data.errors.join(' ') : '';
+            toast.error(detail || data?.message || error.message || 'Failed to upload.');
         } finally {
             dispatch({ type: 'SET_FIELD', field: 'isUploading', value: false });
         }
@@ -441,18 +441,18 @@ const AddPage = () => {
 
                                         <div className={addMoviePageStyles.gridCols2}>
                                             {!isComingSoon && (
-                                             <div id="field-trailerFile" className={addMoviePageStyles.inputContainer}>
-                                            <label className={addMoviePageStyles.label}>Trailer Video File</label>
-                                                <input
-                                              type="file"
-                                              accept="video/*"
-                                              onChange={handleVideoFile}
-                                              className={addMoviePageStyles.input}
-                                              />
-                                             {trailerFile && <p className="text-sm opacity-80">{trailerFile.name}</p>}
-                                             <FieldError msg={errors.trailerFile} />
-                                             </div>
-                                              )}
+                                                <div id="field-trailerFile" className={addMoviePageStyles.inputContainer}>
+                                                    <label className={addMoviePageStyles.label}>Trailer Video File</label>
+                                                    <input
+                                                        type="file"
+                                                        accept="video/*"
+                                                        onChange={handleVideoFile}
+                                                        className={addMoviePageStyles.input}
+                                                    />
+                                                    {trailerFile && <p className="text-sm opacity-80">{trailerFile.name}</p>}
+                                                    <FieldError msg={errors.trailerFile} />
+                                                </div>
+                                            )}
 
                                             <div className={addMoviePageStyles.inputContainer}>
                                                 <label className={addMoviePageStyles.label}>Rating</label>
@@ -603,7 +603,7 @@ const AddPage = () => {
                             )}
 
                             {!isComingSoon && (
-                                <div id='field-story' className={addMoviePageStyles.section}>
+                                <div id="field-story" className={addMoviePageStyles.section}>
                                     <label className={addMoviePageStyles.label}>Story</label>
                                     <textarea
                                         value={story}
@@ -688,15 +688,16 @@ const AddPage = () => {
                                         </div>
 
                                         <div className={addMoviePageStyles.gridCols2}>
-                                            <div id="field-ltVideoUrl" className={addMoviePageStyles.inputContainer}>
-                                                <label className={addMoviePageStyles.label}>Video URL</label>
+                                            <div id="field-trailerFile" className={addMoviePageStyles.inputContainer}>
+                                                <label className={addMoviePageStyles.label}>Trailer Video File</label>
                                                 <input
-                                                    value={ltVideoUrl}
-                                                    onChange={(e) => set('ltVideoUrl')(e.target.value)}
-                                                    placeholder="https://"
-                                                    className={cls(addMoviePageStyles.input, 'ltVideoUrl')}
+                                                    type="file"
+                                                    accept="video/*"
+                                                    onChange={handleVideoFile}
+                                                    className={addMoviePageStyles.input}
                                                 />
-                                                <FieldError msg={errors.ltVideoUrl} />
+                                                {trailerFile && <p className="text-sm opacity-80">{trailerFile.name}</p>}
+                                                <FieldError msg={errors.trailerFile} />
                                             </div>
                                             <div className={addMoviePageStyles.inputContainer}>
                                                 <label className={addMoviePageStyles.label}>Rating</label>
@@ -764,6 +765,7 @@ const AddPage = () => {
                             </div>
                         </>
                     )}
+
                     <div className={addMoviePageStyles.actionsContainer}>
                         <button type="button" onClick={resetForm} className={addMoviePageStyles.resetButton}>
                             Reset
@@ -774,8 +776,9 @@ const AddPage = () => {
                     </div>
                 </form>
             </div>
-            <ToastContainer position="top-right" theme="dark" toastClassName="admin-toast"progressClassName="admin-toast-progress"/>
+            <ToastContainer position="top-right" theme="dark" toastClassName="admin-toast" progressClassName="admin-toast-progress" />
         </div>
-    )
-}
-export default AddPage
+    );
+};
+
+export default AddPage;

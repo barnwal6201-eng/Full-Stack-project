@@ -1110,11 +1110,11 @@ export const trailersStyles = {
   // Credits
   credits: "mt-6",
   creditsTitle: "text-2xl font-bold mb-4",
-  creditsGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 items-start",
+  creditsGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-10 items-start",
   creditItem: "flex flex-col items-center text-center",
   creditImage: "w-16 h-16 rounded-full overflow-hidden shadow-sm",
   creditImageSrc: "w-full h-full object-cover",
-  creditName: "mt-2 text-lg font-medium",
+  creditName: "mt-2 text-lg font-medium break-words text-center max-w-[10rem]",
   creditRole: "text-sm text-gray-500 capitalize"
 };
 
